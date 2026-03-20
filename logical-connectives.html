@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Five Logical Connectives</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;0,900;1,300;1,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --delta-green:  #005749;
+    --delta-green2: #00957A;
+    --delta-black:  #193330;
+    --delta-white:  #F4F3EF;
+    --blue:         #9AD8CE;
+    --tan:          #C8C6B7;
+    --coral:        #F98F7C;
+    --pink:         #EACDCA;
+    --muted:        #5a6e6b;
+
+    /* One accent color per connective */
+    --neg-color:   #193330;
+    --con-color:   #005749;
+    --dis-color:   #00957A;
+    --con2-color:  #b5640a;
+    --bic-color:   #6b2d6a;
+  }
+
+  body {
+    background: var(--delta-white);
+    font-family: 'DM Mono', monospace;
+    color: var(--delta-black);
+    min-height: 100vh;
+    padding: 48px 24px 64px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── Header ── */
+  .header {
+    max-width: 900px;
+    width: 100%;
+    margin-bottom: 44px;
+    padding-bottom: 24px;
+    border-bottom: 3px solid var(--delta-green);
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .top-label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--delta-green2);
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(30px, 5.5vw, 50px);
+    font-weight: 900;
+    line-height: 1.05;
+    color: var(--delta-green);
+  }
+
+  h1 em { font-style: italic; color: var(--delta-green2); }
+
+  .subtitle {
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.75;
+    max-width: 640px;
+  }
+
+  /* ── Connective cards ── */
+  .cards {
+    max-width: 900px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .conn-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0,87,73,0.08);
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  @media (max-width: 560px) {
+    .conn-card { grid-template-columns: 1fr; }
+    .conn-left { flex-direction: row; align-items: center; padding: 18px 20px; gap: 16px; }
+  }
+
+  /* Left accent panel */
+  .conn-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    gap: 8px;
+  }
+
+  .conn-symbol {
+    font-family: 'Fraunces', serif;
+    font-size: 38px;
+    font-weight: 900;
+    color: white;
+    line-height: 1;
+  }
+
+  .conn-name {
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.7);
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  /* Right content */
+  .conn-right {
+    padding: 22px 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .conn-top {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .conn-title {
+    font-family: 'Fraunces', serif;
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--delta-black);
+  }
+
+  .conn-also {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .conn-def {
+    font-size: 11.5px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  .conn-def strong { color: var(--delta-black); font-weight: 500; }
+
+  /* Example rows */
+  .conn-examples {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-top: 1px solid #eee;
+    padding-top: 12px;
+  }
+
+  .ex-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    align-items: start;
+  }
+
+  @media (max-width: 600px) {
+    .ex-row { grid-template-columns: 1fr; }
+  }
+
+  .ex-english {
+    font-size: 11px;
+    color: var(--delta-black);
+    line-height: 1.55;
+  }
+
+  .ex-english .quote {
+    font-style: italic;
+    color: var(--muted);
+  }
+
+  .ex-sym {
+    font-size: 12px;
+    color: var(--delta-green);
+    font-weight: 500;
+    line-height: 1.55;
+    background: var(--delta-white);
+    border-radius: 4px;
+    padding: 4px 10px;
+    align-self: start;
+  }
+
+  /* Truth condition pill */
+  .truth-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    align-self: flex-start;
+  }
+
+  /* Color themes per connective */
+  .neg  .conn-left { background: var(--neg-color); }
+  .con  .conn-left { background: var(--con-color); }
+  .dis  .conn-left { background: var(--dis-color); }
+  .cond .conn-left { background: var(--con2-color); }
+  .bic  .conn-left { background: var(--bic-color); }
+
+  .neg  .truth-pill { background: rgba(25,51,48,0.1);  color: var(--neg-color); }
+  .con  .truth-pill { background: rgba(0,87,73,0.1);   color: var(--con-color); }
+  .dis  .truth-pill { background: rgba(0,149,122,0.1); color: var(--dis-color); }
+  .cond .truth-pill { background: rgba(181,100,10,0.1);color: var(--con2-color); }
+  .bic  .truth-pill { background: rgba(107,45,106,0.1);color: var(--bic-color); }
+
+  .neg  .conn-title { color: var(--neg-color); }
+  .con  .conn-title { color: var(--con-color); }
+  .dis  .conn-title { color: var(--dis-color); }
+  .cond .conn-title { color: var(--con2-color); }
+  .bic  .conn-title { color: var(--bic-color); }
+
+  .neg  .ex-sym { color: var(--neg-color); }
+  .con  .ex-sym { color: var(--con-color); }
+  .dis  .ex-sym { color: var(--dis-color); }
+  .cond .ex-sym { color: var(--con2-color); }
+  .bic  .ex-sym { color: var(--bic-color); }
+
+  /* Animation delays */
+  .conn-card:nth-child(1) { animation-delay: 0.10s; }
+  .conn-card:nth-child(2) { animation-delay: 0.18s; }
+  .conn-card:nth-child(3) { animation-delay: 0.26s; }
+  .conn-card:nth-child(4) { animation-delay: 0.34s; }
+  .conn-card:nth-child(5) { animation-delay: 0.42s; }
+
+  /* ── Note ── */
+  .note {
+    max-width: 900px;
+    width: 100%;
+    margin-top: 24px;
+    border: 1px dashed var(--tan);
+    border-radius: 6px;
+    padding: 18px 22px;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.7;
+    animation: fadeUp 0.5s ease 0.5s both;
+  }
+
+  .note strong { color: var(--delta-black); font-weight: 500; }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="top-label">Propositional Logic · Connectives</div>
+  <h1>The Five<br><em>Logical Connectives</em></h1>
+  <p class="subtitle">Propositional logic builds complex statements from simple ones using connectives. Each connective has a precise meaning — a rule for when the compound statement is true or false — regardless of what the component propositions are about.</p>
+</div>
+
+<div class="cards">
+
+  <!-- Negation -->
+  <div class="conn-card neg">
+    <div class="conn-left">
+      <div class="conn-symbol">~</div>
+      <div class="conn-name">Negation</div>
+    </div>
+    <div class="conn-right">
+      <div class="conn-top">
+        <div class="conn-title">Negation</div>
+        <div class="conn-also">also: ~P · not P · it is not the case that P</div>
+      </div>
+      <div class="conn-def">
+        Negation flips the truth value of a single proposition. <strong>True becomes false, false becomes true.</strong> It is the only unary connective — it operates on just one statement.
+      </div>
+      <div class="truth-pill">True when P is false · False when P is true</div>
+      <div class="conn-examples">
+        <div class="ex-row">
+          <div class="ex-english"><span class="quote">"It is not raining."</span><br>"It is not the case that it is raining."</div>
+          <div class="ex-sym">~R<br>(where R = "It is raining")</div>
+        </div>
+        <div class="ex-row">
+          <div class="ex-english"><span class="quote">"She is not happy."</span></div>
+          <div class="ex-sym">~H</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Conjunction -->
+  <div class="conn-card con">
+    <div class="conn-left">
+      <div class="conn-symbol">∧</div>
+      <div class="conn-name">Conjunction</div>
+    </div>
+    <div class="conn-right">
+      <div class="conn-top">
+        <div class="conn-title">Conjunction</div>
+        <div class="conn-also">also: P · Q · P and Q · both P and Q</div>
+      </div>
+      <div class="conn-def">
+        Conjunction joins two propositions with "and." The whole statement is <strong>true only when both conjuncts are true.</strong> If either is false, the conjunction is false.
+      </div>
+      <div class="truth-pill">True only when both P and Q are true</div>
+      <div class="conn-examples">
+        <div class="ex-row">
+          <div class="ex-english"><span class="quote">"It is raining and it is cold."</span></div>
+          <div class="ex-sym">R ∧ C</div>
+        </div>
+        <div class="ex-row">
+          <div class="ex-english"><span class="quote">"She studied hard and passed the exam."</span></div>
+          <div class="ex-sym">S ∧ P</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Disjunction -->
+  <div class="conn-card dis">
+    <div class="conn-left">
+      <div class="conn-symbol">∨</div>
+      <div class="conn-name">Disjunction</div>
+    </div>
+    <div class="conn-right">
+      <div class="conn-top">
+        <div class="conn-title">Disjunction</div>
+        <div class="conn-also">also: P ∨ Q · P or Q · at least one of P, Q</div>
+      </div>
+      <div class="conn-def">
+        Disjunction joins two propositions with "or." In logic, "or" is <strong>inclusive</strong> — the statement is true when <strong>at least one</strong> disjunct is true, including when both are true. It is only false when both are false.
+      </div>
+      <div class="truth-pill">False only when both P and Q are false</div>
+      <div class="conn-examples">
+        <div class="ex-row">
+          <div class="ex-english"><span class="quote">"It is raining or it is snowing."</span></div>
+          <div class="ex-sym">R ∨ S</div>
+        </div>
+        <div class="ex-row">
+          <div class="ex-english"><span class="quote">"You need a ticket or a pass to enter."</span></div>
+          <div class="ex-sym">T ∨ P</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Conditional -->
+  <div class="conn-card cond">
+    <div class="conn-left">
+      <div class="conn-symbol">→</div>
+      <div class="conn-name">Conditional</div>
+    </div>
+    <div class="conn-right">
+      <div class="conn-top">
+        <div class="conn-title">Conditional</div>
+        <div class="conn-also">also: P ⊃ Q · if P then Q · P only if Q</div>
+      </div>
+      <div class="conn-def">
+        The conditional expresses an "if…then" relationship. P is the <strong>antecedent</strong>, Q is the <strong>consequent</strong>. The whole statement is <strong>false only when the antecedent is true and the consequent is false</strong> — a true condition that fails to deliver. In all other cases it is true.
+      </div>
+      <div class="truth-pill">False only when P is true and Q is false</div>
+      <div class="conn-examples">
+        <div class="ex-row">
+          <div class="ex-english"><span class="quote">"If it is raining, then the ground is wet."</span></div>
+          <div class="ex-sym">R → W</div>
+        </div>
+        <div class="ex-row">
+          <div class="ex-english"><span class="quote">"If you study, you will pass."</span></div>
+          <div class="ex-sym">S → P</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Biconditional -->
+  <div class="conn-card bic">
+    <div class="conn-left">
+      <div class="conn-symbol">&harr;</div>
+      <div class="conn-name">Biconditional</div>
+    </div>
+    <div class="conn-right">
+      <div class="conn-top">
+        <div class="conn-title">Biconditional</div>
+        <div class="conn-also">also: P ≡ Q · P if and only if Q · P iff Q</div>
+      </div>
+      <div class="conn-def">
+        The biconditional says P and Q have the <strong>same truth value</strong>. It is true when both are true or both are false — and false when they differ. Think of it as a conditional running in both directions: "if P then Q, and if Q then P."
+      </div>
+      <div class="truth-pill">True when P and Q have the same truth value</div>
+      <div class="conn-examples">
+        <div class="ex-row">
+          <div class="ex-english"><span class="quote">"You pass if and only if you score above 70."</span></div>
+          <div class="ex-sym">P &harr; S</div>
+        </div>
+        <div class="ex-row">
+          <div class="ex-english"><span class="quote">"The light is on if and only if the switch is up."</span></div>
+          <div class="ex-sym">L &harr; U</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="note">
+  <strong>On the inclusive "or":</strong> In everyday English, "or" is sometimes exclusive ("soup or salad" — not both). In propositional logic, disjunction is always <strong>inclusive</strong> — both being true is fine. If you need to express exclusive or, it takes a more complex formula: (P ∨ Q) ∧ ~(P ∧ Q).
+</div>
+
+</body>
+</html>

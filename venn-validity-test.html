@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Venn Diagrams as a Validity Test</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;0,900;1,300;1,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --delta-green:  #005749;
+    --delta-green2: #00957A;
+    --delta-black:  #193330;
+    --delta-white:  #F4F3EF;
+    --blue:         #9AD8CE;
+    --tan:          #C8C6B7;
+    --coral:        #F98F7C;
+    --pink:         #EACDCA;
+    --muted:        #5a6e6b;
+    --valid:        #005749;
+    --invalid:      #c84b31;
+  }
+
+  body {
+    background: var(--delta-white);
+    font-family: 'DM Mono', monospace;
+    color: var(--delta-black);
+    min-height: 100vh;
+    padding: 48px 24px 64px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── Shared ── */
+  .header {
+    max-width: 900px;
+    width: 100%;
+    margin-bottom: 36px;
+    padding-bottom: 24px;
+    border-bottom: 3px solid var(--delta-green);
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .top-label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--delta-green2);
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(28px, 5vw, 46px);
+    font-weight: 900;
+    line-height: 1.05;
+    color: var(--delta-green);
+  }
+
+  h1 em { font-style: italic; color: var(--delta-green2); }
+
+  .subtitle {
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.75;
+    max-width: 680px;
+  }
+
+  .subtitle strong { color: var(--delta-black); }
+
+  .section {
+    max-width: 900px;
+    width: 100%;
+    margin-bottom: 36px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .section-title {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--delta-green);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-num {
+    background: var(--delta-green);
+    color: white;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    flex-shrink: 0;
+  }
+
+  /* ── Core idea banner ── */
+  .core-banner {
+    background: var(--delta-green);
+    color: white;
+    border-radius: 8px;
+    padding: 28px 32px;
+    margin-bottom: 36px;
+    max-width: 900px;
+    width: 100%;
+    animation: fadeUp 0.5s ease 0.1s both;
+  }
+
+  .core-q {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 10px;
+  }
+
+  .core-text {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(16px, 3vw, 22px);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.5;
+    color: white;
+    margin-bottom: 16px;
+  }
+
+  .core-text strong {
+    font-weight: 700;
+    font-style: normal;
+    color: var(--blue);
+  }
+
+  .core-rule {
+    font-size: 11.5px;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.8);
+  }
+
+  .core-rule strong { color: white; }
+
+  /* ── Example cards ── */
+  .examples-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    max-width: 900px;
+    width: 100%;
+    animation: fadeUp 0.5s ease 0.2s both;
+  }
+
+  @media (max-width: 640px) {
+    .examples-grid { grid-template-columns: 1fr; }
+  }
+
+  .example-card {
+    background: white;
+    border-radius: 8px;
+    padding: 28px;
+    box-shadow: 0 2px 12px rgba(0,87,73,0.09);
+    border-top: 6px solid;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .example-card.valid   { border-color: var(--valid); }
+  .example-card.invalid { border-color: var(--invalid); }
+
+  .ex-verdict {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 15px;
+    align-self: flex-start;
+  }
+
+  .ex-verdict.valid   { background: var(--valid);   color: white; }
+  .ex-verdict.invalid { background: var(--invalid); color: white; }
+
+  .ex-syllogism {
+    background: var(--delta-white);
+    border-radius: 6px;
+    padding: 16px 18px;
+  }
+
+  .ex-line {
+    font-size: 12px;
+    line-height: 2;
+    color: var(--delta-black);
+  }
+
+  .ex-line.conclusion {
+    border-top: 1px solid var(--tan);
+    margin-top: 4px;
+    padding-top: 4px;
+  }
+
+  .ex-line .pill {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 10px;
+    font-size: 9.5px;
+    font-weight: 500;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  .pill-a { background: rgba(0,87,73,0.15); color: var(--delta-green); }
+  .pill-e { background: rgba(0,87,73,0.15); color: var(--delta-green); }
+  .pill-i { background: rgba(0,149,122,0.15); color: var(--delta-green2); }
+  .pill-o { background: rgba(0,149,122,0.15); color: var(--delta-green2); }
+
+  .ex-diagram-label {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .ex-diagram {
+    display: flex;
+    justify-content: center;
+  }
+
+  .ex-explain {
+    font-size: 11px;
+    line-height: 1.75;
+    color: var(--muted);
+  }
+
+  .ex-explain strong { color: var(--delta-black); font-weight: 500; }
+
+  .ex-verdict-explain {
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-size: 11.5px;
+    line-height: 1.7;
+    font-weight: 500;
+  }
+
+  .example-card.valid   .ex-verdict-explain { background: rgba(0,87,73,0.08);  color: var(--valid); }
+  .example-card.invalid .ex-verdict-explain { background: rgba(200,75,49,0.08); color: var(--invalid); }
+
+  /* ── How to read section ── */
+  .read-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  @media (max-width: 580px) {
+    .read-grid { grid-template-columns: 1fr; }
+  }
+
+  .read-card {
+    border-radius: 6px;
+    padding: 20px 22px;
+    border-left: 5px solid;
+  }
+
+  .read-card.valid-read   { background: white; border-color: var(--valid); box-shadow: 0 2px 8px rgba(0,87,73,0.07); }
+  .read-card.invalid-read { background: white; border-color: var(--invalid); box-shadow: 0 2px 8px rgba(0,87,73,0.07); }
+
+  .read-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 8px;
+  }
+
+  .read-card.valid-read   .read-title { color: var(--valid); }
+  .read-card.invalid-read .read-title { color: var(--invalid); }
+
+  .read-body {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.75;
+  }
+
+  .read-body strong { color: var(--delta-black); font-weight: 500; }
+
+  /* ── Caution box ── */
+  .caution {
+    max-width: 900px;
+    width: 100%;
+    background: var(--pink);
+    border-left: 5px solid var(--coral);
+    border-radius: 6px;
+    padding: 20px 24px;
+    font-size: 11.5px;
+    line-height: 1.75;
+    color: var(--delta-black);
+    animation: fadeUp 0.5s ease 0.5s both;
+  }
+
+  .caution strong { color: #a0402a; }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .s1 { animation-delay: 0.05s; }
+  .s2 { animation-delay: 0.15s; }
+  .s3 { animation-delay: 0.25s; }
+  .s4 { animation-delay: 0.35s; }
+  .s5 { animation-delay: 0.45s; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="top-label">Categorical Logic · Validity Testing</div>
+  <h1>Venn Diagrams<br>as a <em>Validity Test</em></h1>
+  <p class="subtitle">Once you know how to represent a syllogism in a three-circle diagram, you can use it to <strong>test whether the argument is valid</strong> — without relying on intuition or content. The diagram either shows the conclusion or it doesn't.</p>
+</div>
+
+<!-- Core idea -->
+<div class="core-banner">
+  <div class="core-q">The central question</div>
+  <div class="core-text">After diagramming both premises, does the diagram <strong>already show</strong> the conclusion — without adding anything new?</div>
+  <div class="core-rule">
+    <strong>If yes →</strong> the argument is valid. The conclusion is contained in the premises.<br>
+    <strong>If no →</strong> the argument is invalid. The premises don't guarantee the conclusion.
+  </div>
+</div>
+
+<!-- Examples -->
+<div class="section s2">
+  <div class="section-title"><div class="section-num">1</div> Two Worked Examples</div>
+  <div class="examples-grid">
+
+    <!-- VALID example: Barbara (AAA-1) -->
+    <div class="example-card valid">
+      <div class="ex-verdict valid">✓ Valid</div>
+
+      <div>
+        <div class="ex-diagram-label">The syllogism</div>
+        <div class="ex-syllogism">
+          <div class="ex-line">All M are P. <span class="pill pill-a">A</span></div>
+          <div class="ex-line">All S are M. <span class="pill pill-a">A</span></div>
+          <div class="ex-line conclusion">∴ All S are P. <span class="pill pill-a">A</span></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="ex-diagram-label">Finished diagram (premises only)</div>
+        <div class="ex-diagram">
+          <!-- Barbara AAA-1: regions shaded = 1, 2, 4, 7 -->
+          <canvas id="validDiagram" width="220" height="200" style="display:block;"></canvas>
+          <script>
+          (function() {
+            const c = document.getElementById('validDiagram');
+            const ctx = c.getContext('2d');
+            const shade = '#C8C6B7';
+            const white = '#ffffff';
+
+            // Circle centers and radius
+            const S = {x:85,  y:80,  r:62};
+            const P = {x:135, y:80,  r:62};
+            const M = {x:110, y:132, r:62};
+
+            function inCircle(px, py, cx, cy, r) {
+              return (px-cx)**2 + (py-cy)**2 <= r*r;
+            }
+
+            // Paint pixel by pixel to get exact regions
+            const img = ctx.createImageData(220, 200);
+            for (let y = 0; y < 200; y++) {
+              for (let x = 0; x < 220; x++) {
+                const inS = inCircle(x, y, S.x, S.y, S.r);
+                const inP = inCircle(x, y, P.x, P.y, P.r);
+                const inM = inCircle(x, y, M.x, M.y, M.r);
+                // Shaded regions: 1 (S only), 2 (S∩P not M), 4 (S∩M not P), 7 (M only)
+                const shaded =
+                  (inS && !inP && !inM) || // region 1
+                  (inS &&  inP && !inM) || // region 2
+                  (inS && !inP &&  inM) || // region 4
+                  (!inS && !inP &&  inM);  // region 7
+                const idx = (y * 220 + x) * 4;
+                if (shaded) {
+                  img.data[idx]   = 0xC8;
+                  img.data[idx+1] = 0xC6;
+                  img.data[idx+2] = 0xB7;
+                  img.data[idx+3] = 220;
+                } else if (inS || inP || inM) {
+                  img.data[idx]   = 255;
+                  img.data[idx+1] = 255;
+                  img.data[idx+2] = 255;
+                  img.data[idx+3] = 255;
+                } else {
+                  img.data[idx+3] = 0; // transparent outside
+                }
+              }
+            }
+            ctx.putImageData(img, 0, 0);
+
+            // Draw circle outlines
+            ctx.lineWidth = 2.5;
+            ctx.strokeStyle = '#005749';
+            ctx.beginPath(); ctx.arc(S.x, S.y, S.r, 0, Math.PI*2); ctx.stroke();
+            ctx.strokeStyle = '#00957A';
+            ctx.beginPath(); ctx.arc(P.x, P.y, P.r, 0, Math.PI*2); ctx.stroke();
+            ctx.strokeStyle = '#c84b31';
+            ctx.beginPath(); ctx.arc(M.x, M.y, M.r, 0, Math.PI*2); ctx.stroke();
+
+            // Region number labels
+            ctx.fillStyle = '#444';
+            ctx.font = '11px DM Mono, monospace';
+            ctx.textAlign = 'center';
+            const labels = [
+              {n:'1', x:60,  y:76},
+              {n:'2', x:110, y:66},
+              {n:'3', x:160, y:76},
+              {n:'4', x:78,  y:133},
+              {n:'5', x:110, y:116},
+              {n:'6', x:142, y:133},
+              {n:'7', x:110, y:173},
+            ];
+            labels.forEach(l => ctx.fillText(l.n, l.x, l.y));
+
+            // Circle letter labels
+            ctx.font = 'bold 17px Fraunces, serif';
+            ctx.fillStyle = '#005749'; ctx.fillText('S', 38, 46);
+            ctx.fillStyle = '#00957A'; ctx.fillText('P', 176, 46);
+            ctx.fillStyle = '#c84b31'; ctx.fillText('M', 110, 197);
+          })();
+          </script>
+        </div>
+      </div>
+
+      <div class="ex-explain">
+        <strong>Step 1 (universal first):</strong> "All M are P" — shade regions 4 and 7 (everything in M that isn't also in P).<br><br>
+        <strong>Step 2 (universal second):</strong> "All S are M" — shade regions 1 and 2 (everything in S that isn't also in M).<br><br>
+        <strong>Step 3 (read the diagram):</strong> The conclusion "All S are P" requires regions 1 and 4 to be empty. Check: both are shaded. ✓
+      </div>
+
+      <div class="ex-verdict-explain">
+        The diagram already shows the conclusion — regions 1 and 4 are both shaded. Every S is inside P. The argument is <strong>valid</strong>.
+      </div>
+    </div>
+
+    <!-- INVALID example -->
+    <div class="example-card invalid">
+      <div class="ex-verdict invalid">✗ Invalid</div>
+
+      <div>
+        <div class="ex-diagram-label">The syllogism</div>
+        <div class="ex-syllogism">
+          <div class="ex-line">All P are M. <span class="pill pill-a">A</span></div>
+          <div class="ex-line">All S are M. <span class="pill pill-a">A</span></div>
+          <div class="ex-line conclusion">∴ All S are P. <span class="pill pill-a">A</span></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="ex-diagram-label">Finished diagram (premises only)</div>
+        <div class="ex-diagram">
+          <!-- Invalid: regions shaded = 1, 2, 3 (everything outside M) -->
+          <canvas id="invalidDiagram" width="220" height="200" style="display:block;"></canvas>
+          <script>
+          (function() {
+            const c = document.getElementById('invalidDiagram');
+            const ctx = c.getContext('2d');
+            const S = {x:85,  y:80,  r:62};
+            const P = {x:135, y:80,  r:62};
+            const M = {x:110, y:132, r:62};
+            function inCircle(px, py, cx, cy, r) {
+              return (px-cx)**2 + (py-cy)**2 <= r*r;
+            }
+            const img = ctx.createImageData(220, 200);
+            for (let y = 0; y < 200; y++) {
+              for (let x = 0; x < 220; x++) {
+                const inS = inCircle(x, y, S.x, S.y, S.r);
+                const inP = inCircle(x, y, P.x, P.y, P.r);
+                const inM = inCircle(x, y, M.x, M.y, M.r);
+                // "All P are M": shade regions 2 and 3 (P not in M)
+                // "All S are M": shade regions 1 and 2 (S not in M)
+                // Combined: shade 1, 2, 3 (anything in S or P that is NOT in M)
+                const shaded =
+                  (inS && !inM) || // regions 1 and 2
+                  (inP && !inM);   // regions 2 and 3
+                const idx = (y * 220 + x) * 4;
+                if (shaded) {
+                  img.data[idx]   = 0xC8;
+                  img.data[idx+1] = 0xC6;
+                  img.data[idx+2] = 0xB7;
+                  img.data[idx+3] = 220;
+                } else if (inS || inP || inM) {
+                  img.data[idx]   = 255;
+                  img.data[idx+1] = 255;
+                  img.data[idx+2] = 255;
+                  img.data[idx+3] = 255;
+                } else {
+                  img.data[idx+3] = 0;
+                }
+              }
+            }
+            ctx.putImageData(img, 0, 0);
+
+            // Outlines
+            ctx.lineWidth = 2.5;
+            ctx.strokeStyle = '#005749';
+            ctx.beginPath(); ctx.arc(S.x, S.y, S.r, 0, Math.PI*2); ctx.stroke();
+            ctx.strokeStyle = '#00957A';
+            ctx.beginPath(); ctx.arc(P.x, P.y, P.r, 0, Math.PI*2); ctx.stroke();
+            ctx.strokeStyle = '#c84b31';
+            ctx.beginPath(); ctx.arc(M.x, M.y, M.r, 0, Math.PI*2); ctx.stroke();
+
+            // Region labels
+            ctx.fillStyle = '#444';
+            ctx.font = '11px DM Mono, monospace';
+            ctx.textAlign = 'center';
+            const labels = [
+              {n:'1', x:60,  y:76},
+              {n:'2', x:110, y:66},
+              {n:'3', x:160, y:76},
+              {n:'4', x:78,  y:133},
+              {n:'5', x:110, y:116},
+              {n:'6', x:142, y:133},
+              {n:'7', x:110, y:173},
+            ];
+            labels.forEach(l => ctx.fillText(l.n, l.x, l.y));
+
+            // "not empty!" label on region 4
+            ctx.fillStyle = '#c84b31';
+            ctx.font = '9px DM Mono, monospace';
+            ctx.fillText('not empty!', 78, 148);
+
+            // Circle labels
+            ctx.font = 'bold 17px Fraunces, serif';
+            ctx.fillStyle = '#005749'; ctx.fillText('S', 38, 46);
+            ctx.fillStyle = '#00957A'; ctx.fillText('P', 176, 46);
+            ctx.fillStyle = '#c84b31'; ctx.fillText('M', 110, 197);
+          })();
+          </script>
+        </div>
+      </div>
+
+      <div class="ex-explain">
+        <strong>Step 1 (universal first):</strong> "All P are M" — shade regions 2 and 3 (everything in P that isn't also in M).<br><br>
+        <strong>Step 2 (universal second):</strong> "All S are M" — shade regions 1 and 2 (everything in S that isn't also in M).<br><br>
+        <strong>Step 3 (read the diagram):</strong> The conclusion "All S are P" requires regions 1 and 4 to be empty. Region 1 is shaded — but <strong>region 4 is not</strong>. ✗
+      </div>
+
+      <div class="ex-verdict-explain">
+        The diagram doesn't show the conclusion. Region 4 is still open — some S could be in M without being in P. The argument is <strong>invalid</strong>.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- How to read the diagram -->
+<div class="section s3">
+  <div class="section-title"><div class="section-num">2</div> How to Read the Finished Diagram</div>
+  <div class="read-grid">
+
+    <div class="read-card valid-read">
+      <div class="read-title">If the argument is valid…</div>
+      <div class="read-body">
+        The diagram of the premises will <strong>already contain</strong> everything the conclusion requires — without you having to add anything.<br><br>
+        For a <strong>universal conclusion</strong> (A or E): the regions the conclusion empties will already be shaded.<br><br>
+        For a <strong>particular conclusion</strong> (I or O): a ✕ will already appear in the region the conclusion requires.
+      </div>
+    </div>
+
+    <div class="read-card invalid-read">
+      <div class="read-title">If the argument is invalid…</div>
+      <div class="read-body">
+        Something the conclusion requires will be <strong>missing from the diagram</strong> — a region that should be shaded isn't, or a ✕ that should be present isn't there.<br><br>
+        This means the premises <strong>leave open a possibility</strong> the conclusion tries to rule out — a counterexample could exist in that unaccounted-for region.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Caution -->
+<div class="caution s4">
+  <strong>Important reminder:</strong> Never diagram the conclusion. You are checking whether the premises alone produce the conclusion — not forcing it in. If you have to add something to make the conclusion appear, that's your signal the argument is invalid.
+</div>
+
+</body>
+</html>

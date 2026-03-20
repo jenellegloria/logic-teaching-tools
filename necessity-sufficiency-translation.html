@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Necessity, Sufficiency & Translation</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;0,900;1,300;1,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --delta-green:  #005749;
+    --delta-green2: #00957A;
+    --delta-black:  #193330;
+    --delta-white:  #F4F3EF;
+    --blue:         #9AD8CE;
+    --tan:          #C8C6B7;
+    --coral:        #F98F7C;
+    --pink:         #EACDCA;
+    --muted:        #5a6e6b;
+    --suff-color:   #005749;
+    --nec-color:    #6b2d6a;
+    --both-color:   #b5640a;
+  }
+
+  body {
+    background: var(--delta-white);
+    font-family: 'DM Mono', monospace;
+    color: var(--delta-black);
+    min-height: 100vh;
+    padding: 48px 24px 64px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── Header ── */
+  .header {
+    max-width: 920px;
+    width: 100%;
+    margin-bottom: 36px;
+    padding-bottom: 24px;
+    border-bottom: 3px solid var(--delta-green);
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .top-label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--delta-green2);
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(28px, 5vw, 46px);
+    font-weight: 900;
+    line-height: 1.05;
+    color: var(--delta-green);
+  }
+
+  h1 em { font-style: italic; color: var(--delta-green2); }
+
+  .subtitle {
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.75;
+    max-width: 680px;
+  }
+
+  .subtitle strong { color: var(--delta-black); }
+
+  /* ── Sections ── */
+  .section {
+    max-width: 920px;
+    width: 100%;
+    margin-bottom: 36px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .section-title {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--delta-green);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-num {
+    background: var(--delta-green);
+    color: white;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    flex-shrink: 0;
+  }
+
+  /* ── Suff / Nec cards ── */
+  .sn-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 16px;
+  }
+
+  @media (max-width: 620px) { .sn-grid { grid-template-columns: 1fr; } }
+
+  .sn-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,87,73,0.08);
+    overflow: hidden;
+    border-top: 6px solid;
+  }
+
+  .sn-card.suff { border-color: var(--suff-color); }
+  .sn-card.nec  { border-color: var(--nec-color); }
+
+  .sn-header {
+    padding: 18px 22px 12px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .sn-name {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 900;
+    margin-bottom: 4px;
+  }
+
+  .sn-card.suff .sn-name { color: var(--suff-color); }
+  .sn-card.nec  .sn-name { color: var(--nec-color); }
+
+  .sn-form {
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .sn-card.suff .sn-form { color: var(--suff-color); }
+  .sn-card.nec  .sn-form { color: var(--nec-color); }
+
+  .sn-body {
+    padding: 16px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .sn-def {
+    font-size: 11.5px;
+    color: var(--muted);
+    line-height: 1.75;
+  }
+
+  .sn-def strong { color: var(--delta-black); font-weight: 500; }
+
+  .sn-rule {
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.6;
+  }
+
+  .sn-card.suff .sn-rule { background: rgba(0,87,73,0.07);  color: var(--suff-color); }
+  .sn-card.nec  .sn-rule { background: rgba(107,45,106,0.07); color: var(--nec-color); }
+
+  .sn-example {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.7;
+    font-style: italic;
+  }
+
+  .sn-example strong { color: var(--delta-black); font-style: normal; font-weight: 500; }
+
+  /* ── Both card ── */
+  .both-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,87,73,0.08);
+    border-top: 6px solid var(--both-color);
+    padding: 22px 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .both-name {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--both-color);
+    margin-bottom: 2px;
+  }
+
+  .both-form {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--both-color);
+    margin-bottom: 4px;
+  }
+
+  .both-def {
+    font-size: 11.5px;
+    color: var(--muted);
+    line-height: 1.75;
+  }
+
+  .both-def strong { color: var(--delta-black); font-weight: 500; }
+
+  .both-rule {
+    background: rgba(181,100,10,0.07);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--both-color);
+    line-height: 1.6;
+  }
+
+  /* ── Translation table ── */
+  .trans-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,87,73,0.08);
+    overflow: hidden;
+  }
+
+  table.trans {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  table.trans thead tr {
+    background: var(--delta-green);
+  }
+
+  table.trans th {
+    padding: 12px 16px;
+    text-align: left;
+    color: white;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  table.trans td {
+    padding: 11px 16px;
+    border-bottom: 1px solid #eee;
+    vertical-align: top;
+    line-height: 1.6;
+  }
+
+  table.trans tr:last-child td { border-bottom: none; }
+  table.trans tr:nth-child(even) { background: #fafafa; }
+
+  table.trans td.phrase {
+    font-style: italic;
+    color: var(--delta-black);
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  table.trans td.sym {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--delta-green);
+    white-space: nowrap;
+  }
+
+  table.trans td.meaning {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  table.trans td.meaning strong { color: var(--delta-black); font-weight: 500; }
+
+  table.trans tr.highlight-row td { background: rgba(0,87,73,0.05); }
+  table.trans tr.danger-row td { background: rgba(200,75,49,0.04); }
+
+  .phrase-tag {
+    display: inline-block;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-style: normal;
+    font-family: 'DM Mono', monospace;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  .tag-suff { background: rgba(0,87,73,0.12);   color: var(--suff-color); }
+  .tag-nec  { background: rgba(107,45,106,0.12); color: var(--nec-color); }
+  .tag-both { background: rgba(181,100,10,0.12); color: var(--both-color); }
+  .tag-warn { background: rgba(200,75,49,0.12);  color: #c84b31; }
+
+  /* ── Tricky cases ── */
+  .tricky-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .tricky-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,87,73,0.08);
+    overflow: hidden;
+    border-left: 6px solid var(--coral);
+  }
+
+  .tricky-header {
+    background: var(--pink);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .tricky-label {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #a0402a;
+    font-weight: 500;
+  }
+
+  .tricky-phrase {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--delta-black);
+  }
+
+  .tricky-body {
+    padding: 18px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .tricky-explain {
+    font-size: 11.5px;
+    color: var(--muted);
+    line-height: 1.75;
+  }
+
+  .tricky-explain strong { color: var(--delta-black); font-weight: 500; }
+
+  .tricky-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  @media (max-width: 500px) { .tricky-compare { grid-template-columns: 1fr; } }
+
+  .compare-item {
+    border-radius: 6px;
+    padding: 12px 14px;
+  }
+
+  .compare-item.wrong { background: rgba(200,75,49,0.07); }
+  .compare-item.right { background: rgba(0,87,73,0.07); }
+
+  .compare-label {
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .compare-item.wrong .compare-label { color: #c84b31; }
+  .compare-item.right .compare-label { color: var(--delta-green); }
+
+  .compare-formula {
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .compare-item.wrong .compare-formula { color: #c84b31; }
+  .compare-item.right .compare-formula { color: var(--delta-green); }
+
+  .compare-note {
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* ── Challenge problems ── */
+  .challenge-card {
+    background: white;
+    border-radius: 8px;
+    padding: 28px 32px;
+    box-shadow: 0 2px 10px rgba(0,87,73,0.08);
+  }
+
+  .challenge-intro {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.75;
+    margin-bottom: 22px;
+  }
+
+  .challenge-intro strong { color: var(--delta-black); }
+
+  .challenge-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .challenge-item {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 14px;
+    align-items: start;
+    padding: 14px 18px;
+    background: var(--delta-white);
+    border-radius: 6px;
+    border-left: 4px solid var(--tan);
+  }
+
+  .challenge-num {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--coral);
+    padding-top: 2px;
+  }
+
+  .challenge-sentence {
+    font-size: 13px;
+    color: var(--delta-black);
+    line-height: 1.6;
+    font-style: italic;
+  }
+
+  .challenge-hint {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 4px;
+    font-style: normal;
+  }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .s1 { animation-delay: 0.05s; }
+  .s2 { animation-delay: 0.12s; }
+  .s3 { animation-delay: 0.19s; }
+  .s4 { animation-delay: 0.26s; }
+  .s5 { animation-delay: 0.33s; }
+  .s6 { animation-delay: 0.40s; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="top-label">Propositional Logic · Translation</div>
+  <h1>Necessity, Sufficiency<br>&amp; <em>English Translation</em></h1>
+  <p class="subtitle">The conditional P → Q has a precise logical meaning, but English expresses the same relationship in many different ways. Mastering translation means learning to see through the surface form of a sentence to its underlying logical structure.</p>
+</div>
+
+<!-- Sufficient / Necessary / Both -->
+<div class="section s1">
+  <div class="section-title"><div class="section-num">1</div> Sufficient and Necessary Conditions</div>
+  <div class="sn-grid">
+
+    <div class="sn-card suff">
+      <div class="sn-header">
+        <div class="sn-name">Sufficient Condition</div>
+        <div class="sn-form">P is sufficient for Q &nbsp;→&nbsp; P → Q</div>
+      </div>
+      <div class="sn-body">
+        <div class="sn-def">
+          To say P is <strong>sufficient</strong> for Q is to say that P's being true is <strong>enough to guarantee</strong> Q's being true. Whenever P holds, Q must hold too. P alone gets you Q — you don't need anything else.
+        </div>
+        <div class="sn-rule">If P then Q. &nbsp;·&nbsp; P → Q</div>
+        <div class="sn-example">
+          <strong>Example:</strong> "Being a square is sufficient for being a rectangle."<br>
+          S → R &nbsp;·&nbsp; If it's a square, it's a rectangle.
+        </div>
+      </div>
+    </div>
+
+    <div class="sn-card nec">
+      <div class="sn-header">
+        <div class="sn-name">Necessary Condition</div>
+        <div class="sn-form">P is necessary for Q &nbsp;→&nbsp; Q → P</div>
+      </div>
+      <div class="sn-body">
+        <div class="sn-def">
+          To say P is <strong>necessary</strong> for Q is to say that Q <strong>cannot hold without</strong> P. P must be true for Q to be true — without P, no Q. But P alone doesn't guarantee Q.
+        </div>
+        <div class="sn-rule">If Q then P. &nbsp;·&nbsp; Q → P</div>
+        <div class="sn-example">
+          <strong>Example:</strong> "Having oxygen is necessary for fire."<br>
+          F → O &nbsp;·&nbsp; If there's fire, there's oxygen.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="both-card">
+    <div class="both-name">Necessary <em style="font-style:normal;">&amp;</em> Sufficient Condition</div>
+    <div class="both-form">P is necessary and sufficient for Q &nbsp;→&nbsp; P ↔ Q</div>
+    <div class="both-def">
+      When P is <strong>both</strong> necessary and sufficient for Q, the relationship runs in both directions: P guarantees Q, and Q requires P. Neither can hold without the other. This is exactly the biconditional — "P if and only if Q."
+    </div>
+    <div class="both-rule">P if and only if Q. &nbsp;·&nbsp; P ↔ Q &nbsp;·&nbsp; The two are equivalent.</div>
+  </div>
+</div>
+
+<!-- The key asymmetry -->
+<div class="section s2">
+  <div class="section-title"><div class="section-num">2</div> The Key Asymmetry</div>
+  <div style="background:white;border-radius:8px;padding:26px 30px;box-shadow:0 2px 10px rgba(0,87,73,0.08);">
+    <div style="font-size:12px;color:var(--muted);line-height:1.8;margin-bottom:18px;">
+      The most important thing to internalize: <strong style="color:var(--delta-black);">P → Q does not mean Q → P.</strong> The arrow has a direction, and reversing it changes the meaning entirely.
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div style="background:rgba(0,87,73,0.06);border-radius:6px;padding:16px 18px;">
+        <div style="font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--delta-green);font-weight:600;margin-bottom:8px;">Sufficient (P → Q)</div>
+        <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--delta-green);margin-bottom:6px;">Being a dog → being an animal</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.6;">Every dog is an animal. <strong style="color:var(--delta-black);">Being a dog is enough</strong> to guarantee being an animal.</div>
+      </div>
+      <div style="background:rgba(107,45,106,0.06);border-radius:6px;padding:16px 18px;">
+        <div style="font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--nec-color);font-weight:600;margin-bottom:8px;">Necessary (Q → P, i.e. being an animal is nec. for being a dog)</div>
+        <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--nec-color);margin-bottom:6px;">Being a dog → being an animal</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.6;">You can't be a dog without being an animal. <strong style="color:var(--delta-black);">Being an animal is required</strong> — but it doesn't make you a dog.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Translation table -->
+<div class="section s3">
+  <div class="section-title"><div class="section-num">3</div> Common English Phrases &amp; Their Translations</div>
+  <div class="trans-card">
+    <table class="trans">
+      <thead>
+        <tr>
+          <th>English phrase</th>
+          <th>Symbolization</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="highlight-row">
+          <td class="phrase">If P then Q <span class="phrase-tag tag-suff">sufficient</span></td>
+          <td class="sym">P → Q</td>
+          <td class="meaning">The standard form. P is the antecedent, Q is the consequent.</td>
+        </tr>
+        <tr>
+          <td class="phrase">P only if Q <span class="phrase-tag tag-nec">necessary</span></td>
+          <td class="sym">P → Q</td>
+          <td class="meaning">"Only if" introduces the <strong>consequent</strong>. Q is necessary for P.</td>
+        </tr>
+        <tr class="highlight-row">
+          <td class="phrase">Q if P <span class="phrase-tag tag-suff">sufficient</span></td>
+          <td class="sym">P → Q</td>
+          <td class="meaning">"If" still introduces the antecedent even when it comes second. P → Q.</td>
+        </tr>
+        <tr>
+          <td class="phrase">P is sufficient for Q</td>
+          <td class="sym">P → Q</td>
+          <td class="meaning">P guarantees Q. P in the antecedent.</td>
+        </tr>
+        <tr class="highlight-row">
+          <td class="phrase">P is necessary for Q</td>
+          <td class="sym">Q → P</td>
+          <td class="meaning">Q cannot hold without P. Q goes in the antecedent — the direction reverses.</td>
+        </tr>
+        <tr>
+          <td class="phrase">P if and only if Q <span class="phrase-tag tag-both">both</span></td>
+          <td class="sym">P ↔ Q</td>
+          <td class="meaning">Necessary and sufficient in both directions. Biconditional.</td>
+        </tr>
+        <tr class="highlight-row">
+          <td class="phrase">All P are Q</td>
+          <td class="sym">P → Q</td>
+          <td class="meaning">Universal claims translate as conditionals. Being P is sufficient for being Q.</td>
+        </tr>
+        <tr>
+          <td class="phrase">No P are Q</td>
+          <td class="sym">P → ~Q</td>
+          <td class="meaning">If something is P, it is not Q.</td>
+        </tr>
+        <tr class="highlight-row">
+          <td class="phrase">Unless Q, P <span class="phrase-tag tag-warn">tricky</span></td>
+          <td class="sym">~Q → P</td>
+          <td class="meaning">"Unless" means "if not." Unless Q = if not Q. See section 4.</td>
+        </tr>
+        <tr>
+          <td class="phrase">P unless Q <span class="phrase-tag tag-warn">tricky</span></td>
+          <td class="sym">~Q → P</td>
+          <td class="meaning">Same structure. Q's absence guarantees P. Equivalently: P ∨ Q.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Tricky cases -->
+<div class="section s4">
+  <div class="section-title"><div class="section-num">4</div> Two Expressions That Trip People Up</div>
+  <div class="tricky-stack">
+
+    <!-- Only if -->
+    <div class="tricky-card">
+      <div class="tricky-header">
+        <div>
+          <div class="tricky-label">Tricky expression</div>
+          <div class="tricky-phrase">"P only if Q"</div>
+        </div>
+      </div>
+      <div class="tricky-body">
+        <div class="tricky-explain">
+          The word "if" normally introduces the <strong>antecedent</strong> — but "only if" is different. "P only if Q" means P cannot be true unless Q is true. Q is a <strong>necessary condition</strong> for P — so Q goes in the <strong>consequent</strong>, not the antecedent.
+        </div>
+        <div class="tricky-explain">
+          Think of it this way: <em>"You can graduate only if you pass the exam"</em> means that passing the exam is required for graduating. Graduating → passing. Not: passing → graduating.
+        </div>
+        <div class="tricky-compare">
+          <div class="compare-item wrong">
+            <div class="compare-label">✗ Common mistake</div>
+            <div class="compare-formula">"P only if Q" → Q → P</div>
+            <div class="compare-note">Treating "only if" like "if" and putting Q in the antecedent.</div>
+          </div>
+          <div class="compare-item right">
+            <div class="compare-label">✓ Correct</div>
+            <div class="compare-formula">"P only if Q" → P → Q</div>
+            <div class="compare-note">"Only if" introduces the consequent. Q is necessary for P.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Unless -->
+    <div class="tricky-card">
+      <div class="tricky-header">
+        <div>
+          <div class="tricky-label">Tricky expression</div>
+          <div class="tricky-phrase">"P unless Q"</div>
+        </div>
+      </div>
+      <div class="tricky-body">
+        <div class="tricky-explain">
+          "Unless" means <strong>"if not."</strong> Replace "unless" with "if not" and the translation becomes straightforward. "P unless Q" = "P if not Q" = ~Q → P.
+        </div>
+        <div class="tricky-explain">
+          There's also an equivalent disjunctive reading: "P unless Q" means at least one of P or Q must hold — so it's equivalent to <strong>P ∨ Q</strong>. Both translations are logically equivalent. The conditional form (~Q → P) is often more intuitive.
+        </div>
+        <div class="tricky-compare">
+          <div class="compare-item right">
+            <div class="compare-label">Reading 1 — conditional</div>
+            <div class="compare-formula">"P unless Q" → ~Q → P</div>
+            <div class="compare-note">Replace "unless" with "if not": if not Q, then P.</div>
+          </div>
+          <div class="compare-item right">
+            <div class="compare-label">Reading 2 — disjunction</div>
+            <div class="compare-formula">"P unless Q" → P ∨ Q</div>
+            <div class="compare-note">At least one of P, Q must be true. Logically equivalent to reading 1.</div>
+          </div>
+        </div>
+        <div style="background:rgba(0,87,73,0.06);border-radius:6px;padding:12px 14px;font-size:11px;color:var(--muted);line-height:1.7;">
+          <strong style="color:var(--delta-black);">Example:</strong> <em>"I will go to the party unless it rains."</em><br>
+          Let G = I go, R = it rains.<br>
+          ~R → G &nbsp;·&nbsp; "If it doesn't rain, I'll go." &nbsp;·&nbsp; Equivalently: G ∨ R.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Challenge problems -->
+<div class="section s5">
+  <div class="section-title"><div class="section-num" style="background:var(--coral);">?</div> Challenge Problems</div>
+  <div class="challenge-card">
+    <div class="challenge-intro">
+      Translate each sentence into symbolic form. Define your own letters and make clear what each stands for.
+    </div>
+    <div class="challenge-list">
+
+      <div class="challenge-item">
+        <div class="challenge-num">1</div>
+        <div>
+          <div class="challenge-sentence">"You will succeed only if you work hard."</div>
+        </div>
+      </div>
+
+      <div class="challenge-item">
+        <div class="challenge-num">2</div>
+        <div>
+          <div class="challenge-sentence">"Having a library card is necessary for checking out books."</div>
+        </div>
+      </div>
+
+      <div class="challenge-item">
+        <div class="challenge-num">3</div>
+        <div>
+          <div class="challenge-sentence">"The alarm will go off unless the code is entered correctly."</div>
+        </div>
+      </div>
+
+      <div class="challenge-item">
+        <div class="challenge-num">4</div>
+        <div>
+          <div class="challenge-sentence">"Being a mammal is necessary but not sufficient for being a human."</div>
+          <div class="challenge-hint">Hint: this requires two separate claims joined together.</div>
+        </div>
+      </div>
+
+      <div class="challenge-item">
+        <div class="challenge-num">5</div>
+        <div>
+          <div class="challenge-sentence">"You can board the plane if and only if you have a ticket and a valid ID."</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

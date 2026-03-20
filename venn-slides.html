@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Venn Slides</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; background: #000; overflow: hidden; cursor: none; }
+  #starfield { position: fixed; inset: 0; z-index: 0; }
+  #stage { position: fixed; inset: 0; z-index: 1; display: flex; align-items: center; justify-content: center; }
+  #board {
+    position: relative;
+    background: #07090f;
+    border: 2px solid rgba(255,255,255,0.06);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.03), 0 30px 80px rgba(0,0,0,0.8);
+    transition: opacity 0.3s ease;
+  }
+  #diagram { display: block; }
+
+  /* ── TOOLBAR (palette + mode toggle) ── */
+  #toolbar {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+    z-index: 5;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
+  #toolbar.visible { opacity: 1; pointer-events: auto; }
+
+  /* color swatches row */
+  #palette { display: flex; gap: 8px; align-items: center; }
+  .swatch {
+    width: 20px; height: 20px; border-radius: 50%;
+    border: 2.5px solid rgba(255,255,255,0.2);
+    cursor: pointer;
+    transition: transform 0.15s, border-color 0.15s;
+  }
+  .swatch:hover { transform: scale(1.2); }
+  .swatch.selected { border-color: #fff; transform: scale(1.28); box-shadow: 0 0 0 1.5px rgba(0,0,0,0.6); }
+
+  /* mode toggle row */
+  #mode-row { display: flex; gap: 6px; }
+  .mode-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px;
+    border-radius: 6px;
+    border: 1.5px solid rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.06);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    color: rgba(255,255,255,0.5);
+  }
+  .mode-btn:hover { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.8); }
+  .mode-btn.active { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.6); color: #fff; }
+  .mode-btn svg { display: block; }
+
+  #btn-clear {
+    display: flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px;
+    border-radius: 6px;
+    border: 1.5px solid rgba(255,100,100,0.35);
+    background: rgba(255,80,80,0.08);
+    cursor: pointer;
+    color: rgba(255,120,120,0.6);
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+  }
+  #btn-clear:hover { background: rgba(255,80,80,0.22); border-color: rgba(255,100,100,0.7); color: #ff8080; }
+
+  /* cursor changes by mode */
+  body.mode-shade #diagram { cursor: crosshair; }
+  body.mode-x     #diagram { cursor: none; }
+
+  /* custom X cursor in X mode */
+  #x-cursor {
+    position: fixed;
+    pointer-events: none;
+    z-index: 20;
+    display: none;
+    transform: translate(-50%, -50%);
+    color: #fff;
+  }
+  body.mode-x #x-cursor { display: block; }
+
+  .nav-btn {
+    position: fixed; top: 50%; transform: translateY(-50%);
+    z-index: 10; background: none; border: none; cursor: pointer;
+    padding: 20px; opacity: 0.18; transition: opacity 0.25s; color: #fff;
+  }
+  .nav-btn:hover { opacity: 0.7; }
+  #btn-prev { left: 12px; }
+  #btn-next { right: 12px; }
+  #dots {
+    position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
+    z-index: 10; display: flex; gap: 8px; align-items: center;
+  }
+  .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: rgba(255,255,255,0.18);
+    transition: background 0.3s, transform 0.3s; cursor: pointer;
+  }
+  .dot.active { background: rgba(255,255,255,0.75); transform: scale(1.35); }
+</style>
+</head>
+<body class="mode-shade">
+
+<canvas id="starfield"></canvas>
+
+<!-- custom X cursor -->
+<div id="x-cursor">
+  <svg width="28" height="28" viewBox="0 0 28 28">
+    <line x1="4" y1="4" x2="24" y2="24" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+    <line x1="24" y1="4" x2="4" y2="24" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+  </svg>
+</div>
+
+<div id="stage">
+  <div id="board">
+    <canvas id="diagram"></canvas>
+
+    <div id="toolbar">
+      <div id="palette"><!-- swatches injected --></div>
+      <div id="mode-row">
+        <div class="mode-btn active" id="btn-shade" title="Shade mode">
+          <svg width="16" height="16" viewBox="0 0 16 16">
+            <rect x="1" y="1" width="14" height="14" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="1" y1="5"  x2="5"  y2="1"  stroke="currentColor" stroke-width="1" opacity=".7"/>
+            <line x1="1" y1="9"  x2="9"  y2="1"  stroke="currentColor" stroke-width="1" opacity=".7"/>
+            <line x1="1" y1="13" x2="13" y2="1"  stroke="currentColor" stroke-width="1" opacity=".7"/>
+            <line x1="3" y1="15" x2="15" y2="3"  stroke="currentColor" stroke-width="1" opacity=".7"/>
+            <line x1="7" y1="15" x2="15" y2="7"  stroke="currentColor" stroke-width="1" opacity=".7"/>
+            <line x1="11" y1="15" x2="15" y2="11" stroke="currentColor" stroke-width="1" opacity=".7"/>
+          </svg>
+        </div>
+        <div class="mode-btn" id="btn-x-mode" title="X placement mode">
+          <svg width="16" height="16" viewBox="0 0 16 16">
+            <line x1="3" y1="3" x2="13" y2="13" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="13" y1="3" x2="3" y2="13" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div id="btn-clear" title="Clear this slide">
+          <svg width="16" height="16" viewBox="0 0 16 16">
+            <path d="M3 4h10M6 4V3h4v1M5 4l.5 9h5L11 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<button id="btn-prev" class="nav-btn">
+  <svg width="28" height="48" viewBox="0 0 28 48">
+    <polyline points="24,4 4,24 24,44" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</button>
+<button id="btn-next" class="nav-btn">
+  <svg width="28" height="48" viewBox="0 0 28 48">
+    <polyline points="4,4 24,24 4,44" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</button>
+<div id="dots"></div>
+
+<script>
+// ── COLORS ────────────────────────────────────────────────────────────────
+const COLORS = [
+  { key:'white', swatch:'#d8d8d8', hatch:'rgba(220,220,220,0.65)' },
+  { key:'coral', swatch:'#ff6b6b', hatch:'rgba(255,100,100,0.75)' },
+  { key:'sky',   swatch:'#45c4f5', hatch:'rgba(60,190,245,0.75)'  },
+  { key:'lime',  swatch:'#7edb5a', hatch:'rgba(120,220,80,0.75)'  },
+];
+let activeColor = 'white';
+
+const paletteEl = document.getElementById('palette');
+const swatchEls = {};
+for (const col of COLORS) {
+  const el = document.createElement('div');
+  el.className = 'swatch' + (col.key === activeColor ? ' selected' : '');
+  el.style.background = col.swatch;
+  el.addEventListener('click', e => {
+    e.stopPropagation();
+    activeColor = col.key;
+    Object.values(swatchEls).forEach(s => s.classList.remove('selected'));
+    el.classList.add('selected');
+    updateXCursorColor();
+  });
+  swatchEls[col.key] = el;
+  paletteEl.appendChild(el);
+}
+
+function getColorDef(key) { return COLORS.find(c => c.key === key) || COLORS[0]; }
+function swatchColor(key) { return getColorDef(key).swatch; }
+
+// ── MODE ──────────────────────────────────────────────────────────────────
+let mode = 'shade'; // 'shade' | 'x'
+const btnShade  = document.getElementById('btn-shade');
+const btnXMode  = document.getElementById('btn-x-mode');
+const xCursorEl = document.getElementById('x-cursor');
+
+function setMode(m) {
+  mode = m;
+  document.body.classList.toggle('mode-shade', m === 'shade');
+  document.body.classList.toggle('mode-x',     m === 'x');
+  btnShade.classList.toggle('active', m === 'shade');
+  btnXMode.classList.toggle('active', m === 'x');
+  updateXCursorColor();
+}
+function updateXCursorColor() {
+  xCursorEl.style.color = mode === 'x'
+    ? (activeColor === 'white' ? '#fff' : swatchColor(activeColor))
+    : '#fff';
+}
+btnShade.addEventListener('click',  e => { e.stopPropagation(); setMode('shade'); });
+btnXMode.addEventListener('click',  e => { e.stopPropagation(); setMode('x'); });
+
+document.getElementById('btn-clear').addEventListener('click', e => {
+  e.stopPropagation();
+  const slide = SLIDES[current];
+  rState[current] = Object.fromEntries(slide.regions.map(r => [r.key, { s:0, c:'white' }]));
+  freeXs[current] = [];
+  draw();
+});
+
+// Move custom X cursor
+document.addEventListener('mousemove', e => {
+  xCursorEl.style.left = e.clientX + 'px';
+  xCursorEl.style.top  = e.clientY + 'px';
+});
+
+
+// ── STARFIELD ─────────────────────────────────────────────────────────────
+const sCanvas = document.getElementById('starfield');
+const sCtx    = sCanvas.getContext('2d');
+let stars = [];
+function resizeStars() { sCanvas.width = window.innerWidth; sCanvas.height = window.innerHeight; buildStars(); }
+function buildStars() {
+  stars = [];
+  const n = Math.floor(sCanvas.width * sCanvas.height / 1800);
+  const sc2 = ['#fff','#fff','#fff','#ccd8ff','#ffd9a0','#ffbbbb','#b8e0ff'];
+  for (let i = 0; i < n; i++) stars.push({
+    x: Math.random()*sCanvas.width, y: Math.random()*sCanvas.height,
+    r: Math.random()*1.4+0.2, base: Math.random()*0.6+0.15,
+    phase: Math.random()*Math.PI*2, speed: Math.random()*0.6+0.2,
+    color: sc2[Math.floor(Math.random()*sc2.length)],
+  });
+}
+function animateStars(t) {
+  sCtx.clearRect(0,0,sCanvas.width,sCanvas.height);
+  for (const s of stars) {
+    sCtx.globalAlpha = Math.max(0, s.base + 0.35*Math.sin(t*0.001*s.speed+s.phase));
+    sCtx.fillStyle = s.color;
+    sCtx.beginPath(); sCtx.arc(s.x,s.y,s.r,0,Math.PI*2); sCtx.fill();
+  }
+  sCtx.globalAlpha = 1;
+  requestAnimationFrame(animateStars);
+}
+resizeStars();
+requestAnimationFrame(animateStars);
+window.addEventListener('resize', () => { resizeStars(); sizeBoard(); });
+
+
+// ── BOARD & CANVAS ────────────────────────────────────────────────────────
+const board   = document.getElementById('board');
+const dCanvas = document.getElementById('diagram');
+const dCtx    = dCanvas.getContext('2d');
+const DPR     = window.devicePixelRatio || 1;
+const VSIZE   = 600;
+let   boardPx = 0;
+
+function sizeBoard() {
+  boardPx = Math.floor(Math.min(window.innerWidth, window.innerHeight) * 0.82);
+  board.style.width = board.style.height = boardPx + 'px';
+  dCanvas.style.width = dCanvas.style.height = boardPx + 'px';
+  dCanvas.width = dCanvas.height = boardPx * DPR;
+  draw();
+}
+function sc(v) { return v * boardPx * DPR / VSIZE; }
+
+function makeHatchTile(colorStr) {
+  const sz = Math.round(14 * DPR);
+  const pc = document.createElement('canvas');
+  pc.width = pc.height = sz;
+  const px = pc.getContext('2d');
+  px.strokeStyle = colorStr; px.lineWidth = 1.6 * DPR;
+  px.beginPath();
+  px.moveTo(0, sz);              px.lineTo(sz, 0);
+  px.moveTo(-sz*.1, sz*.1);     px.lineTo(sz*.1, -sz*.1);
+  px.moveTo(sz*.9, sz*1.1);     px.lineTo(sz*1.1, sz*.9);
+  px.stroke();
+  return pc;
+}
+
+
+// ── CIRCLES ───────────────────────────────────────────────────────────────
+const CIRC = {
+  S1: { cx:300, cy:300, r:170, stroke:'#5b8dee', glow:'rgba(91,141,238,0.28)'  },
+  S:  { cx:235, cy:300, r:155, stroke:'#5b8dee', glow:'rgba(91,141,238,0.28)'  },
+  P:  { cx:365, cy:300, r:155, stroke:'#4cba7a', glow:'rgba(76,186,122,0.28)'  },
+  M:  { cx:300, cy:185, r:140, stroke:'#a07cd6', glow:'rgba(160,124,214,0.28)' },
+};
+
+
+// ── SLIDES ────────────────────────────────────────────────────────────────
+const SLIDES = [
+  { circleKeys: [], regions: [] },
+  {
+    circleKeys: ['S1'],
+    regions: [{ key:'in', inside:['S1'], outside:[], center:{x:300,y:300} }],
+  },
+  {
+    circleKeys: ['S','P'],
+    regions: [
+      { key:'S',  inside:['S'],     outside:['P'], center:{x:163,y:300} },
+      { key:'SP', inside:['S','P'], outside:[],    center:{x:300,y:300} },
+      { key:'P',  inside:['P'],     outside:['S'], center:{x:437,y:300} },
+    ],
+  },
+  {
+    circleKeys: ['S','P','M'],
+    regions: [
+      { key:'S',   inside:['S'],         outside:['P','M'], center:{x:150,y:385} },
+      { key:'P',   inside:['P'],         outside:['S','M'], center:{x:450,y:385} },
+      { key:'M',   inside:['M'],         outside:['S','P'], center:{x:300,y:110} },
+      { key:'SP',  inside:['S','P'],     outside:['M'],     center:{x:300,y:370} },
+      { key:'SM',  inside:['S','M'],     outside:['P'],     center:{x:215,y:250} },
+      { key:'PM',  inside:['P','M'],     outside:['S'],     center:{x:385,y:250} },
+      { key:'SPM', inside:['S','P','M'], outside:[],        center:{x:300,y:290} },
+    ],
+  },
+];
+
+const TOTAL = SLIDES.length;
+
+// rState[slide][regionKey] = { s: 0|1, c: colorKey }   (no X in region state anymore)
+let rState = SLIDES.map(s =>
+  Object.fromEntries(s.regions.map(r => [r.key, { s:0, c:'white' }]))
+);
+
+// freeXs[slide] = [ { lx, ly, c } ... ]   — freely placed X marks
+let freeXs = SLIDES.map(() => []);
+
+
+// ── SHADE REGION ──────────────────────────────────────────────────────────
+function shadeRegion(w, h, reg, colorKey) {
+  const col  = getColorDef(colorKey);
+  const tile = makeHatchTile(col.hatch);
+
+  // Build exact region mask
+  const mCv = document.createElement('canvas');
+  mCv.width = w; mCv.height = h;
+  const mCtx = mCv.getContext('2d');
+  mCtx.fillStyle = '#fff';
+  const c0 = CIRC[reg.inside[0]];
+  mCtx.beginPath(); mCtx.arc(sc(c0.cx),sc(c0.cy),sc(c0.r),0,Math.PI*2); mCtx.fill();
+  for (let i = 1; i < reg.inside.length; i++) {
+    const ci = CIRC[reg.inside[i]];
+    mCtx.globalCompositeOperation = 'destination-in';
+    mCtx.beginPath(); mCtx.arc(sc(ci.cx),sc(ci.cy),sc(ci.r),0,Math.PI*2); mCtx.fill();
+  }
+  mCtx.globalCompositeOperation = 'destination-out';
+  for (const ck of reg.outside) {
+    const c = CIRC[ck];
+    mCtx.beginPath(); mCtx.arc(sc(c.cx),sc(c.cy),sc(c.r),0,Math.PI*2); mCtx.fill();
+  }
+
+  // Hatch masked to region
+  const hCv = document.createElement('canvas');
+  hCv.width = w; hCv.height = h;
+  const hCtx = hCv.getContext('2d');
+  hCtx.fillStyle = hCtx.createPattern(tile, 'repeat');
+  hCtx.fillRect(0,0,w,h);
+  hCtx.globalCompositeOperation = 'destination-in';
+  hCtx.drawImage(mCv,0,0);
+
+  dCtx.drawImage(hCv,0,0);
+}
+
+
+// ── DRAW ──────────────────────────────────────────────────────────────────
+function draw() {
+  const w = dCanvas.width, h = dCanvas.height;
+  dCtx.clearRect(0,0,w,h);
+
+  const slide = SLIDES[current];
+  if (!slide.circleKeys.length) return;
+
+  const st = rState[current];
+
+  // 1. Shaded regions
+  for (const reg of slide.regions) {
+    if (st[reg.key].s === 1) shadeRegion(w, h, reg, st[reg.key].c);
+  }
+
+  // 2. Glow halos
+  for (const ck of slide.circleKeys) {
+    const c = CIRC[ck];
+    const g = dCtx.createRadialGradient(sc(c.cx),sc(c.cy),sc(c.r*.65),sc(c.cx),sc(c.cy),sc(c.r*1.35));
+    g.addColorStop(0, c.glow.replace('0.28','0'));
+    g.addColorStop(0.5, c.glow);
+    g.addColorStop(1, c.glow.replace('0.28','0'));
+    dCtx.strokeStyle = g; dCtx.lineWidth = sc(20);
+    dCtx.beginPath(); dCtx.arc(sc(c.cx),sc(c.cy),sc(c.r),0,Math.PI*2); dCtx.stroke();
+  }
+
+  // 3. Circle outlines
+  for (const ck of slide.circleKeys) {
+    const c = CIRC[ck];
+    dCtx.strokeStyle = c.stroke; dCtx.lineWidth = sc(2.5);
+    dCtx.beginPath(); dCtx.arc(sc(c.cx),sc(c.cy),sc(c.r),0,Math.PI*2); dCtx.stroke();
+  }
+
+  // 4. Free X marks
+  for (const fx of freeXs[current]) {
+    drawX(fx.lx, fx.ly, fx.c);
+  }
+}
+
+function drawX(lx, ly, colorKey) {
+  const col = getColorDef(colorKey);
+  const x = sc(lx), y = sc(ly), sz = sc(18);
+  dCtx.save();
+  dCtx.strokeStyle = colorKey === 'white' ? '#ffffff' : col.swatch;
+  dCtx.lineWidth   = sc(3.2);
+  dCtx.lineCap     = 'round';
+  dCtx.shadowColor = 'rgba(0,0,0,0.9)';
+  dCtx.shadowBlur  = sc(6);
+  dCtx.beginPath();
+  dCtx.moveTo(x-sz, y-sz); dCtx.lineTo(x+sz, y+sz);
+  dCtx.moveTo(x+sz, y-sz); dCtx.lineTo(x-sz, y+sz);
+  dCtx.stroke();
+  dCtx.restore();
+}
+
+
+// ── HIT TEST: is logical point (lx,ly) near an existing free X? ───────────
+const X_HIT_RADIUS = 28; // logical units
+function hitFreeX(lx, ly) {
+  const xs = freeXs[current];
+  for (let i = xs.length - 1; i >= 0; i--) {
+    const dx = lx - xs[i].lx, dy = ly - xs[i].ly;
+    if (Math.sqrt(dx*dx + dy*dy) < X_HIT_RADIUS) return i;
+  }
+  return -1;
+}
+
+// ── IS POINT INSIDE ANY CIRCLE? ───────────────────────────────────────────
+function insideAnyCircle(lx, ly) {
+  for (const ck of SLIDES[current].circleKeys) {
+    const c = CIRC[ck];
+    if ((lx-c.cx)**2 + (ly-c.cy)**2 <= c.r**2) return true;
+  }
+  return false;
+}
+
+
+// ── CLICK ─────────────────────────────────────────────────────────────────
+dCanvas.addEventListener('click', e => {
+  const slide = SLIDES[current];
+  if (!slide.circleKeys.length) return;
+
+  const rect = dCanvas.getBoundingClientRect();
+  const lx   = (e.clientX - rect.left) * VSIZE / boardPx;
+  const ly   = (e.clientY - rect.top)  * VSIZE / boardPx;
+
+  if (mode === 'x') {
+    // X mode: click existing X to remove; click elsewhere to place
+    const hit = hitFreeX(lx, ly);
+    if (hit >= 0) {
+      freeXs[current].splice(hit, 1);
+    } else {
+      // Only place inside a circle
+      if (insideAnyCircle(lx, ly)) {
+        freeXs[current].push({ lx, ly, c: activeColor });
+      }
+    }
+    draw();
+    return;
+  }
+
+  // Shade mode: find region under click, cycle shade on/off
+  function inC(ck) {
+    const c = CIRC[ck];
+    return (lx-c.cx)**2 + (ly-c.cy)**2 <= c.r**2;
+  }
+  for (const reg of slide.regions) {
+    if (reg.inside.every(ck => inC(ck)) && reg.outside.every(ck => !inC(ck))) {
+      const cur = rState[current][reg.key];
+      const nextS = cur.s === 0 ? 1 : 0;
+      rState[current][reg.key] = { s: nextS, c: nextS === 1 ? activeColor : 'white' };
+      draw();
+      break;
+    }
+  }
+});
+
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────
+let current   = 0;
+let animating = false;
+
+const toolbar = document.getElementById('toolbar');
+const dotsEl  = document.getElementById('dots');
+const dotEls  = SLIDES.map((_, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' active' : '');
+  d.addEventListener('click', () => goTo(i));
+  dotsEl.appendChild(d);
+  return d;
+});
+
+function updateToolbar() {
+  toolbar.classList.toggle('visible', SLIDES[current].circleKeys.length > 0);
+}
+
+function goTo(idx) {
+  if (idx < 0 || idx >= TOTAL || idx === current || animating) return;
+  animating = true;
+  board.style.opacity = '0';
+  setTimeout(() => {
+    current = idx;
+    draw();
+    dotEls.forEach((d,i) => d.classList.toggle('active', i === current));
+    updateToolbar();
+    board.style.opacity = '1';
+    setTimeout(() => { animating = false; }, 320);
+  }, 280);
+}
+
+document.getElementById('btn-prev').addEventListener('click', () => goTo(current - 1));
+document.getElementById('btn-next').addEventListener('click', () => goTo(current + 1));
+
+document.addEventListener('keydown', e => {
+  if (['ArrowRight','ArrowDown',' '].includes(e.key)) { e.preventDefault(); goTo(current + 1); }
+  if (['ArrowLeft','ArrowUp'].includes(e.key))         { e.preventDefault(); goTo(current - 1); }
+});
+
+let touchX = 0;
+document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, { passive:true });
+document.addEventListener('touchend',   e => {
+  const dx = e.changedTouches[0].clientX - touchX;
+  if (Math.abs(dx) > 40) dx < 0 ? goTo(current+1) : goTo(current-1);
+});
+
+sizeBoard();
+updateToolbar();
+updateXCursorColor();
+</script>
+</body>
+</html>

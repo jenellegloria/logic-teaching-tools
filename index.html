@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teaching Tools for Logic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --pink:    #ff2d87;
+  --yellow:  #ffe600;
+  --cyan:    #00e5ff;
+  --lime:    #7fff00;
+  --orange:  #ff6b00;
+  --purple:  #c020ff;
+  --ink:     #0d0d0d;
+  --white:   #fffdf5;
+  --border:  3px solid var(--ink);
+  --shadow:  5px 5px 0 var(--ink);
+  --shadow-lg: 7px 7px 0 var(--ink);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background-color: var(--white);
+  background-image:
+    radial-gradient(circle, #ddd 1.5px, transparent 1.5px);
+  background-size: 28px 28px;
+  font-family: 'Fredoka', sans-serif;
+  color: var(--ink);
+  overflow-x: hidden;
+}
+
+/* ── DECORATIVE SHAPES ── */
+.shape {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+.star {
+  display: block;
+  animation: spin linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes bounce-in {
+  0%   { opacity: 0; transform: scale(0.7) translateY(30px); }
+  70%  { transform: scale(1.05) translateY(-4px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(var(--rot, 0deg)); }
+  50%       { transform: translateY(-10px) rotate(var(--rot, 0deg)); }
+}
+
+/* ── HERO ── */
+header {
+  position: relative;
+  background: var(--pink);
+  border-bottom: 4px solid var(--ink);
+  padding: 60px 24px 52px;
+  text-align: center;
+  overflow: hidden;
+}
+
+.header-stripe {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 16px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--yellow)    0px,  var(--yellow)   32px,
+    var(--cyan)     32px, var(--cyan)      64px,
+    var(--lime)     64px, var(--lime)      96px,
+    var(--orange)   96px, var(--orange)  128px,
+    var(--purple)  128px, var(--purple)  160px
+  );
+  border-top: 3px solid var(--ink);
+}
+
+.deco-star {
+  position: absolute;
+  animation: float 3s ease-in-out infinite;
+}
+
+h1 {
+  font-family: 'Lilita One', cursive;
+  font-size: clamp(2.4rem, 6vw, 5rem);
+  color: var(--white);
+  -webkit-text-stroke: 2.5px var(--ink);
+  text-shadow:
+    4px 4px 0 var(--ink);
+  letter-spacing: 0.01em;
+  line-height: 1.1;
+  position: relative;
+  z-index: 1;
+}
+
+.subtitle {
+  margin-top: 18px;
+  display: inline-block;
+  background: var(--yellow);
+  border: var(--border);
+  box-shadow: var(--shadow);
+  padding: 10px 28px;
+  font-size: clamp(1rem, 2.2vw, 1.3rem);
+  font-weight: 600;
+  color: var(--ink);
+  position: relative;
+  z-index: 1;
+  letter-spacing: 0.02em;
+}
+
+/* ── MAIN ── */
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 60px 24px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 64px;
+}
+
+/* ── SECTION ── */
+.section {
+  animation: bounce-in 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+.section:nth-child(1) { animation-delay: 0.05s; }
+.section:nth-child(2) { animation-delay: 0.15s; }
+.section:nth-child(3) { animation-delay: 0.25s; }
+
+.section-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.section-tag {
+  font-family: 'Lilita One', cursive;
+  font-size: clamp(1.5rem, 3.5vw, 2.2rem);
+  padding: 8px 26px 10px;
+  border: var(--border);
+  box-shadow: var(--shadow);
+  letter-spacing: 0.03em;
+  line-height: 1;
+}
+
+.section-tag.fundamentals  { background: var(--cyan);   }
+.section-tag.categorical   { background: var(--lime);   }
+.section-tag.propositional { background: var(--orange); color: var(--white); -webkit-text-stroke: 1px var(--ink); }
+
+.section-dot {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 2.5px solid var(--ink);
+  flex-shrink: 0;
+}
+.fundamentals  .section-dot { background: var(--pink);   }
+.categorical   .section-dot { background: var(--purple); }
+.propositional .section-dot { background: var(--yellow); }
+
+/* ── GRID ── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 22px;
+}
+
+/* ── CARD ── */
+.card {
+  display: block;
+  background: var(--white);
+  border: var(--border);
+  box-shadow: var(--shadow-lg);
+  text-decoration: none;
+  color: var(--ink);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  position: relative;
+  overflow: hidden;
+}
+.card:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 10px 10px 0 var(--ink);
+}
+.card:active {
+  transform: translate(2px, 2px);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.card-top {
+  height: 10px;
+  border-bottom: var(--border);
+}
+.fundamentals  .card-top { background: var(--cyan);   }
+.categorical   .card-top { background: var(--lime);   }
+.propositional .card-top { background: var(--orange); }
+
+.card-body {
+  padding: 20px 20px 22px;
+}
+
+.card-title {
+  font-family: 'Lilita One', cursive;
+  font-size: 1.15rem;
+  line-height: 1.2;
+  margin-bottom: 8px;
+  letter-spacing: 0.01em;
+}
+
+.card-desc {
+  font-size: 0.88rem;
+  font-weight: 400;
+  color: #444;
+  line-height: 1.5;
+}
+
+.card-arrow {
+  display: inline-block;
+  margin-top: 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: var(--ink);
+  color: var(--white);
+  padding: 4px 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* placeholder cards (no href yet) */
+.card.placeholder {
+  opacity: 0.45;
+  cursor: default;
+}
+.card.placeholder:hover {
+  transform: none;
+  box-shadow: var(--shadow-lg);
+}
+
+/* ── FOOTER ── */
+footer {
+  border-top: 4px solid var(--ink);
+  background: var(--ink);
+  color: var(--white);
+  text-align: center;
+  padding: 22px;
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <!-- floating stars -->
+  <svg class="deco-star" style="top:18px;left:6%;--rot:-15deg;animation-duration:2.8s;" width="38" height="38" viewBox="0 0 38 38">
+    <polygon points="19,2 23,14 36,14 26,22 30,35 19,27 8,35 12,22 2,14 15,14" fill="#ffe600" stroke="#0d0d0d" stroke-width="2.2" stroke-linejoin="round"/>
+  </svg>
+  <svg class="deco-star" style="top:12px;right:8%;--rot:20deg;animation-duration:3.3s;animation-delay:.4s;" width="28" height="28" viewBox="0 0 38 38">
+    <polygon points="19,2 23,14 36,14 26,22 30,35 19,27 8,35 12,22 2,14 15,14" fill="#00e5ff" stroke="#0d0d0d" stroke-width="2.2" stroke-linejoin="round"/>
+  </svg>
+  <svg class="deco-star" style="bottom:28px;left:3%;--rot:10deg;animation-duration:4s;animation-delay:.9s;" width="22" height="22" viewBox="0 0 38 38">
+    <polygon points="19,2 23,14 36,14 26,22 30,35 19,27 8,35 12,22 2,14 15,14" fill="#7fff00" stroke="#0d0d0d" stroke-width="2.2" stroke-linejoin="round"/>
+  </svg>
+  <svg class="deco-star" style="bottom:24px;right:5%;--rot:-8deg;animation-duration:3.6s;animation-delay:.2s;" width="32" height="32" viewBox="0 0 38 38">
+    <polygon points="19,2 23,14 36,14 26,22 30,35 19,27 8,35 12,22 2,14 15,14" fill="#c020ff" stroke="#0d0d0d" stroke-width="2.2" stroke-linejoin="round"/>
+  </svg>
+  <svg class="deco-star" style="top:40px;left:22%;--rot:5deg;animation-duration:5s;animation-delay:1s;" width="16" height="16" viewBox="0 0 38 38">
+    <polygon points="19,2 23,14 36,14 26,22 30,35 19,27 8,35 12,22 2,14 15,14" fill="#ff6b00" stroke="#0d0d0d" stroke-width="2.2" stroke-linejoin="round"/>
+  </svg>
+
+  <h1>Teaching Tools for Logic</h1>
+  <div class="subtitle">A collection of visual guides to logic concepts</div>
+  <div class="header-stripe"></div>
+</header>
+
+<main>
+
+  <!-- ── FUNDAMENTALS ── -->
+  <section class="section fundamentals">
+    <div class="section-header">
+      <div class="section-tag fundamentals">Fundamentals</div>
+      <div class="section-dot"></div>
+      <div class="section-dot"></div>
+      <div class="section-dot"></div>
+    </div>
+    <div class="grid">
+
+      <!-- Add your Fundamentals tools here -->
+      <!-- Example card structure:
+      <a href="your-file.html" class="card">
+        <div class="card-top"></div>
+        <div class="card-body">
+          <div class="card-title">Tool Name</div>
+          <div class="card-desc">Short description of the tool.</div>
+          <span class="card-arrow">Open</span>
+        </div>
+      </a>
+      -->
+
+      <span class="card placeholder">
+        <div class="card-top"></div>
+        <div class="card-body">
+          <div class="card-title">tool goes here</div>
+          <div class="card-desc">this card will be replaced with an &lt;a href&gt; pointing to my file.</div>
+          <span class="card-arrow">Coming Soon</span>
+        </div>
+      </span>
+
+    </div>
+  </section>
+
+  <!-- ── CATEGORICAL LOGIC ── -->
+  <section class="section categorical">
+    <div class="section-header">
+      <div class="section-tag categorical">Categorical Logic</div>
+      <div class="section-dot"></div>
+      <div class="section-dot"></div>
+      <div class="section-dot"></div>
+    </div>
+    <div class="grid">
+
+      <a href="venn-logic.html" class="card">
+        <div class="card-top"></div>
+        <div class="card-body">
+          <div class="card-title">Venn Diagram Interactive Guide</div>
+          <div class="card-desc">Guide to Venn Diagrams</div>
+          <span class="card-arrow">Open</span>
+        </div>
+      </a>
+
+      <a href="venn-slides.html" class="card">
+        <div class="card-top"></div>
+        <div class="card-body">
+          <div class="card-title">Venn Diagram Slides</div>
+          <div class="card-desc">Blank starfield slideshow for classroom narration and video recording.</div>
+          <span class="card-arrow">Open</span>
+        </div>
+      </a>
+
+      <a href="aeio-infographic.html" class="card">
+        <div class="card-top"></div>
+        <div class="card-body">
+          <div class="card-title">AEIO Infographic</div>
+          <div class="card-desc">A brief explanation page for all 4 types of categorical proposition.</div>
+          <span class="card-arrow">Open</span>
+        </div>
+      </a>
+
+
+
+      <!-- Add more Categorical Logic tools here -->
+
+    </div>
+  </section>
+
+  <!-- ── PROPOSITIONAL LOGIC ── -->
+  <section class="section propositional">
+    <div class="section-header">
+      <div class="section-tag propositional">Propositional Logic</div>
+      <div class="section-dot"></div>
+      <div class="section-dot"></div>
+      <div class="section-dot"></div>
+    </div>
+    <div class="grid">
+
+      <!-- Add your Propositional Logic tools here -->
+
+      <a href="logical-connectives.html" class="card">
+        <div class="card-top"></div>
+        <div class="card-body">
+          <div class="card-title">Logical Connectives</div>
+          <div class="card-desc">Infographic explainer for the five logial connectives.</div>
+          <span class="card-arrow">Open</span>
+        </div>
+      </a>
+
+     <a href="inference-equivalence-rules.html" class="card">
+        <div class="card-top"></div>
+        <div class="card-body">
+          <div class="card-title">Inference Rules</div>
+          <div class="card-desc">Infographic explainer for inference and equivalence rules.</div>
+          <span class="card-arrow">Open</span>
+        </div>
+      </a>
+
+
+
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Teaching Tools for Logic
+</footer>
+
+</body>
+</html>

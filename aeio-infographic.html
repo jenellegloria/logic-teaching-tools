@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AEIO Standard Form Categorical Propositions</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;0,900;1,300;1,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #1a1a2e;
+    --paper: #f5f0e8;
+    --card: #fffdf8;
+    --muted: #7a7068;
+    --shade: #b0c4d8;
+    --shade-dark: #7a9ab8;
+    --x-color: #c84b31;
+
+    --a-color: #2d6a4f;
+    --e-color: #6b2d6a;
+    --i-color: #c84b31;
+    --o-color: #b5640a;
+  }
+
+  body {
+    background: var(--paper);
+    font-family: 'DM Mono', monospace;
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 48px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Header */
+  .header {
+    max-width: 780px;
+    width: 100%;
+    margin-bottom: 48px;
+    border-bottom: 3px solid var(--ink);
+    padding-bottom: 24px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(32px, 5.5vw, 50px);
+    font-weight: 900;
+    line-height: 1.05;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--i-color);
+  }
+
+  .subtitle {
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 560px;
+  }
+
+  /* Legend */
+  .legend {
+    max-width: 780px;
+    width: 100%;
+    display: flex;
+    gap: 24px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+    animation: fadeUp 0.5s ease 0.1s both;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .legend-swatch {
+    width: 20px;
+    height: 14px;
+    border-radius: 2px;
+  }
+
+  .swatch-shade { background: var(--shade); opacity: 0.7; }
+  .swatch-x { background: var(--x-color); }
+
+  /* Grid */
+  .grid {
+    max-width: 780px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  @media (max-width: 560px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+
+  /* Card */
+  .card {
+    background: var(--card);
+    border-radius: 4px;
+    padding: 28px;
+    border-top: 5px solid;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .card:nth-child(1) { border-color: var(--a-color); animation-delay: 0.15s; }
+  .card:nth-child(2) { border-color: var(--e-color); animation-delay: 0.25s; }
+  .card:nth-child(3) { border-color: var(--i-color); animation-delay: 0.35s; }
+  .card:nth-child(4) { border-color: var(--o-color); animation-delay: 0.45s; }
+
+  .card-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .letter {
+    font-family: 'Fraunces', serif;
+    font-size: 42px;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .card:nth-child(1) .letter { color: var(--a-color); }
+  .card:nth-child(2) .letter { color: var(--e-color); }
+  .card:nth-child(3) .letter { color: var(--i-color); }
+  .card:nth-child(4) .letter { color: var(--o-color); }
+
+  .type-label {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  .form {
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--ink);
+  }
+
+  .example {
+    font-size: 11px;
+    color: var(--muted);
+    font-style: italic;
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  /* Venn diagram */
+  .venn-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 18px;
+  }
+
+  svg.venn {
+    overflow: visible;
+  }
+
+  .venn-explanation {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.7;
+    border-top: 1px solid #e8e0d0;
+    padding-top: 14px;
+  }
+
+  .venn-explanation strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="label">Categorical Logic · Standard Form</div>
+  <h1>The Four<br><em>AEIO</em> Propositions</h1>
+  <p class="subtitle">Every standard form categorical proposition is one of these four types. Each makes a claim about the relationship between a <strong>Subject (S)</strong> class and a <strong>Predicate (P)</strong> class.</p>
+</div>
+
+<div class="legend">
+  <div class="legend-item">
+    <div class="legend-swatch swatch-shade"></div>
+    <span>Shaded region = <strong>empty</strong> (nothing exists there)</span>
+  </div>
+  <div class="legend-item">
+    <span style="font-size:18px; font-family:'DM Mono',monospace; color:var(--x-color); line-height:1;">✕</span>
+    <span>= <strong>at least one thing</strong> exists there</span>
+  </div>
+</div>
+
+<div class="grid">
+
+  <!-- A -->
+  <div class="card">
+    <div class="card-header">
+      <div class="letter">A</div>
+      <div class="type-label">Universal<br>Affirmative</div>
+    </div>
+    <div class="form">All S are P.</div>
+    <div class="example">"All dogs are mammals."</div>
+    <div class="venn-wrap">
+      <svg class="venn" width="180" height="110" viewBox="0 0 180 110">
+        <!-- Defs for clipping -->
+        <defs>
+          <!-- S only region (left crescent) -->
+          <clipPath id="a-s-only">
+            <circle cx="72" cy="55" r="44"/>
+          </clipPath>
+          <clipPath id="a-p-clip">
+            <circle cx="108" cy="55" r="44"/>
+          </clipPath>
+        </defs>
+        <!-- Shade S-only (left crescent) -->
+        <!-- We shade the part of S that does NOT overlap P -->
+        <circle cx="72" cy="55" r="44" fill="var(--shade)" opacity="0.55"/>
+        <!-- Cover back the overlap so only left crescent shaded -->
+        <circle cx="108" cy="55" r="44" fill="var(--card)"/>
+        <!-- Redraw outlines -->
+        <circle cx="72" cy="55" r="44" fill="none" stroke="var(--ink)" stroke-width="2"/>
+        <circle cx="108" cy="55" r="44" fill="none" stroke="var(--ink)" stroke-width="2"/>
+        <!-- Labels -->
+        <text x="48" y="59" font-family="DM Mono, monospace" font-size="13" font-weight="500" fill="var(--ink)" text-anchor="middle">S</text>
+        <text x="132" y="59" font-family="DM Mono, monospace" font-size="13" font-weight="500" fill="var(--ink)" text-anchor="middle">P</text>
+      </svg>
+    </div>
+    <div class="venn-explanation">
+      The <strong>S-only region is shaded</strong> — nothing exists in S that isn't also in P. Every member of S is inside P too.
+    </div>
+  </div>
+
+  <!-- E -->
+  <div class="card">
+    <div class="card-header">
+      <div class="letter">E</div>
+      <div class="type-label">Universal<br>Negative</div>
+    </div>
+    <div class="form">No S are P.</div>
+    <div class="example">"No fish are mammals."</div>
+    <div class="venn-wrap">
+      <svg class="venn" width="180" height="110" viewBox="0 0 180 110">
+        <defs>
+          <clipPath id="e-intersect">
+            <circle cx="72" cy="55" r="44"/>
+          </clipPath>
+        </defs>
+        <!-- Shade the intersection only -->
+        <!-- Draw intersection by clipping P circle to S circle -->
+        <circle cx="108" cy="55" r="44" fill="var(--shade)" opacity="0.55" clip-path="url(#e-intersect)"/>
+        <!-- Outlines -->
+        <circle cx="72" cy="55" r="44" fill="none" stroke="var(--ink)" stroke-width="2"/>
+        <circle cx="108" cy="55" r="44" fill="none" stroke="var(--ink)" stroke-width="2"/>
+        <text x="48" y="59" font-family="DM Mono, monospace" font-size="13" font-weight="500" fill="var(--ink)" text-anchor="middle">S</text>
+        <text x="132" y="59" font-family="DM Mono, monospace" font-size="13" font-weight="500" fill="var(--ink)" text-anchor="middle">P</text>
+      </svg>
+    </div>
+    <div class="venn-explanation">
+      The <strong>overlapping region is shaded</strong> — nothing can be both S and P at the same time. The two classes are completely separate.
+    </div>
+  </div>
+
+  <!-- I -->
+  <div class="card">
+    <div class="card-header">
+      <div class="letter">I</div>
+      <div class="type-label">Particular<br>Affirmative</div>
+    </div>
+    <div class="form">Some S are P.</div>
+    <div class="example">"Some students are athletes."</div>
+    <div class="venn-wrap">
+      <svg class="venn" width="180" height="110" viewBox="0 0 180 110">
+        <defs>
+          <clipPath id="i-intersect">
+            <circle cx="72" cy="55" r="44"/>
+          </clipPath>
+        </defs>
+        <!-- No shading — just an X in the intersection -->
+        <circle cx="72" cy="55" r="44" fill="none" stroke="var(--ink)" stroke-width="2"/>
+        <circle cx="108" cy="55" r="44" fill="none" stroke="var(--ink)" stroke-width="2"/>
+        <!-- X mark in center overlap ~90,55 -->
+        <text x="90" y="60" font-family="DM Mono, monospace" font-size="16" font-weight="500" fill="var(--x-color)" text-anchor="middle">✕</text>
+        <text x="48" y="59" font-family="DM Mono, monospace" font-size="13" font-weight="500" fill="var(--ink)" text-anchor="middle">S</text>
+        <text x="132" y="59" font-family="DM Mono, monospace" font-size="13" font-weight="500" fill="var(--ink)" text-anchor="middle">P</text>
+      </svg>
+    </div>
+    <div class="venn-explanation">
+      A <strong>✕ in the overlap</strong> — at least one thing exists that is both S and P. No regions are shaded; we're not ruling anything out.
+    </div>
+  </div>
+
+  <!-- O -->
+  <div class="card">
+    <div class="card-header">
+      <div class="letter">O</div>
+      <div class="type-label">Particular<br>Negative</div>
+    </div>
+    <div class="form">Some S are not P.</div>
+    <div class="example">"Some birds are not songbirds."</div>
+    <div class="venn-wrap">
+      <svg class="venn" width="180" height="110" viewBox="0 0 180 110">
+        <defs>
+          <clipPath id="o-s-only">
+            <rect x="0" y="0" width="180" height="110"/>
+          </clipPath>
+          <!-- Clip to S but exclude P overlap -->
+          <clipPath id="o-s-circle">
+            <circle cx="72" cy="55" r="44"/>
+          </clipPath>
+        </defs>
+        <!-- No shading. X in the S-only crescent (left side) -->
+        <circle cx="72" cy="55" r="44" fill="none" stroke="var(--ink)" stroke-width="2"/>
+        <circle cx="108" cy="55" r="44" fill="none" stroke="var(--ink)" stroke-width="2"/>
+        <!-- X in the S-only region, roughly x=52 -->
+        <text x="52" y="60" font-family="DM Mono, monospace" font-size="16" font-weight="500" fill="var(--x-color)" text-anchor="middle">✕</text>
+        <text x="48" y="59" font-family="DM Mono, monospace" font-size="13" font-weight="500" fill="var(--ink)" text-anchor="middle">S</text>
+        <text x="132" y="59" font-family="DM Mono, monospace" font-size="13" font-weight="500" fill="var(--ink)" text-anchor="middle">P</text>
+      </svg>
+    </div>
+    <div class="venn-explanation">
+      A <strong>✕ in the S-only region</strong> — at least one thing is in S but outside P. Something exists in S that is not a member of P.
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

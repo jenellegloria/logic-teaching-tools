@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rules of Inference & Equivalence</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;0,900;1,300;1,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --delta-green:  #005749;
+    --delta-green2: #00957A;
+    --delta-black:  #193330;
+    --delta-white:  #F4F3EF;
+    --blue:         #9AD8CE;
+    --tan:          #C8C6B7;
+    --coral:        #F98F7C;
+    --pink:         #EACDCA;
+    --muted:        #5a6e6b;
+    --inf-color:    #005749;
+    --eq-color:     #6b2d6a;
+  }
+
+  body {
+    background: var(--delta-white);
+    font-family: 'DM Mono', monospace;
+    color: var(--delta-black);
+    min-height: 100vh;
+    padding: 48px 24px 64px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── Header ── */
+  .header {
+    max-width: 960px;
+    width: 100%;
+    margin-bottom: 36px;
+    padding-bottom: 24px;
+    border-bottom: 3px solid var(--delta-green);
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .top-label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--delta-green2);
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(28px, 5vw, 46px);
+    font-weight: 900;
+    line-height: 1.05;
+    color: var(--delta-green);
+  }
+
+  h1 em { font-style: italic; color: var(--delta-green2); }
+
+  .subtitle {
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.75;
+    max-width: 700px;
+  }
+
+  .subtitle strong { color: var(--delta-black); }
+
+  /* ── Section titles ── */
+  .section {
+    max-width: 960px;
+    width: 100%;
+    margin-bottom: 36px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .section-title {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-title.inf { color: var(--inf-color); }
+  .section-title.eq  { color: var(--eq-color); }
+
+  .section-badge {
+    color: white;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    flex-shrink: 0;
+    letter-spacing: 0;
+  }
+
+  .section-badge.inf { background: var(--inf-color); }
+  .section-badge.eq  { background: var(--eq-color); }
+
+  /* ── Distinction banner ── */
+  .distinction {
+    max-width: 960px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 36px;
+    animation: fadeUp 0.5s ease 0.1s both;
+  }
+
+  @media (max-width: 580px) { .distinction { grid-template-columns: 1fr; } }
+
+  .dist-card {
+    border-radius: 8px;
+    padding: 22px 26px;
+  }
+
+  .dist-card.inf { background: var(--inf-color); color: white; }
+  .dist-card.eq  { background: var(--eq-color);  color: white; }
+
+  .dist-type {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-bottom: 6px;
+  }
+
+  .dist-name {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 900;
+    margin-bottom: 10px;
+  }
+
+  .dist-desc {
+    font-size: 11px;
+    line-height: 1.7;
+    opacity: 0.85;
+  }
+
+  .dist-desc strong { opacity: 1; font-weight: 600; color: white; }
+
+  .dist-symbol {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.15);
+  }
+
+  /* ── Rule cards grid ── */
+  .rules-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+
+  @media (max-width: 700px) { .rules-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 440px) { .rules-grid { grid-template-columns: 1fr; } }
+
+  .rule-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,87,73,0.07);
+    overflow: hidden;
+    border-top: 4px solid;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .rule-card.inf { border-color: var(--inf-color); }
+  .rule-card.eq  { border-color: var(--eq-color); }
+
+  .rule-top {
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .rule-name {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
+
+  .rule-card.inf .rule-name { color: var(--inf-color); }
+  .rule-card.eq  .rule-name { color: var(--eq-color); }
+
+  .rule-abbr {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* The formal rule display */
+  .rule-formal {
+    padding: 14px 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .rule-schema {
+    background: var(--delta-white);
+    border-radius: 5px;
+    padding: 10px 14px;
+    font-size: 12.5px;
+    line-height: 2;
+    font-weight: 500;
+  }
+
+  .rule-schema .premise { color: var(--delta-black); }
+
+  .rule-schema .conclusion {
+    border-top: 1.5px solid var(--tan);
+    margin-top: 2px;
+    padding-top: 4px;
+    font-weight: 700;
+  }
+
+  .rule-card.inf .rule-schema .conclusion { color: var(--inf-color); }
+  .rule-card.eq  .rule-schema .conclusion { color: var(--eq-color); }
+
+  /* For equivalence rules: the double arrow form */
+  .rule-schema .equiv {
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .rule-card.eq .rule-schema .equiv { color: var(--eq-color); }
+
+  .bidir {
+    font-size: 14px;
+    color: var(--eq-color);
+    font-weight: 900;
+  }
+
+  .rule-note {
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .rule-note strong { color: var(--delta-black); font-weight: 500; }
+
+  /* ── Proof section ── */
+  .proof-intro {
+    background: var(--delta-black);
+    color: white;
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+    font-size: 11.5px;
+    line-height: 1.75;
+  }
+
+  .proof-intro strong { color: var(--blue); }
+
+  .proofs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  @media (max-width: 660px) { .proofs-grid { grid-template-columns: 1fr; } }
+
+  .proof-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,87,73,0.08);
+    overflow: hidden;
+  }
+
+  .proof-header {
+    background: var(--delta-white);
+    padding: 14px 20px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .proof-label {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .proof-goal {
+    font-family: 'Fraunces', serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--delta-black);
+  }
+
+  .proof-goal .show {
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-right: 6px;
+  }
+
+  .proof-body {
+    padding: 16px 20px;
+  }
+
+  table.proof-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11.5px;
+  }
+
+  table.proof-table th {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 10px 8px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+  }
+
+  table.proof-table th.center { text-align: center; }
+
+  table.proof-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #f5f5f5;
+    vertical-align: middle;
+  }
+
+  table.proof-table tr:last-child td { border-bottom: none; }
+
+  table.proof-table td.line-num {
+    color: var(--muted);
+    font-size: 10px;
+    text-align: center;
+    width: 24px;
+  }
+
+  table.proof-table td.formula {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--delta-black);
+  }
+
+  table.proof-table td.formula.conclusion {
+    color: var(--delta-green);
+  }
+
+  table.proof-table td.justification {
+    font-size: 10px;
+    color: var(--muted);
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  table.proof-table td.justification .rule-ref {
+    color: var(--delta-green);
+    font-weight: 600;
+  }
+
+  table.proof-table td.justification .rule-ref.eq-ref {
+    color: var(--eq-color);
+  }
+
+  table.proof-table tr.premise-row td { background: rgba(0,87,73,0.03); }
+  table.proof-table tr.conclusion-row td { background: rgba(0,87,73,0.07); }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .s1 { animation-delay: 0.05s; }
+  .s2 { animation-delay: 0.15s; }
+  .s3 { animation-delay: 0.25s; }
+  .s4 { animation-delay: 0.35s; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="top-label">Propositional Logic · Proofs</div>
+  <h1>Rules of Inference<br>&amp; <em>Equivalence</em></h1>
+  <p class="subtitle">Proofs in propositional logic work by applying rules one step at a time. <strong>Inference rules</strong> let you derive new lines from existing ones. <strong>Equivalence rules</strong> let you replace a formula — or part of a formula — with a logically equivalent form.</p>
+</div>
+
+<!-- Distinction -->
+<div class="distinction">
+  <div class="dist-card inf">
+    <div class="dist-type">Type 1</div>
+    <div class="dist-name">Inference Rules</div>
+    <div class="dist-desc">Applied to <strong>whole lines</strong>. Given certain lines already in the proof, you may write a new line. The arrow goes one way only — you cannot run inference rules backwards.</div>
+    <div class="dist-symbol">premises ∴ conclusion</div>
+  </div>
+  <div class="dist-card eq">
+    <div class="dist-type">Type 2</div>
+    <div class="dist-name">Equivalence Rules</div>
+    <div class="dist-desc">Applied to <strong>whole lines or parts of lines</strong>. Two forms are logically equivalent — either can replace the other in either direction. They are reversible.</div>
+    <div class="dist-symbol">P ≡ Q &nbsp;·&nbsp; works both ways</div>
+  </div>
+</div>
+
+<!-- Inference Rules -->
+<div class="section s1">
+  <div class="section-title inf"><div class="section-badge inf">I</div> Inference Rules</div>
+  <div class="rules-grid">
+
+    <!-- Modus Ponens -->
+    <div class="rule-card inf">
+      <div class="rule-top">
+        <div class="rule-name">Modus Ponens</div>
+        <div class="rule-abbr">MP</div>
+      </div>
+      <div class="rule-formal">
+        <div class="rule-schema">
+          <div class="premise">P → Q</div>
+          <div class="premise">P</div>
+          <div class="conclusion">∴ Q</div>
+        </div>
+        <div class="rule-note">If you have a conditional and its antecedent, you may derive the consequent.</div>
+      </div>
+    </div>
+
+    <!-- Modus Tollens -->
+    <div class="rule-card inf">
+      <div class="rule-top">
+        <div class="rule-name">Modus Tollens</div>
+        <div class="rule-abbr">MT</div>
+      </div>
+      <div class="rule-formal">
+        <div class="rule-schema">
+          <div class="premise">P → Q</div>
+          <div class="premise">~Q</div>
+          <div class="conclusion">∴ ~P</div>
+        </div>
+        <div class="rule-note">If you have a conditional and the negation of its consequent, you may derive the negation of the antecedent.</div>
+      </div>
+    </div>
+
+    <!-- Hypothetical Syllogism -->
+    <div class="rule-card inf">
+      <div class="rule-top">
+        <div class="rule-name">Hypothetical Syllogism</div>
+        <div class="rule-abbr">HS</div>
+      </div>
+      <div class="rule-formal">
+        <div class="rule-schema">
+          <div class="premise">P → Q</div>
+          <div class="premise">Q → R</div>
+          <div class="conclusion">∴ P → R</div>
+        </div>
+        <div class="rule-note">Chain two conditionals together when the consequent of the first matches the antecedent of the second.</div>
+      </div>
+    </div>
+
+    <!-- Disjunctive Syllogism -->
+    <div class="rule-card inf">
+      <div class="rule-top">
+        <div class="rule-name">Disjunctive Syllogism</div>
+        <div class="rule-abbr">DS</div>
+      </div>
+      <div class="rule-formal">
+        <div class="rule-schema">
+          <div class="premise">P ∨ Q</div>
+          <div class="premise">~P</div>
+          <div class="conclusion">∴ Q</div>
+        </div>
+        <div class="rule-note">If you have a disjunction and the negation of one disjunct, the other disjunct follows.</div>
+      </div>
+    </div>
+
+    <!-- Simplification -->
+    <div class="rule-card inf">
+      <div class="rule-top">
+        <div class="rule-name">Simplification</div>
+        <div class="rule-abbr">Simp</div>
+      </div>
+      <div class="rule-formal">
+        <div class="rule-schema">
+          <div class="premise">P ∧ Q</div>
+          <div class="conclusion">∴ P &nbsp;(or ∴ Q)</div>
+        </div>
+        <div class="rule-note">From a conjunction you may derive either conjunct separately.</div>
+      </div>
+    </div>
+
+    <!-- Conjunction -->
+    <div class="rule-card inf">
+      <div class="rule-top">
+        <div class="rule-name">Conjunction</div>
+        <div class="rule-abbr">Conj</div>
+      </div>
+      <div class="rule-formal">
+        <div class="rule-schema">
+          <div class="premise">P</div>
+          <div class="premise">Q</div>
+          <div class="conclusion">∴ P ∧ Q</div>
+        </div>
+        <div class="rule-note">If you have two lines separately, you may conjoin them into a single line.</div>
+      </div>
+    </div>
+
+    <!-- Addition -->
+    <div class="rule-card inf">
+      <div class="rule-top">
+        <div class="rule-name">Addition</div>
+        <div class="rule-abbr">Add</div>
+      </div>
+      <div class="rule-formal">
+        <div class="rule-schema">
+          <div class="premise">P</div>
+          <div class="conclusion">∴ P ∨ Q</div>
+        </div>
+        <div class="rule-note">From any line you may derive a disjunction with any formula you choose. Q can be anything.</div>
+      </div>
+    </div>
+
+    <!-- Constructive Dilemma -->
+    <div class="rule-card inf">
+      <div class="rule-top">
+        <div class="rule-name">Constructive Dilemma</div>
+        <div class="rule-abbr">CD</div>
+      </div>
+      <div class="rule-formal">
+        <div class="rule-schema">
+          <div class="premise">(P → Q) ∧ (R → S)</div>
+          <div class="premise">P ∨ R</div>
+          <div class="conclusion">∴ Q ∨ S</div>
+        </div>
+        <div class="rule-note">Given two conditionals and a disjunction of their antecedents, derive a disjunction of their consequents.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Equivalence Rules -->
+<div class="section s2">
+  <div class="section-title eq"><div class="section-badge eq">E</div> Equivalence Rules</div>
+  <div class="rules-grid">
+
+    <!-- Double Negation -->
+    <div class="rule-card eq">
+      <div class="rule-top">
+        <div class="rule-name">Double Negation</div>
+        <div class="rule-abbr">DN</div>
+      </div>
+      <div class="rule-formal">
+        <div class="rule-schema">
+          <div class="equiv">P <span class="bidir">≡</span> ~~P</div>
+        </div>
+        <div class="rule-note">A formula and its double negation are equivalent. You can add or remove two negation signs at any time.</div>
+      </div>
+    </div>
+
+    <!-- De Morgan's -->
+    <div class="rule-card eq">
+      <div class="rule-top">
+        <div class="rule-name">De Morgan's Laws</div>
+        <div class="rule-abbr">DeM</div>
+      </div>
+      <div class="rule-formal">
+        <div class="rule-schema">
+          <div class="equiv">~(P ∧ Q) <span class="bidir">≡</span> (~P ∨ ~Q)</div>
+          <div class="equiv" style="margin-top:6px;">~(P ∨ Q) <span class="bidir">≡</span> (~P ∧ ~Q)</div>
+        </div>
+        <div class="rule-note">Negation distributes over conjunction/disjunction — and flips the connective.</div>
+      </div>
+    </div>
+
+    <!-- Contraposition -->
+    <div class="rule-card eq">
+      <div class="rule-top">
+        <div class="rule-name">Contraposition</div>
+        <div class="rule-abbr">Contra</div>
+      </div>
+      <div class="rule-formal">
+        <div class="rule-schema">
+          <div class="equiv">(P → Q) <span class="bidir">≡</span> (~Q → ~P)</div>
+        </div>
+        <div class="rule-note">A conditional is equivalent to its contrapositive. Flip direction and negate both sides.</div>
+      </div>
+    </div>
+
+    <!-- Material Implication -->
+    <div class="rule-card eq">
+      <div class="rule-top">
+        <div class="rule-name">Material Implication</div>
+        <div class="rule-abbr">Impl</div>
+      </div>
+      <div class="rule-formal">
+        <div class="rule-schema">
+          <div class="equiv">(P → Q) <span class="bidir">≡</span> (~P ∨ Q)</div>
+        </div>
+        <div class="rule-note">A conditional can be rewritten as a disjunction. Useful for converting between forms in a proof.</div>
+      </div>
+    </div>
+
+    <!-- Commutation -->
+    <div class="rule-card eq">
+      <div class="rule-top">
+        <div class="rule-name">Commutation</div>
+        <div class="rule-abbr">Com</div>
+      </div>
+      <div class="rule-formal">
+        <div class="rule-schema">
+          <div class="equiv">(P ∧ Q) <span class="bidir">≡</span> (Q ∧ P)</div>
+          <div class="equiv" style="margin-top:6px;">(P ∨ Q) <span class="bidir">≡</span> (Q ∨ P)</div>
+        </div>
+        <div class="rule-note">Order doesn't matter for conjunction or disjunction.</div>
+      </div>
+    </div>
+
+    <!-- Association -->
+    <div class="rule-card eq">
+      <div class="rule-top">
+        <div class="rule-name">Association</div>
+        <div class="rule-abbr">Assoc</div>
+      </div>
+      <div class="rule-formal">
+        <div class="rule-schema">
+          <div class="equiv" style="font-size:11px;">P ∧ (Q ∧ R) <span class="bidir">≡</span> (P ∧ Q) ∧ R</div>
+          <div class="equiv" style="margin-top:6px;font-size:11px;">P ∨ (Q ∨ R) <span class="bidir">≡</span> (P ∨ Q) ∨ R</div>
+        </div>
+        <div class="rule-note">Grouping doesn't matter for conjunction or disjunction — you can re-bracket freely.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Worked Proofs -->
+<div class="section s3">
+  <div class="section-title inf"><div class="section-badge inf" style="font-size:9px;">ex</div> Worked Proofs</div>
+
+  <div class="proof-intro">
+    Each line in a proof must be either a <strong>premise</strong> (given) or follow from earlier lines by a <strong>named rule</strong>. Write the line numbers used and the rule name as your justification. The goal is always to derive the conclusion on the last line.
+  </div>
+
+  <div class="proofs-grid">
+
+    <!-- Proof 1: MP + HS -->
+    <div class="proof-card">
+      <div class="proof-header">
+        <div class="proof-label">Proof 1 · using MP and HS</div>
+        <div class="proof-goal"><span class="show">show</span> R</div>
+      </div>
+      <div class="proof-body">
+        <table class="proof-table">
+          <thead>
+            <tr>
+              <th class="center">#</th>
+              <th>Formula</th>
+              <th>Justification</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="premise-row">
+              <td class="line-num">1</td>
+              <td class="formula">P → Q</td>
+              <td class="justification">Premise</td>
+            </tr>
+            <tr class="premise-row">
+              <td class="line-num">2</td>
+              <td class="formula">Q → R</td>
+              <td class="justification">Premise</td>
+            </tr>
+            <tr class="premise-row">
+              <td class="line-num">3</td>
+              <td class="formula">P</td>
+              <td class="justification">Premise</td>
+            </tr>
+            <tr>
+              <td class="line-num">4</td>
+              <td class="formula">P → R</td>
+              <td class="justification"><span class="rule-ref">1, 2 HS</span></td>
+            </tr>
+            <tr class="conclusion-row">
+              <td class="line-num">5</td>
+              <td class="formula conclusion">R</td>
+              <td class="justification"><span class="rule-ref">4, 3 MP</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Proof 2: MT + DS -->
+    <div class="proof-card">
+      <div class="proof-header">
+        <div class="proof-label">Proof 2 · using MT and DS</div>
+        <div class="proof-goal"><span class="show">show</span> R</div>
+      </div>
+      <div class="proof-body">
+        <table class="proof-table">
+          <thead>
+            <tr>
+              <th class="center">#</th>
+              <th>Formula</th>
+              <th>Justification</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="premise-row">
+              <td class="line-num">1</td>
+              <td class="formula">P → Q</td>
+              <td class="justification">Premise</td>
+            </tr>
+            <tr class="premise-row">
+              <td class="line-num">2</td>
+              <td class="formula">~Q</td>
+              <td class="justification">Premise</td>
+            </tr>
+            <tr class="premise-row">
+              <td class="line-num">3</td>
+              <td class="formula">~P ∨ R</td>
+              <td class="justification">Premise</td>
+            </tr>
+            <tr>
+              <td class="line-num">4</td>
+              <td class="formula">~P</td>
+              <td class="justification"><span class="rule-ref">1, 2 MT</span></td>
+            </tr>
+            <tr class="conclusion-row">
+              <td class="line-num">5</td>
+              <td class="formula conclusion">R</td>
+              <td class="justification"><span class="rule-ref">3, 4 DS</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Proof 3: DeM + DS -->
+    <div class="proof-card">
+      <div class="proof-header">
+        <div class="proof-label">Proof 3 · using DeM and DS</div>
+        <div class="proof-goal"><span class="show">Q</span></div>
+      </div>
+      <div class="proof-body">
+        <table class="proof-table">
+          <thead>
+            <tr>
+              <th class="center">#</th>
+              <th>Formula</th>
+              <th>Justification</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="premise-row">
+              <td class="line-num">1</td>
+              <td class="formula">~(P ∧ ~Q)</td>
+              <td class="justification">Premise</td>
+            </tr>
+            <tr class="premise-row">
+              <td class="line-num">2</td>
+              <td class="formula">P</td>
+              <td class="justification">Premise</td>
+            </tr>
+            <tr>
+              <td class="line-num">3</td>
+              <td class="formula">~P ∨ ~~Q</td>
+              <td class="justification"><span class="rule-ref eq-ref">1 DeM</span></td>
+            </tr>
+            <tr>
+              <td class="line-num">4</td>
+              <td class="formula">~P ∨ Q</td>
+              <td class="justification"><span class="rule-ref eq-ref">3 DN</span></td>
+            </tr>
+            <tr class="conclusion-row">
+              <td class="line-num">5</td>
+              <td class="formula conclusion">Q</td>
+              <td class="justification"><span class="rule-ref">4, 2 DS</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Proof 4: Simp + Conj + MP -->
+    <div class="proof-card">
+      <div class="proof-header">
+        <div class="proof-label">Proof 4 · using Simp, MP, Conj</div>
+        <div class="proof-goal"><span class="show">Q ∧ S</span></div>
+      </div>
+      <div class="proof-body">
+        <table class="proof-table">
+          <thead>
+            <tr>
+              <th class="center">#</th>
+              <th>Formula</th>
+              <th>Justification</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="premise-row">
+              <td class="line-num">1</td>
+              <td class="formula">P ∧ R</td>
+              <td class="justification">Premise</td>
+            </tr>
+            <tr class="premise-row">
+              <td class="line-num">2</td>
+              <td class="formula">P → Q</td>
+              <td class="justification">Premise</td>
+            </tr>
+            <tr class="premise-row">
+              <td class="line-num">3</td>
+              <td class="formula">R → S</td>
+              <td class="justification">Premise</td>
+            </tr>
+            <tr>
+              <td class="line-num">4</td>
+              <td class="formula">P</td>
+              <td class="justification"><span class="rule-ref">1 Simp</span></td>
+            </tr>
+            <tr>
+              <td class="line-num">5</td>
+              <td class="formula">R</td>
+              <td class="justification"><span class="rule-ref">1 Simp</span></td>
+            </tr>
+            <tr>
+              <td class="line-num">6</td>
+              <td class="formula">Q</td>
+              <td class="justification"><span class="rule-ref">2, 4 MP</span></td>
+            </tr>
+            <tr>
+              <td class="line-num">7</td>
+              <td class="formula">S</td>
+              <td class="justification"><span class="rule-ref">3, 5 MP</span></td>
+            </tr>
+            <tr class="conclusion-row">
+              <td class="line-num">8</td>
+              <td class="formula conclusion">Q ∧ S</td>
+              <td class="justification"><span class="rule-ref">6, 7 Conj</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

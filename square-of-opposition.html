@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Square of Opposition</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;0,900;1,300;1,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --delta-green:     #005749;
+    --delta-green2:    #00957A;
+    --delta-black:     #193330;
+    --delta-white:     #F4F3EF;
+    --blue:            #9AD8CE;
+    --tan:             #C8C6B7;
+    --coral:           #F98F7C;
+    --pink:            #EACDCA;
+
+    --ink:    var(--delta-black);
+    --paper:  var(--delta-white);
+    --card:   #ffffff;
+    --muted:  #5a6e6b;
+  }
+
+  body {
+    background: var(--paper);
+    font-family: 'DM Mono', monospace;
+    color: var(--delta-black);
+    min-height: 100vh;
+    padding: 48px 24px 64px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── Header ── */
+  .header {
+    max-width: 820px;
+    width: 100%;
+    margin-bottom: 48px;
+    padding-bottom: 24px;
+    border-bottom: 3px solid var(--delta-green);
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--delta-green2);
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(32px, 5.5vw, 50px);
+    font-weight: 900;
+    line-height: 1.05;
+    color: var(--delta-green);
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--delta-green2);
+  }
+
+  .subtitle {
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 600px;
+  }
+
+  /* ── Square wrapper ── */
+  .square-outer {
+    max-width: 820px;
+    width: 100%;
+    animation: fadeUp 0.5s ease 0.15s both;
+  }
+
+  /* The square is a CSS grid: 3 cols × 3 rows
+     TL corner | top edge   | TR corner
+     left edge | center     | right edge
+     BL corner | bottom edge| BR corner
+  */
+  .square {
+    display: grid;
+    grid-template-columns: 140px 1fr 140px;
+    grid-template-rows: auto 1fr auto;
+    gap: 0;
+    position: relative;
+  }
+
+  /* ── Corner nodes ── */
+  .corner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 16px;
+    border-radius: 6px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .corner-A { background: var(--delta-green);  color: var(--delta-white); grid-column:1; grid-row:1; }
+  .corner-E { background: var(--delta-green);  color: var(--delta-white); grid-column:3; grid-row:1; }
+  .corner-I { background: var(--delta-green2); color: var(--delta-white); grid-column:1; grid-row:3; }
+  .corner-O { background: var(--delta-green2); color: var(--delta-white); grid-column:3; grid-row:3; }
+
+  .corner-letter {
+    font-family: 'Fraunces', serif;
+    font-size: 36px;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .corner-form {
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.75;
+    margin-top: 4px;
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  /* ── Edge relationship cards ── */
+  /* Top edge: Contraries (A–E) */
+  .edge-top {
+    grid-column: 2; grid-row: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 8px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Bottom edge: Subcontraries (I–O) */
+  .edge-bottom {
+    grid-column: 2; grid-row: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 8px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Left edge: Subalternation (A–I) */
+  .edge-left {
+    grid-column: 1; grid-row: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 4px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Right edge: Subalternation (E–O) */
+  .edge-right {
+    grid-column: 3; grid-row: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 4px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Center: diagonal contradictions */
+  .center {
+    grid-column: 2; grid-row: 2;
+    position: relative;
+    min-height: 160px;
+  }
+
+  /* SVG lines inside center */
+  .center svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Relation pill */
+  .rel-card {
+    background: white;
+    border-radius: 6px;
+    padding: 10px 14px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,87,73,0.10);
+    max-width: 200px;
+  }
+
+  .rel-card.vertical {
+    writing-mode: horizontal-tb;
+    max-width: 120px;
+  }
+
+  .rel-name {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--delta-green);
+    margin-bottom: 4px;
+  }
+
+  .rel-def {
+    font-size: 9.5px;
+    color: var(--muted);
+    line-height: 1.55;
+    margin-bottom: 5px;
+  }
+
+  .rel-ex {
+    font-size: 9px;
+    color: var(--delta-green2);
+    font-style: italic;
+    line-height: 1.4;
+  }
+
+  /* Diagonal cards float over center */
+  .diag-wrap {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+  }
+
+  /* Lines between corners — drawn with SVG in the center cell
+     but we need full-square lines, so we use an overlay SVG */
+  .lines-overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* ── Relationship cards below ── */
+  .cards-grid {
+    max-width: 820px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 32px;
+    animation: fadeUp 0.5s ease 0.3s both;
+  }
+
+  @media (max-width: 540px) {
+    .cards-grid { grid-template-columns: 1fr; }
+    .square { grid-template-columns: 110px 1fr 110px; }
+  }
+
+  .detail-card {
+    background: white;
+    border-radius: 6px;
+    padding: 20px 22px;
+    border-left: 5px solid;
+    box-shadow: 0 2px 8px rgba(0,87,73,0.07);
+  }
+
+  .detail-card.contraries      { border-color: var(--coral); }
+  .detail-card.subcontraries   { border-color: var(--blue); }
+  .detail-card.contradictories { border-color: var(--delta-green2); }
+  .detail-card.subalternation  { border-color: var(--tan); }
+
+  .detail-name {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 6px;
+  }
+
+  .detail-card.contraries      .detail-name { color: var(--coral); }
+  .detail-card.subcontraries   .detail-name { color: #3a8fa0; }
+  .detail-card.contradictories .detail-name { color: var(--delta-green); }
+  .detail-card.subalternation  .detail-name { color: #7a6e50; }
+
+  .detail-pair {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .detail-def {
+    font-size: 11px;
+    color: var(--delta-black);
+    line-height: 1.7;
+    margin-bottom: 8px;
+  }
+
+  .detail-ex {
+    font-size: 10.5px;
+    color: var(--muted);
+    font-style: italic;
+    line-height: 1.6;
+    border-top: 1px solid #eee;
+    padding-top: 8px;
+  }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="label">Categorical Logic · Relationships</div>
+  <h1>The Traditional<br><em>Square of Opposition</em></h1>
+  <p class="subtitle">The square maps the logical relationships between the four standard form categorical propositions. Knowing these relationships lets you immediately draw inferences from any single proposition.</p>
+</div>
+
+<!-- The Square -->
+<div class="square-outer">
+  <div class="square" id="sq">
+
+    <!-- Corners -->
+    <div class="corner corner-A">
+      <div class="corner-letter">A</div>
+      <div class="corner-form">All S are P</div>
+    </div>
+
+    <div class="corner corner-E">
+      <div class="corner-letter">E</div>
+      <div class="corner-form">No S are P</div>
+    </div>
+
+    <div class="corner corner-I">
+      <div class="corner-letter">I</div>
+      <div class="corner-form">Some S are P</div>
+    </div>
+
+    <div class="corner corner-O">
+      <div class="corner-letter">O</div>
+      <div class="corner-form">Some S are not P</div>
+    </div>
+
+    <!-- Top edge: Contraries -->
+    <div class="edge-top">
+      <div class="rel-card">
+        <div class="rel-name">Contraries</div>
+        <div class="rel-def">Cannot both be true; can both be false</div>
+        <div class="rel-ex">A true → E false<br>but both can be false</div>
+      </div>
+    </div>
+
+    <!-- Bottom edge: Subcontraries -->
+    <div class="edge-bottom">
+      <div class="rel-card">
+        <div class="rel-name">Subcontraries</div>
+        <div class="rel-def">Cannot both be false; can both be true</div>
+        <div class="rel-ex">I false → O true<br>but both can be true</div>
+      </div>
+    </div>
+
+    <!-- Left edge: Subalternation A→I -->
+    <div class="edge-left">
+      <div class="rel-card vertical">
+        <div class="rel-name">Subalternation</div>
+        <div class="rel-def">Truth flows downward; falsity flows upward</div>
+        <div class="rel-ex">A true → I true</div>
+      </div>
+    </div>
+
+    <!-- Right edge: Subalternation E→O -->
+    <div class="edge-right">
+      <div class="rel-card vertical">
+        <div class="rel-name">Subalternation</div>
+        <div class="rel-def">Truth flows downward; falsity flows upward</div>
+        <div class="rel-ex">E true → O true</div>
+      </div>
+    </div>
+
+    <!-- Center: diagonal lines + contradiction label -->
+    <div class="center">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+        <line x1="0" y1="0" x2="100" y2="100" stroke="#005749" stroke-width="1.5" stroke-dasharray="5,4" opacity="0.4"/>
+        <line x1="100" y1="0" x2="0" y2="100" stroke="#005749" stroke-width="1.5" stroke-dasharray="5,4" opacity="0.4"/>
+      </svg>
+      <div class="diag-wrap">
+        <div class="rel-card" style="text-align:center; padding: 10px 12px;">
+          <div class="rel-name">Contradictories</div>
+          <div class="rel-def">Opposite truth values — always one true, one false</div>
+          <div class="rel-ex">A↔O &nbsp;·&nbsp; E↔I</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Detail cards -->
+<div class="cards-grid">
+
+  <div class="detail-card contradictories">
+    <div class="detail-name">Contradictories</div>
+    <div class="detail-pair">A ↔ O &nbsp;·&nbsp; E ↔ I</div>
+    <div class="detail-def">Contradictory propositions always have opposite truth values. If one is true, the other must be false — and vice versa. There is no middle ground.</div>
+    <div class="detail-ex">"All swans are white" (A) is false, so "Some swans are not white" (O) must be true.</div>
+  </div>
+
+  <div class="detail-card contraries">
+    <div class="detail-name">Contraries</div>
+    <div class="detail-pair">A ↔ E &nbsp;(top)</div>
+    <div class="detail-def">Contrary propositions cannot both be true at the same time, but they can both be false. If A is true, E must be false — but E being false doesn't make A true.</div>
+    <div class="detail-ex">"All cats are pets" and "No cats are pets" can't both be true — but both are false (some cats are, some aren't).</div>
+  </div>
+
+  <div class="detail-card subcontraries">
+    <div class="detail-name">Subcontraries</div>
+    <div class="detail-pair">I ↔ O &nbsp;(bottom)</div>
+    <div class="detail-def">Subcontrary propositions cannot both be false at the same time, but they can both be true. At least one must be true.</div>
+    <div class="detail-ex">"Some birds can fly" and "Some birds cannot fly" are both true — and that's perfectly fine.</div>
+  </div>
+
+  <div class="detail-card subalternation">
+    <div class="detail-name">Subalternation</div>
+    <div class="detail-pair">A → I &nbsp;·&nbsp; E → O &nbsp;(sides)</div>
+    <div class="detail-def">Truth flows down: if the universal is true, the particular must be true. Falsity flows up: if the particular is false, the universal must be false.</div>
+    <div class="detail-ex">If "All dogs are mammals" (A) is true, then "Some dogs are mammals" (I) must also be true.</div>
+  </div>
+
+</div>
+
+</body>
+</html>

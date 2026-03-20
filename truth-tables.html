@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Truth Tables</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;0,900;1,300;1,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --delta-green:  #005749;
+    --delta-green2: #00957A;
+    --delta-black:  #193330;
+    --delta-white:  #F4F3EF;
+    --blue:         #9AD8CE;
+    --tan:          #C8C6B7;
+    --coral:        #F98F7C;
+    --pink:         #EACDCA;
+    --muted:        #5a6e6b;
+    --T: #005749;
+    --F: #c84b31;
+  }
+
+  body {
+    background: var(--delta-white);
+    font-family: 'DM Mono', monospace;
+    color: var(--delta-black);
+    min-height: 100vh;
+    padding: 48px 24px 64px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── Header ── */
+  .header {
+    max-width: 920px;
+    width: 100%;
+    margin-bottom: 36px;
+    padding-bottom: 24px;
+    border-bottom: 3px solid var(--delta-green);
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .top-label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--delta-green2);
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(28px, 5vw, 46px);
+    font-weight: 900;
+    line-height: 1.05;
+    color: var(--delta-green);
+  }
+
+  h1 em { font-style: italic; color: var(--delta-green2); }
+
+  .subtitle {
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.75;
+    max-width: 680px;
+  }
+
+  .subtitle strong { color: var(--delta-black); }
+
+  /* ── Sections ── */
+  .section {
+    max-width: 920px;
+    width: 100%;
+    margin-bottom: 36px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .section-title {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--delta-green);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-num {
+    background: var(--delta-green);
+    color: white;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    flex-shrink: 0;
+  }
+
+  /* ── Concept banner ── */
+  .concept-banner {
+    background: var(--delta-green);
+    color: white;
+    border-radius: 8px;
+    padding: 28px 32px;
+    margin-bottom: 32px;
+    max-width: 920px;
+    width: 100%;
+    animation: fadeUp 0.5s ease 0.1s both;
+  }
+
+  .concept-q {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 10px;
+  }
+
+  .concept-text {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(14px, 2.5vw, 19px);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.6;
+    color: white;
+    margin-bottom: 16px;
+  }
+
+  .concept-text strong {
+    font-weight: 700;
+    font-style: normal;
+    color: var(--blue);
+  }
+
+  .concept-bullets {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .concept-bullet {
+    font-size: 11.5px;
+    color: rgba(255,255,255,0.82);
+    line-height: 1.65;
+    display: flex;
+    gap: 10px;
+  }
+
+  .concept-bullet::before {
+    content: '—';
+    color: var(--blue);
+    flex-shrink: 0;
+  }
+
+  .concept-bullet strong { color: white; }
+
+  /* ── T/F badges ── */
+  .T {
+    display: inline-block;
+    background: var(--T);
+    color: white;
+    border-radius: 3px;
+    padding: 1px 7px;
+    font-weight: 700;
+    font-size: 12px;
+  }
+
+  .F {
+    display: inline-block;
+    background: var(--F);
+    color: white;
+    border-radius: 3px;
+    padding: 1px 7px;
+    font-weight: 700;
+    font-size: 12px;
+  }
+
+  /* ── Row count explainer ── */
+  .row-card {
+    background: white;
+    border-radius: 8px;
+    padding: 22px 26px;
+    box-shadow: 0 2px 10px rgba(0,87,73,0.08);
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .row-formula {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--delta-green);
+    flex-shrink: 0;
+    align-self: center;
+    min-width: 120px;
+    text-align: center;
+  }
+
+  .row-explain {
+    font-size: 11.5px;
+    color: var(--muted);
+    line-height: 1.75;
+    flex: 1;
+  }
+
+  .row-explain strong { color: var(--delta-black); font-weight: 500; }
+
+  /* ── Truth tables ── */
+  .tt-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .tt-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  @media (max-width: 640px) {
+    .tt-grid { grid-template-columns: 1fr 1fr; }
+    .tt-grid-2 { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 420px) {
+    .tt-grid { grid-template-columns: 1fr; }
+  }
+
+  .tt-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,87,73,0.08);
+    overflow: hidden;
+    border-top: 5px solid;
+  }
+
+  .tt-card.neg  { border-color: #193330; }
+  .tt-card.con  { border-color: var(--delta-green); }
+  .tt-card.dis  { border-color: var(--delta-green2); }
+  .tt-card.cond { border-color: #b5640a; }
+  .tt-card.bic  { border-color: #6b2d6a; }
+
+  .tt-card-header {
+    padding: 14px 18px 10px;
+  }
+
+  .tt-conn-name {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 2px;
+  }
+
+  .tt-card.neg  .tt-conn-name { color: #193330; }
+  .tt-card.con  .tt-conn-name { color: var(--delta-green); }
+  .tt-card.dis  .tt-conn-name { color: var(--delta-green2); }
+  .tt-card.cond .tt-conn-name { color: #b5640a; }
+  .tt-card.bic  .tt-conn-name { color: #6b2d6a; }
+
+  .tt-conn-key {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* Table styles */
+  table.tt {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  table.tt thead tr {
+    background: var(--delta-white);
+  }
+
+  table.tt th {
+    padding: 8px 10px;
+    text-align: center;
+    font-weight: 500;
+    font-size: 11px;
+    color: var(--muted);
+    border-bottom: 1px solid #eee;
+  }
+
+  table.tt th.result-col {
+    color: var(--delta-green);
+    font-weight: 700;
+  }
+
+  table.tt td {
+    padding: 8px 10px;
+    text-align: center;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  table.tt tr:last-child td { border-bottom: none; }
+
+  table.tt td.tv-T { color: var(--T); }
+  table.tt td.tv-F { color: var(--F); }
+
+  table.tt td.result {
+    font-weight: 700;
+    font-size: 13px;
+  }
+
+  table.tt td.result.tv-T { color: var(--T); }
+  table.tt td.result.tv-F { color: var(--F); }
+
+  /* Key insight per connective */
+  .tt-insight {
+    padding: 10px 16px;
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.6;
+    border-top: 1px solid #eee;
+    background: #fafafa;
+  }
+
+  .tt-insight strong { color: var(--delta-black); font-weight: 500; }
+
+  /* ── Complex formula section ── */
+  .complex-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,87,73,0.08);
+    overflow: hidden;
+  }
+
+  .complex-header {
+    background: var(--delta-black);
+    color: white;
+    padding: 18px 24px;
+  }
+
+  .complex-title {
+    font-family: 'Fraunces', serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--blue);
+    margin-bottom: 4px;
+  }
+
+  .complex-formula {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 900;
+    color: white;
+    letter-spacing: 0.04em;
+  }
+
+  .complex-body {
+    padding: 22px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .complex-explain {
+    font-size: 11.5px;
+    color: var(--muted);
+    line-height: 1.75;
+  }
+
+  .complex-explain strong { color: var(--delta-black); font-weight: 500; }
+
+  .col-order {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .col-order-title {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .col-step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .col-step-num {
+    background: var(--delta-green);
+    color: white;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .col-step strong { color: var(--delta-black); font-weight: 500; }
+
+  /* Complex table — wider, scrollable on mobile */
+  .table-scroll { overflow-x: auto; }
+
+  table.tt-complex {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    min-width: 520px;
+  }
+
+  table.tt-complex thead tr {
+    background: var(--delta-white);
+  }
+
+  table.tt-complex th {
+    padding: 10px 12px;
+    text-align: center;
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 500;
+    border-bottom: 2px solid #ddd;
+    white-space: nowrap;
+  }
+
+  table.tt-complex th.step-col {
+    background: rgba(0,87,73,0.06);
+    color: var(--delta-green);
+    font-weight: 700;
+  }
+
+  table.tt-complex th.result-col {
+    background: var(--delta-green);
+    color: white;
+    font-weight: 700;
+  }
+
+  table.tt-complex td {
+    padding: 9px 12px;
+    text-align: center;
+    border-bottom: 1px solid #f0f0f0;
+    font-weight: 500;
+  }
+
+  table.tt-complex tr:last-child td { border-bottom: none; }
+  table.tt-complex tr:nth-child(even) { background: #fafafa; }
+
+  table.tt-complex td.tv-T { color: var(--T); }
+  table.tt-complex td.tv-F { color: var(--F); }
+  table.tt-complex td.result { font-weight: 700; font-size: 13px; background: rgba(0,87,73,0.05); }
+  table.tt-complex td.result.tv-T { color: var(--T); }
+  table.tt-complex td.result.tv-F { color: var(--F); }
+
+  /* ── Challenge problems ── */
+  .challenge-card {
+    background: white;
+    border-radius: 8px;
+    padding: 28px 32px;
+    box-shadow: 0 2px 10px rgba(0,87,73,0.08);
+  }
+
+  .challenge-intro {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.75;
+    margin-bottom: 22px;
+  }
+
+  .challenge-intro strong { color: var(--delta-black); }
+
+  .challenge-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .challenge-item {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 14px;
+    align-items: center;
+    padding: 16px 18px;
+    background: var(--delta-white);
+    border-radius: 6px;
+    border-left: 4px solid var(--tan);
+  }
+
+  .challenge-num {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--coral);
+  }
+
+  .challenge-formula {
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--delta-black);
+  }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .s1 { animation-delay: 0.05s; }
+  .s2 { animation-delay: 0.15s; }
+  .s3 { animation-delay: 0.25s; }
+  .s4 { animation-delay: 0.35s; }
+  .s5 { animation-delay: 0.45s; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="top-label">Propositional Logic · Evaluation</div>
+  <h1>Truth<br><em>Tables</em></h1>
+  <p class="subtitle">A truth table systematically displays the truth value of a proposition for every possible combination of truth values its component parts could have. It is one of the most powerful tools in propositional logic.</p>
+</div>
+
+<!-- Concept banner -->
+<div class="concept-banner">
+  <div class="concept-q">What is a truth table?</div>
+  <div class="concept-text">A truth table lists <strong>every possible scenario</strong> — every combination of true and false for the variables — and shows what the compound formula evaluates to in each one.</div>
+  <div class="concept-bullets">
+    <div class="concept-bullet"><strong>Rows</strong> represent possible scenarios. With n variables, there are always 2ⁿ rows.</div>
+    <div class="concept-bullet"><strong>Columns</strong> represent the variables and sub-formulas, built up step by step toward the main connective.</div>
+    <div class="concept-bullet">The column under the <strong>main connective</strong> gives the truth value of the whole formula in each scenario.</div>
+    <div class="concept-bullet">Truth tables are <strong>mechanical</strong> — no judgment required, just careful application of each connective's definition.</div>
+  </div>
+</div>
+
+<!-- Row count -->
+<div class="section s1">
+  <div class="section-title"><div class="section-num">1</div> How Many Rows?</div>
+  <div class="row-card">
+    <div class="row-formula">2ⁿ rows</div>
+    <div class="row-explain">
+      The number of rows is always <strong>2 raised to the power of the number of variables</strong>. Each variable can be T or F, and every combination must appear exactly once.<br><br>
+      <strong>1 variable</strong> (P) → 2¹ = 2 rows &nbsp;·&nbsp;
+      <strong>2 variables</strong> (P, Q) → 2² = 4 rows &nbsp;·&nbsp;
+      <strong>3 variables</strong> (P, Q, R) → 2³ = 8 rows &nbsp;·&nbsp;
+      <strong>4 variables</strong> → 2⁴ = 16 rows<br><br>
+      To fill in the columns systematically: alternate T/F every 1 row for the first variable, every 2 rows for the second, every 4 rows for the third, and so on.
+    </div>
+  </div>
+</div>
+
+<!-- Five connective tables -->
+<div class="section s2">
+  <div class="section-title"><div class="section-num">2</div> Truth Tables for the Five Connectives</div>
+
+  <!-- Top row: negation, conjunction, disjunction -->
+  <div class="tt-grid" style="margin-bottom:16px;">
+
+    <!-- Negation -->
+    <div class="tt-card neg">
+      <div class="tt-card-header">
+        <div class="tt-conn-name">Negation</div>
+        <div class="tt-conn-key">~P</div>
+      </div>
+      <table class="tt">
+        <thead>
+          <tr>
+            <th>P</th>
+            <th class="result-col">~P</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="tv-T">T</td><td class="result tv-F">F</td></tr>
+          <tr><td class="tv-F">F</td><td class="result tv-T">T</td></tr>
+        </tbody>
+      </table>
+      <div class="tt-insight"><strong>Flips</strong> the truth value. T becomes F, F becomes T.</div>
+    </div>
+
+    <!-- Conjunction -->
+    <div class="tt-card con">
+      <div class="tt-card-header">
+        <div class="tt-conn-name">Conjunction</div>
+        <div class="tt-conn-key">P ∧ Q</div>
+      </div>
+      <table class="tt">
+        <thead>
+          <tr><th>P</th><th>Q</th><th class="result-col">P ∧ Q</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="tv-T">T</td><td class="tv-T">T</td><td class="result tv-T">T</td></tr>
+          <tr><td class="tv-T">T</td><td class="tv-F">F</td><td class="result tv-F">F</td></tr>
+          <tr><td class="tv-F">F</td><td class="tv-T">T</td><td class="result tv-F">F</td></tr>
+          <tr><td class="tv-F">F</td><td class="tv-F">F</td><td class="result tv-F">F</td></tr>
+        </tbody>
+      </table>
+      <div class="tt-insight"><strong>True only</strong> when both P and Q are true. False otherwise.</div>
+    </div>
+
+    <!-- Disjunction -->
+    <div class="tt-card dis">
+      <div class="tt-card-header">
+        <div class="tt-conn-name">Disjunction</div>
+        <div class="tt-conn-key">P ∨ Q</div>
+      </div>
+      <table class="tt">
+        <thead>
+          <tr><th>P</th><th>Q</th><th class="result-col">P ∨ Q</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="tv-T">T</td><td class="tv-T">T</td><td class="result tv-T">T</td></tr>
+          <tr><td class="tv-T">T</td><td class="tv-F">F</td><td class="result tv-T">T</td></tr>
+          <tr><td class="tv-F">F</td><td class="tv-T">T</td><td class="result tv-T">T</td></tr>
+          <tr><td class="tv-F">F</td><td class="tv-F">F</td><td class="result tv-F">F</td></tr>
+        </tbody>
+      </table>
+      <div class="tt-insight"><strong>False only</strong> when both P and Q are false. True otherwise.</div>
+    </div>
+
+  </div>
+
+  <!-- Bottom row: conditional, biconditional -->
+  <div class="tt-grid-2">
+
+    <!-- Conditional -->
+    <div class="tt-card cond">
+      <div class="tt-card-header">
+        <div class="tt-conn-name">Conditional</div>
+        <div class="tt-conn-key">P → Q</div>
+      </div>
+      <table class="tt">
+        <thead>
+          <tr><th>P</th><th>Q</th><th class="result-col">P → Q</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="tv-T">T</td><td class="tv-T">T</td><td class="result tv-T">T</td></tr>
+          <tr><td class="tv-T">T</td><td class="tv-F">F</td><td class="result tv-F">F</td></tr>
+          <tr><td class="tv-F">F</td><td class="tv-T">T</td><td class="result tv-T">T</td></tr>
+          <tr><td class="tv-F">F</td><td class="tv-F">F</td><td class="result tv-T">T</td></tr>
+        </tbody>
+      </table>
+      <div class="tt-insight"><strong>False only</strong> when P is true and Q is false — a true condition that isn't met. True in all other cases, including when P is false.</div>
+    </div>
+
+    <!-- Biconditional -->
+    <div class="tt-card bic">
+      <div class="tt-card-header">
+        <div class="tt-conn-name">Biconditional</div>
+        <div class="tt-conn-key">P ↔ Q</div>
+      </div>
+      <table class="tt">
+        <thead>
+          <tr><th>P</th><th>Q</th><th class="result-col">P ↔ Q</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="tv-T">T</td><td class="tv-T">T</td><td class="result tv-T">T</td></tr>
+          <tr><td class="tv-T">T</td><td class="tv-F">F</td><td class="result tv-F">F</td></tr>
+          <tr><td class="tv-F">F</td><td class="tv-T">T</td><td class="result tv-F">F</td></tr>
+          <tr><td class="tv-F">F</td><td class="tv-F">F</td><td class="result tv-T">T</td></tr>
+        </tbody>
+      </table>
+      <div class="tt-insight"><strong>True when P and Q match</strong> — both true or both false. False when they differ.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Extending to complex sentences -->
+<div class="section s3">
+  <div class="section-title"><div class="section-num">3</div> Extending to Complex Formulas</div>
+  <div class="complex-card">
+    <div class="complex-header">
+      <div class="complex-title">Worked Example</div>
+      <div class="complex-formula">(P ∨ Q) → ~P</div>
+    </div>
+    <div class="complex-body">
+
+      <div class="complex-explain">
+        For a formula with more than one connective, build the table <strong>column by column</strong>, working from the smallest sub-formulas up to the main connective. Each column feeds into the next.
+      </div>
+
+      <div class="col-order">
+        <div class="col-order-title">Column order for (P ∨ Q) → ~P</div>
+        <div class="col-step"><div class="col-step-num">1</div><span>Start with the raw variables: <strong>P</strong> and <strong>Q</strong></span></div>
+        <div class="col-step"><div class="col-step-num">2</div><span>Compute <strong>~P</strong> (negation of P)</span></div>
+        <div class="col-step"><div class="col-step-num">3</div><span>Compute <strong>P ∨ Q</strong> (disjunction)</span></div>
+        <div class="col-step"><div class="col-step-num">4</div><span>Compute the main connective: <strong>(P ∨ Q) → ~P</strong> using columns 3 and 2</span></div>
+      </div>
+
+      <div class="table-scroll">
+        <table class="tt-complex">
+          <thead>
+            <tr>
+              <th>P</th>
+              <th>Q</th>
+              <th class="step-col">~P <span style="font-weight:400;font-size:9px;">(step 2)</span></th>
+              <th class="step-col">P ∨ Q <span style="font-weight:400;font-size:9px;">(step 3)</span></th>
+              <th class="result-col">(P ∨ Q) → ~P <span style="font-weight:400;font-size:9px;">main connective</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="tv-T">T</td>
+              <td class="tv-T">T</td>
+              <td class="tv-F">F</td>
+              <td class="tv-T">T</td>
+              <td class="result tv-F">F</td>
+            </tr>
+            <tr>
+              <td class="tv-T">T</td>
+              <td class="tv-F">F</td>
+              <td class="tv-F">F</td>
+              <td class="tv-T">T</td>
+              <td class="result tv-F">F</td>
+            </tr>
+            <tr>
+              <td class="tv-F">F</td>
+              <td class="tv-T">T</td>
+              <td class="tv-T">T</td>
+              <td class="tv-T">T</td>
+              <td class="result tv-T">T</td>
+            </tr>
+            <tr>
+              <td class="tv-F">F</td>
+              <td class="tv-F">F</td>
+              <td class="tv-T">T</td>
+              <td class="tv-F">F</td>
+              <td class="result tv-T">T</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="complex-explain">
+        Read the table row by row. In row 1: P is true, Q is true → ~P is false → P ∨ Q is true → a true antecedent with a false consequent → the conditional is <strong>false</strong>. In row 3: P is false → ~P is true → P ∨ Q is true → a true antecedent with a true consequent → <strong>true</strong>.
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Challenge problems -->
+<div class="section s4">
+  <div class="section-title"><div class="section-num" style="background:var(--coral);">?</div> Challenge Problems</div>
+  <div class="challenge-card">
+    <div class="challenge-intro">
+      Construct a complete truth table for each formula. Remember to identify the variables, determine the number of rows, and work column by column toward the <strong>main connective</strong>.
+    </div>
+    <div class="challenge-list">
+
+      <div class="challenge-item">
+        <div class="challenge-num">1</div>
+        <div class="challenge-formula">P → (P ∧ Q)</div>
+      </div>
+
+      <div class="challenge-item">
+        <div class="challenge-num">2</div>
+        <div class="challenge-formula">~P ∨ (P → Q)</div>
+      </div>
+
+      <div class="challenge-item">
+        <div class="challenge-num">3</div>
+        <div class="challenge-formula">(P ∧ ~Q) ↔ ~(P → Q)</div>
+      </div>
+
+      <div class="challenge-item">
+        <div class="challenge-num">4</div>
+        <div class="challenge-formula">(P ∨ Q) ∧ (~P ∨ R)</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

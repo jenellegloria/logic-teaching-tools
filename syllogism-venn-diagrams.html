@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Representing Syllogisms with Venn Diagrams</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;0,900;1,300;1,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --delta-green:  #005749;
+    --delta-green2: #00957A;
+    --delta-black:  #193330;
+    --delta-white:  #F4F3EF;
+    --blue:         #9AD8CE;
+    --tan:          #C8C6B7;
+    --coral:        #F98F7C;
+    --pink:         #EACDCA;
+    --muted:        #5a6e6b;
+  }
+
+  body {
+    background: var(--delta-white);
+    font-family: 'DM Mono', monospace;
+    color: var(--delta-black);
+    min-height: 100vh;
+    padding: 48px 24px 64px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .header {
+    max-width: 860px;
+    width: 100%;
+    margin-bottom: 36px;
+    padding-bottom: 24px;
+    border-bottom: 3px solid var(--delta-green);
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--delta-green2);
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(28px, 5vw, 46px);
+    font-weight: 900;
+    line-height: 1.05;
+    color: var(--delta-green);
+  }
+
+  h1 em { font-style: italic; color: var(--delta-green2); }
+
+  .subtitle {
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.75;
+    max-width: 660px;
+  }
+
+  /* ── Section titles ── */
+  .section {
+    max-width: 860px;
+    width: 100%;
+    margin-bottom: 32px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .section-title {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--delta-green);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-num {
+    background: var(--delta-green);
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    flex-shrink: 0;
+  }
+
+  /* ── The 3-circle diagram ── */
+  .three-circle-wrap {
+    background: white;
+    border-radius: 8px;
+    padding: 32px;
+    box-shadow: 0 2px 10px rgba(0,87,73,0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .diagram-label {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+
+  /* Region key */
+  .region-key {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    width: 100%;
+    margin-top: 24px;
+  }
+
+  .region-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 11px;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+
+  .region-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  /* ── Premise cards ── */
+  .premise-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    width: 100%;
+  }
+
+  @media (max-width: 580px) {
+    .premise-grid { grid-template-columns: 1fr; }
+  }
+
+  .premise-card {
+    background: white;
+    border-radius: 6px;
+    padding: 22px;
+    box-shadow: 0 2px 8px rgba(0,87,73,0.07);
+    border-top: 5px solid;
+  }
+
+  .premise-card.p1 { border-color: var(--delta-green); }
+  .premise-card.p2 { border-color: var(--delta-green2); }
+
+  .premise-tag {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .premise-card.p1 .premise-tag { color: var(--delta-green); }
+  .premise-card.p2 .premise-tag { color: var(--delta-green2); }
+
+  .premise-involves {
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--delta-black);
+    margin-bottom: 10px;
+  }
+
+  .premise-explain {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  .premise-explain strong { color: var(--delta-black); font-weight: 500; }
+
+  /* Mini venn inside premise card */
+  .mini-venn {
+    display: flex;
+    justify-content: center;
+    margin: 14px 0 10px;
+  }
+
+  /* ── Notation rules ── */
+  .notation-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    width: 100%;
+  }
+
+  @media (max-width: 580px) {
+    .notation-grid { grid-template-columns: 1fr; }
+  }
+
+  .notation-card {
+    background: white;
+    border-radius: 6px;
+    padding: 20px 22px;
+    border-left: 5px solid;
+    box-shadow: 0 2px 8px rgba(0,87,73,0.07);
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .notation-card.shade { border-color: var(--delta-green); }
+  .notation-card.x     { border-color: var(--coral); }
+
+  .notation-symbol {
+    font-family: 'Fraunces', serif;
+    font-size: 32px;
+    font-weight: 900;
+    line-height: 1;
+    flex-shrink: 0;
+    width: 36px;
+    text-align: center;
+  }
+
+  .notation-card.shade .notation-symbol { color: var(--delta-green); }
+  .notation-card.x     .notation-symbol { color: var(--coral); }
+
+  .notation-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 5px;
+    color: var(--delta-black);
+  }
+
+  .notation-desc {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  .notation-desc strong { color: var(--delta-black); font-weight: 500; }
+
+  /* ── Order of operations ── */
+  .ops-banner {
+    background: var(--delta-green);
+    color: var(--delta-white);
+    border-radius: 8px;
+    padding: 28px 32px;
+    width: 100%;
+    margin-bottom: 0;
+  }
+
+  .ops-title {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: white;
+  }
+
+  .ops-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .ops-step {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .ops-num {
+    background: var(--delta-green2);
+    color: white;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    font-size: 13px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .ops-text {
+    font-size: 12px;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.88);
+  }
+
+  .ops-text strong { color: white; font-weight: 600; }
+
+  .ops-why {
+    font-size: 10.5px;
+    color: rgba(255,255,255,0.55);
+    margin-top: 3px;
+    font-style: italic;
+  }
+
+  /* ── Terms key ── */
+  .terms-banner {
+    background: white;
+    border-radius: 8px;
+    padding: 24px 28px;
+    box-shadow: 0 2px 10px rgba(0,87,73,0.08);
+    width: 100%;
+    margin-bottom: 0;
+  }
+
+  .terms-title {
+    font-family: 'Fraunces', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--delta-green);
+    margin-bottom: 16px;
+  }
+
+  .terms-row-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+  }
+
+  @media (max-width: 580px) {
+    .terms-row-grid { grid-template-columns: 1fr; }
+  }
+
+  .term-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .term-name {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .term-badge-big {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 16px;
+  }
+
+  .term-badge-big.S { background: rgba(0,87,73,0.12); color: var(--delta-green); }
+  .term-badge-big.P { background: rgba(0,149,122,0.12); color: var(--delta-green2); }
+  .term-badge-big.M { background: rgba(249,143,124,0.18); color: #a0402a; }
+
+  .term-desc {
+    font-size: 10.5px;
+    color: var(--muted);
+    line-height: 1.55;
+  }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .s1 { animation-delay: 0.05s; }
+  .s2 { animation-delay: 0.15s; }
+  .s3 { animation-delay: 0.25s; }
+  .s4 { animation-delay: 0.35s; }
+  .s5 { animation-delay: 0.45s; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="label">Categorical Logic · Venn Diagrams</div>
+  <h1>Representing Syllogisms<br>with <em>Venn Diagrams</em></h1>
+  <p class="subtitle">A categorical syllogism has three terms and three propositions. To diagram it, we need <strong>three overlapping circles</strong> — one for each term — creating seven distinct regions that capture every possible combination of class membership.</p>
+</div>
+
+<!-- Section 1: The three terms -->
+<div class="section s1">
+  <div class="section-title"><div class="section-num">1</div> The Three Terms</div>
+  <div class="terms-banner">
+    <div class="terms-title">Every syllogism has exactly three terms</div>
+    <div class="terms-row-grid">
+      <div class="term-item">
+        <div class="term-name">Subject Term</div>
+        <div class="term-badge-big S">S &nbsp;<span style="font-size:12px;font-family:'DM Mono',monospace;font-weight:400;">Subject</span></div>
+        <div class="term-desc">The subject of the conclusion. Appears in the minor premise and the conclusion.</div>
+      </div>
+      <div class="term-item">
+        <div class="term-name">Predicate Term</div>
+        <div class="term-badge-big P">P &nbsp;<span style="font-size:12px;font-family:'DM Mono',monospace;font-weight:400;">Predicate</span></div>
+        <div class="term-desc">The predicate of the conclusion. Appears in the major premise and the conclusion.</div>
+      </div>
+      <div class="term-item">
+        <div class="term-name">Middle Term</div>
+        <div class="term-badge-big M">M &nbsp;<span style="font-size:12px;font-family:'DM Mono',monospace;font-weight:400;">Middle</span></div>
+        <div class="term-desc">Appears in both premises but NOT in the conclusion. It links S and P together.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 2: The three-circle diagram -->
+<div class="section s2">
+  <div class="section-title"><div class="section-num">2</div> The Three-Circle Diagram</div>
+  <div class="three-circle-wrap">
+    <div class="diagram-label">Standard layout — S on left, P on right, M on bottom</div>
+
+    <svg width="340" height="280" viewBox="0 0 340 280" style="overflow:visible;">
+      <defs>
+        <!-- Clip paths for region identification -->
+        <clipPath id="s-clip"><circle cx="130" cy="120" r="90"/></clipPath>
+        <clipPath id="p-clip"><circle cx="210" cy="120" r="90"/></clipPath>
+        <clipPath id="m-clip"><circle cx="170" cy="195" r="90"/></clipPath>
+      </defs>
+
+      <!-- Region fills (numbered) -->
+      <!-- Region 1: S only -->
+      <!-- Region 2: S∩P only -->
+      <!-- Region 3: P only -->
+      <!-- Region 4: S∩M only -->
+      <!-- Region 5: S∩P∩M -->
+      <!-- Region 6: P∩M only -->
+      <!-- Region 7: M only -->
+
+      <!-- Circle fills (light, for visibility) -->
+      <circle cx="130" cy="120" r="90" fill="rgba(0,87,73,0.07)"/>
+      <circle cx="210" cy="120" r="90" fill="rgba(0,149,122,0.07)"/>
+      <circle cx="170" cy="195" r="90" fill="rgba(249,143,124,0.12)"/>
+
+      <!-- Circle outlines -->
+      <circle cx="130" cy="120" r="90" fill="none" stroke="var(--delta-green)" stroke-width="2.5"/>
+      <circle cx="210" cy="120" r="90" fill="none" stroke="var(--delta-green2)" stroke-width="2.5"/>
+      <circle cx="170" cy="195" r="90" fill="none" stroke="#c84b31" stroke-width="2.5"/>
+
+      <!-- Region number labels -->
+      <!-- 1: S only (far left) -->
+      <text x="72" y="115" font-family="DM Mono,monospace" font-size="13" fill="var(--muted)" text-anchor="middle" font-weight="500">1</text>
+      <!-- 2: S∩P (top center) -->
+      <text x="170" y="100" font-family="DM Mono,monospace" font-size="13" fill="var(--muted)" text-anchor="middle" font-weight="500">2</text>
+      <!-- 3: P only (far right) -->
+      <text x="268" y="115" font-family="DM Mono,monospace" font-size="13" fill="var(--muted)" text-anchor="middle" font-weight="500">3</text>
+      <!-- 4: S∩M (lower left) -->
+      <text x="118" y="185" font-family="DM Mono,monospace" font-size="13" fill="var(--muted)" text-anchor="middle" font-weight="500">4</text>
+      <!-- 5: center -->
+      <text x="170" y="163" font-family="DM Mono,monospace" font-size="13" fill="var(--muted)" text-anchor="middle" font-weight="500">5</text>
+      <!-- 6: P∩M (lower right) -->
+      <text x="222" y="185" font-family="DM Mono,monospace" font-size="13" fill="var(--muted)" text-anchor="middle" font-weight="500">6</text>
+      <!-- 7: M only (bottom) -->
+      <text x="170" y="248" font-family="DM Mono,monospace" font-size="13" fill="var(--muted)" text-anchor="middle" font-weight="500">7</text>
+
+      <!-- Circle labels -->
+      <text x="55" y="52" font-family="Fraunces,serif" font-size="22" font-weight="900" fill="var(--delta-green)" text-anchor="middle">S</text>
+      <text x="285" y="52" font-family="Fraunces,serif" font-size="22" font-weight="900" fill="var(--delta-green2)" text-anchor="middle">P</text>
+      <text x="170" y="278" font-family="Fraunces,serif" font-size="22" font-weight="900" fill="#c84b31" text-anchor="middle">M</text>
+    </svg>
+
+    <!-- Region key -->
+    <div class="region-key">
+      <div class="region-item"><div class="region-dot" style="background:var(--delta-green);opacity:0.5;"></div><span><strong>1</strong> — S only (not P, not M)</span></div>
+      <div class="region-item"><div class="region-dot" style="background:#7ab8a8;"></div><span><strong>2</strong> — S and P only (not M)</span></div>
+      <div class="region-item"><div class="region-dot" style="background:var(--delta-green2);opacity:0.5;"></div><span><strong>3</strong> — P only (not S, not M)</span></div>
+      <div class="region-item"><div class="region-dot" style="background:#8ab49c;"></div><span><strong>4</strong> — S and M only (not P)</span></div>
+      <div class="region-item"><div class="region-dot" style="background:#5a8a7a;"></div><span><strong>5</strong> — S, P, and M (center)</span></div>
+      <div class="region-item"><div class="region-dot" style="background:#a8c8b0;"></div><span><strong>6</strong> — P and M only (not S)</span></div>
+      <div class="region-item"><div class="region-dot" style="background:var(--coral);opacity:0.5;"></div><span><strong>7</strong> — M only (not S, not P)</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 3: How each premise gets diagrammed -->
+<div class="section s3">
+  <div class="section-title"><div class="section-num">3</div> Each Premise Uses Two Circles</div>
+  <div class="premise-grid">
+    <div class="premise-card p1">
+      <div class="premise-tag">Major Premise</div>
+      <div class="premise-involves">Involves S and M</div>
+
+      <!-- Mini 2-circle venn: S and M -->
+      <div class="mini-venn">
+        <svg width="160" height="80" viewBox="0 0 160 80">
+          <circle cx="55" cy="40" r="34" fill="rgba(0,87,73,0.1)" stroke="var(--delta-green)" stroke-width="2"/>
+          <circle cx="105" cy="40" r="34" fill="rgba(200,70,49,0.1)" stroke="#c84b31" stroke-width="2"/>
+          <text x="33" y="44" font-family="Fraunces,serif" font-size="16" font-weight="900" fill="var(--delta-green)" text-anchor="middle">S</text>
+          <text x="127" y="44" font-family="Fraunces,serif" font-size="16" font-weight="900" fill="#c84b31" text-anchor="middle">M</text>
+        </svg>
+      </div>
+
+      <div class="premise-explain">
+        The <strong>minor premise</strong> relates the Subject (S) to the Middle term (M). When diagramming, only shade or mark regions where S and M overlap — ignore P entirely for this step.</div>
+    </div>
+
+    <div class="premise-card p2">
+      <div class="premise-tag">Minor Premise</div>
+      <div class="premise-involves">Involves P and M</div>
+
+      <!-- Mini 2-circle venn: P and M -->
+      <div class="mini-venn">
+        <svg width="160" height="80" viewBox="0 0 160 80">
+          <circle cx="55" cy="40" r="34" fill="rgba(0,149,122,0.1)" stroke="var(--delta-green2)" stroke-width="2"/>
+          <circle cx="105" cy="40" r="34" fill="rgba(200,70,49,0.1)" stroke="#c84b31" stroke-width="2"/>
+          <text x="33" y="44" font-family="Fraunces,serif" font-size="16" font-weight="900" fill="var(--delta-green2)" text-anchor="middle">P</text>
+          <text x="127" y="44" font-family="Fraunces,serif" font-size="16" font-weight="900" fill="#c84b31" text-anchor="middle">M</text>
+        </svg>
+      </div>
+
+      <div class="premise-explain">The <strong>major premise</strong> relates the Predicate (P) to the Middle term (M). When diagramming, only shade or mark regions where P and M overlap — ignore S entirely for this step.</div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 4: Notation -->
+<div class="section s4">
+  <div class="section-title"><div class="section-num">4</div> Two Kinds of Notation</div>
+  <div class="notation-grid">
+    <div class="notation-card shade">
+      <div class="notation-symbol">▒</div>
+      <div>
+        <div class="notation-title">Shading = Empty</div>
+        <div class="notation-desc">Shade a region to show it is <strong>empty</strong> — nothing exists there. Used for <strong>universal propositions</strong> (A and E), which rule out entire regions.</div>
+      </div>
+    </div>
+    <div class="notation-card x">
+      <div class="notation-symbol">✕</div>
+      <div>
+        <div class="notation-title">✕ = Something exists</div>
+        <div class="notation-desc">Place a ✕ in a region to show <strong>at least one thing</strong> exists there. Used for <strong>particular propositions</strong> (I and O), which assert existence.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 5: Order of operations -->
+<div class="section s5">
+  <div class="section-title"><div class="section-num">5</div> Order of Operations</div>
+  <div class="ops-banner">
+    <div class="ops-title">Always diagram in this order:</div>
+    <div class="ops-steps">
+      <div class="ops-step">
+        <div class="ops-num">1</div>
+        <div>
+          <div class="ops-text"><strong>Diagram universal premises first</strong> (A and E — shading).</div>
+          <div class="ops-why">Shading settles what's empty before you place any ✕ marks.</div>
+        </div>
+      </div>
+      <div class="ops-step">
+        <div class="ops-num">2</div>
+        <div>
+          <div class="ops-text"><strong>Diagram particular premises second</strong> (I and O — ✕ marks).</div>
+          <div class="ops-why">If one region a ✕ might go in is already shaded, the ✕ must go in the other available region.</div>
+        </div>
+      </div>
+      <div class="ops-step">
+        <div class="ops-num">3</div>
+        <div>
+          <div class="ops-text"><strong>Do not diagram the conclusion.</strong></div>
+          <div class="ops-why">The conclusion is what you're testing — you check whether the diagram already shows it, not whether you can force it in.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

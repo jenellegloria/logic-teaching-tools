@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modern Square of Opposition</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;0,900;1,300;1,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --delta-green:  #005749;
+    --delta-green2: #00957A;
+    --delta-black:  #193330;
+    --delta-white:  #F4F3EF;
+    --blue:         #9AD8CE;
+    --tan:          #C8C6B7;
+    --coral:        #F98F7C;
+    --pink:         #EACDCA;
+    --muted:        #5a6e6b;
+  }
+
+  body {
+    background: var(--delta-white);
+    font-family: 'DM Mono', monospace;
+    color: var(--delta-black);
+    min-height: 100vh;
+    padding: 48px 24px 64px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── Header ── */
+  .header {
+    max-width: 820px;
+    width: 100%;
+    margin-bottom: 48px;
+    padding-bottom: 24px;
+    border-bottom: 3px solid var(--delta-green);
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--delta-green2);
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(32px, 5.5vw, 50px);
+    font-weight: 900;
+    line-height: 1.05;
+    color: var(--delta-green);
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--delta-green2);
+  }
+
+  .subtitle {
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 620px;
+  }
+
+  .subtitle strong {
+    color: var(--delta-black);
+  }
+
+  /* ── Difference banner ── */
+  .diff-banner {
+    max-width: 820px;
+    width: 100%;
+    background: var(--pink);
+    border-left: 5px solid var(--coral);
+    border-radius: 4px;
+    padding: 16px 22px;
+    margin-bottom: 36px;
+    font-size: 11.5px;
+    color: var(--delta-black);
+    line-height: 1.7;
+    animation: fadeUp 0.5s ease 0.1s both;
+  }
+
+  .diff-banner strong {
+    color: #a0402a;
+    font-weight: 600;
+  }
+
+  /* ── Square ── */
+  .square-outer {
+    max-width: 820px;
+    width: 100%;
+    animation: fadeUp 0.5s ease 0.2s both;
+  }
+
+  .square {
+    display: grid;
+    grid-template-columns: 140px 1fr 140px;
+    grid-template-rows: auto 1fr auto;
+  }
+
+  /* ── Corners ── */
+  .corner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 16px;
+    border-radius: 6px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .corner-A { background: var(--delta-green);  color: var(--delta-white); grid-column:1; grid-row:1; }
+  .corner-E { background: var(--delta-green);  color: var(--delta-white); grid-column:3; grid-row:1; }
+  .corner-I { background: var(--delta-green2); color: var(--delta-white); grid-column:1; grid-row:3; }
+  .corner-O { background: var(--delta-green2); color: var(--delta-white); grid-column:3; grid-row:3; }
+
+  .corner-letter {
+    font-family: 'Fraunces', serif;
+    font-size: 36px;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .corner-form {
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.75;
+    margin-top: 4px;
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  /* ── Edges ── */
+  .edge-top {
+    grid-column: 2; grid-row: 1;
+    display: flex; align-items: center; justify-content: center;
+    padding: 12px 8px; z-index: 2;
+  }
+
+  .edge-bottom {
+    grid-column: 2; grid-row: 3;
+    display: flex; align-items: center; justify-content: center;
+    padding: 12px 8px; z-index: 2;
+  }
+
+  /* Sides are greyed out / crossed in the modern square */
+  .edge-left {
+    grid-column: 1; grid-row: 2;
+    display: flex; align-items: center; justify-content: center;
+    padding: 8px 4px; z-index: 2;
+  }
+
+  .edge-right {
+    grid-column: 3; grid-row: 2;
+    display: flex; align-items: center; justify-content: center;
+    padding: 8px 4px; z-index: 2;
+  }
+
+  .center {
+    grid-column: 2; grid-row: 2;
+    position: relative;
+    min-height: 160px;
+  }
+
+  .center svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .diag-wrap {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+  }
+
+  /* ── Relation cards ── */
+  .rel-card {
+    background: white;
+    border-radius: 6px;
+    padding: 10px 14px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,87,73,0.10);
+    max-width: 200px;
+  }
+
+  .rel-name {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--delta-green);
+    margin-bottom: 4px;
+  }
+
+  .rel-def {
+    font-size: 9.5px;
+    color: var(--muted);
+    line-height: 1.55;
+    margin-bottom: 5px;
+  }
+
+  .rel-ex {
+    font-size: 9px;
+    color: var(--delta-green2);
+    font-style: italic;
+    line-height: 1.4;
+  }
+
+  /* Dropped / void card for the sides */
+  .void-card {
+    background: #eee;
+    border-radius: 6px;
+    padding: 10px 12px;
+    text-align: center;
+    max-width: 110px;
+    opacity: 0.55;
+  }
+
+  .void-name {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 4px;
+    text-decoration: line-through;
+  }
+
+  .void-note {
+    font-size: 9px;
+    color: #aaa;
+    line-height: 1.5;
+  }
+
+  /* ── Detail cards ── */
+  .cards-grid {
+    max-width: 820px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 32px;
+    animation: fadeUp 0.5s ease 0.35s both;
+  }
+
+  @media (max-width: 540px) {
+    .cards-grid { grid-template-columns: 1fr; }
+    .square { grid-template-columns: 110px 1fr 110px; }
+  }
+
+  .detail-card {
+    background: white;
+    border-radius: 6px;
+    padding: 20px 22px;
+    border-left: 5px solid;
+    box-shadow: 0 2px 8px rgba(0,87,73,0.07);
+  }
+
+  .detail-card.contradictories { border-color: var(--delta-green2); }
+  .detail-card.contraries      { border-color: var(--coral); }
+  .detail-card.subcontraries   { border-color: var(--blue); }
+  .detail-card.dropped         { border-color: var(--tan); background: #f9f8f5; }
+
+  .detail-name {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 6px;
+  }
+
+  .detail-card.contradictories .detail-name { color: var(--delta-green); }
+  .detail-card.contraries      .detail-name { color: #a0402a; }
+  .detail-card.subcontraries   .detail-name { color: #3a8fa0; }
+  .detail-card.dropped         .detail-name { color: #888; text-decoration: line-through; }
+
+  .detail-pair {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .detail-def {
+    font-size: 11px;
+    color: var(--delta-black);
+    line-height: 1.7;
+    margin-bottom: 8px;
+  }
+
+  .detail-ex {
+    font-size: 10.5px;
+    color: var(--muted);
+    font-style: italic;
+    line-height: 1.6;
+    border-top: 1px solid #eee;
+    padding-top: 8px;
+  }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="label">Categorical Logic · Relationships</div>
+  <h1>The <em>Modern</em> Square<br>of Opposition</h1>
+  <p class="subtitle">The modern (Boolean) interpretation assumes classes may be <strong>empty</strong> — so universal propositions make no existential claims. This drops subalternation and weakens contraries and subcontraries to <strong>undetermined</strong> relationships.</p>
+</div>
+
+<div class="diff-banner">
+  <strong>Key difference from the Traditional Square:</strong> The modern square rejects the assumption that S must refer to something that actually exists. As a result, <strong>subalternation is invalid</strong>, and the contrary and subcontrary relationships no longer hold — only <strong>contradictories</strong> remain fully intact.
+</div>
+
+<div class="square-outer">
+  <div class="square">
+
+    <!-- Corners -->
+    <div class="corner corner-A">
+      <div class="corner-letter">A</div>
+      <div class="corner-form">All S are P</div>
+    </div>
+
+    <div class="corner corner-E">
+      <div class="corner-letter">E</div>
+      <div class="corner-form">No S are P</div>
+    </div>
+
+    <div class="corner corner-I">
+      <div class="corner-letter">I</div>
+      <div class="corner-form">Some S are P</div>
+    </div>
+
+    <div class="corner corner-O">
+      <div class="corner-letter">O</div>
+      <div class="corner-form">Some S are not P</div>
+    </div>
+
+    <!-- Top: Contraries — now undetermined -->
+    <div class="edge-top">
+      <div class="rel-card" style="opacity:0.6; border: 1.5px dashed #ccc;">
+        <div class="rel-name" style="color:#888;">Contraries?</div>
+        <div class="rel-def">Relationship is <em>undetermined</em> — both can be true if S is empty</div>
+        <div class="rel-ex">No longer reliable</div>
+      </div>
+    </div>
+
+    <!-- Bottom: Subcontraries — now undetermined -->
+    <div class="edge-bottom">
+      <div class="rel-card" style="opacity:0.6; border: 1.5px dashed #ccc;">
+        <div class="rel-name" style="color:#888;">Subcontraries?</div>
+        <div class="rel-def">Relationship is <em>undetermined</em> — both can be false if S is empty</div>
+        <div class="rel-ex">No longer reliable</div>
+      </div>
+    </div>
+
+    <!-- Left: Subalternation dropped -->
+    <div class="edge-left">
+      <div class="void-card">
+        <div class="void-name">Subalternation</div>
+        <div class="void-note">Dropped — truth no longer flows from A to I</div>
+      </div>
+    </div>
+
+    <!-- Right: Subalternation dropped -->
+    <div class="edge-right">
+      <div class="void-card">
+        <div class="void-name">Subalternation</div>
+        <div class="void-note">Dropped — truth no longer flows from E to O</div>
+      </div>
+    </div>
+
+    <!-- Center: Contradictories — still intact -->
+    <div class="center">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+        <line x1="0" y1="0" x2="100" y2="100" stroke="#005749" stroke-width="2" opacity="0.5"/>
+        <line x1="100" y1="0" x2="0" y2="100" stroke="#005749" stroke-width="2" opacity="0.5"/>
+      </svg>
+      <div class="diag-wrap">
+        <div class="rel-card" style="border: 2px solid var(--delta-green2);">
+          <div class="rel-name">Contradictories ✓</div>
+          <div class="rel-def">Still fully intact — always opposite truth values</div>
+          <div class="rel-ex">A↔O &nbsp;·&nbsp; E↔I</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Detail cards -->
+<div class="cards-grid">
+
+  <div class="detail-card contradictories">
+    <div class="detail-name">Contradictories ✓</div>
+    <div class="detail-pair">A ↔ O &nbsp;·&nbsp; E ↔ I</div>
+    <div class="detail-def">The only relationship that fully survives in the modern square. Contradictory pairs always have opposite truth values, even when S is an empty class.</div>
+    <div class="detail-ex">"All unicorns are horned" (A) is vacuously true, so "Some unicorns are not horned" (O) must be false.</div>
+  </div>
+
+  <div class="detail-card contraries">
+    <div class="detail-name">Contraries — Undetermined</div>
+    <div class="detail-pair">A ↔ E &nbsp;(top)</div>
+    <div class="detail-def">In the modern square, A and E can both be vacuously true when S is empty — so they no longer cannot both be true. The contrary relationship does not hold.</div>
+    <div class="detail-ex">"All unicorns are mortal" and "No unicorns are mortal" are both vacuously true — S is empty.</div>
+  </div>
+
+  <div class="detail-card subcontraries">
+    <div class="detail-name">Subcontraries — Undetermined</div>
+    <div class="detail-pair">I ↔ O &nbsp;(bottom)</div>
+    <div class="detail-def">I and O can both be false when S is empty — so they no longer cannot both be false. The subcontrary relationship does not hold in the modern interpretation.</div>
+    <div class="detail-ex">"Some unicorns are mortal" and "Some unicorns are not mortal" are both false — there are no unicorns.</div>
+  </div>
+
+  <div class="detail-card dropped">
+    <div class="detail-name">Subalternation</div>
+    <div class="detail-pair">A → I &nbsp;·&nbsp; E → O &nbsp;(sides)</div>
+    <div class="detail-def">Dropped entirely. In the modern square, a true universal does not guarantee a true particular, because the subject class may be empty — with no members, nothing can be said to exist in it.</div>
+    <div class="detail-ex">"All unicorns are horned" (A) is true — but "Some unicorns are horned" (I) is false, because there are no unicorns.</div>
+  </div>
+
+</div>
+
+</body>
+</html>

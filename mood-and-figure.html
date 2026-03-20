@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mood and Figure of Categorical Syllogisms</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;0,900;1,300;1,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --delta-green:  #005749;
+    --delta-green2: #00957A;
+    --delta-black:  #193330;
+    --delta-white:  #F4F3EF;
+    --blue:         #9AD8CE;
+    --tan:          #C8C6B7;
+    --coral:        #F98F7C;
+    --pink:         #EACDCA;
+    --muted:        #5a6e6b;
+  }
+
+  body {
+    background: var(--delta-white);
+    font-family: 'DM Mono', monospace;
+    color: var(--delta-black);
+    min-height: 100vh;
+    padding: 48px 24px 64px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .header {
+    max-width: 860px;
+    width: 100%;
+    margin-bottom: 36px;
+    padding-bottom: 24px;
+    border-bottom: 3px solid var(--delta-green);
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .top-label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--delta-green2);
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(28px, 5vw, 46px);
+    font-weight: 900;
+    line-height: 1.05;
+    color: var(--delta-green);
+  }
+
+  h1 em { font-style: italic; color: var(--delta-green2); }
+
+  .subtitle {
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.75;
+    max-width: 660px;
+  }
+
+  .subtitle strong { color: var(--delta-black); }
+
+  /* ── Sections ── */
+  .section {
+    max-width: 860px;
+    width: 100%;
+    margin-bottom: 36px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .section-title {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--delta-green);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-num {
+    background: var(--delta-green);
+    color: white;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    flex-shrink: 0;
+  }
+
+  /* ── Mood ── */
+  .mood-card {
+    background: white;
+    border-radius: 8px;
+    padding: 28px 32px;
+    box-shadow: 0 2px 10px rgba(0,87,73,0.08);
+    border-top: 5px solid var(--delta-green);
+  }
+
+  .mood-explain {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.75;
+    margin-bottom: 24px;
+    max-width: 600px;
+  }
+
+  .mood-explain strong { color: var(--delta-black); }
+
+  .mood-example {
+    background: var(--delta-white);
+    border-radius: 6px;
+    padding: 20px 24px;
+    display: flex;
+    gap: 32px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .mood-syllogism { flex: 1; min-width: 200px; }
+
+  .syl-line {
+    font-size: 13px;
+    line-height: 2.1;
+    color: var(--delta-black);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .syl-line.conclusion {
+    border-top: 1px solid var(--tan);
+    margin-top: 4px;
+    padding-top: 6px;
+  }
+
+  .type-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 500;
+  }
+
+  .badge-a { background: rgba(0,87,73,0.15);  color: var(--delta-green); }
+  .badge-e { background: rgba(0,87,73,0.15);  color: var(--delta-green); }
+  .badge-i { background: rgba(0,149,122,0.15); color: var(--delta-green2); }
+  .badge-o { background: rgba(0,149,122,0.15); color: var(--delta-green2); }
+
+  .mood-result {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    min-width: 120px;
+  }
+
+  .mood-arrow {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .mood-value {
+    font-family: 'Fraunces', serif;
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--delta-green);
+    letter-spacing: 0.05em;
+  }
+
+  .mood-caption {
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* ── Figure ── */
+  .figure-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+
+  @media (max-width: 640px) {
+    .figure-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .figure-card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px 16px;
+    box-shadow: 0 2px 10px rgba(0,87,73,0.08);
+    border-top: 4px solid var(--delta-green2);
+    text-align: center;
+  }
+
+  .figure-num {
+    font-family: 'Fraunces', serif;
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--delta-green);
+    margin-bottom: 12px;
+  }
+
+  .figure-schema {
+    font-size: 11px;
+    line-height: 2;
+    color: var(--delta-black);
+    margin-bottom: 12px;
+    text-align: left;
+    background: var(--delta-white);
+    border-radius: 4px;
+    padding: 10px 12px;
+  }
+
+  .figure-schema .con {
+    border-top: 1px solid var(--tan);
+    margin-top: 4px;
+    padding-top: 4px;
+  }
+
+  .m-pos {
+    font-weight: 600;
+    color: var(--coral);
+  }
+
+  .figure-desc {
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.55;
+    text-align: left;
+  }
+
+  /* ── Combined: mood + figure ── */
+  .combined-card {
+    background: var(--delta-green);
+    color: white;
+    border-radius: 8px;
+    padding: 28px 32px;
+    box-shadow: 0 2px 10px rgba(0,87,73,0.15);
+  }
+
+  .combined-explain {
+    font-size: 12px;
+    color: rgba(255,255,255,0.85);
+    line-height: 1.75;
+    margin-bottom: 20px;
+    max-width: 600px;
+  }
+
+  .combined-explain strong { color: white; }
+
+  .combined-example {
+    background: rgba(255,255,255,0.1);
+    border-radius: 6px;
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .combined-syl {
+    font-size: 12px;
+    line-height: 2;
+    color: rgba(255,255,255,0.9);
+    flex: 1;
+    min-width: 180px;
+  }
+
+  .combined-syl .con {
+    border-top: 1px solid rgba(255,255,255,0.2);
+    margin-top: 4px;
+    padding-top: 4px;
+  }
+
+  .combined-label {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 140px;
+  }
+
+  .combined-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .combined-item-label {
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+  }
+
+  .combined-item-value {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--blue);
+  }
+
+  .combined-name {
+    font-size: 10px;
+    color: rgba(255,255,255,0.6);
+  }
+
+  /* ── Valid moods table ── */
+  .valid-wrap {
+    background: white;
+    border-radius: 8px;
+    padding: 24px 28px;
+    box-shadow: 0 2px 10px rgba(0,87,73,0.08);
+  }
+
+  .valid-intro {
+    font-size: 11.5px;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+
+  .valid-intro strong { color: var(--delta-black); }
+
+  .valid-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  @media (max-width: 640px) {
+    .valid-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .valid-fig {
+    background: var(--delta-white);
+    border-radius: 6px;
+    padding: 14px;
+  }
+
+  .valid-fig-title {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--delta-green2);
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+
+  .valid-mood-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .valid-mood {
+    display: inline-block;
+    background: var(--delta-green);
+    color: white;
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-family: 'Fraunces', serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    width: fit-content;
+  }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .s1 { animation-delay: 0.05s; }
+  .s2 { animation-delay: 0.15s; }
+  .s3 { animation-delay: 0.25s; }
+  .s4 { animation-delay: 0.35s; }
+  .s5 { animation-delay: 0.45s; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="top-label">Categorical Logic · Syllogism Form</div>
+  <h1>Mood &amp; <em>Figure</em></h1>
+  <p class="subtitle">Every standard form categorical syllogism can be classified by its <strong>mood</strong> (which proposition types appear) and its <strong>figure</strong> (where the middle term appears). Together, mood and figure uniquely identify a syllogism's logical form.</p>
+</div>
+
+<!-- Mood -->
+<div class="section s1">
+  <div class="section-title"><div class="section-num">1</div> Mood</div>
+  <div class="mood-card">
+    <div class="mood-explain">
+      The <strong>mood</strong> of a syllogism is simply the sequence of proposition types — A, E, I, or O — for the <strong>major premise</strong>, <strong>minor premise</strong>, and <strong>conclusion</strong>, in that order. It tells you what kind of claims the argument is making, but not how the terms are arranged.
+    </div>
+    <div class="mood-example">
+      <div class="mood-syllogism">
+        <div class="syl-line">All M are P. <span class="type-badge badge-a">A</span></div>
+        <div class="syl-line">All S are M. <span class="type-badge badge-a">A</span></div>
+        <div class="syl-line conclusion">∴ All S are P. <span class="type-badge badge-a">A</span></div>
+      </div>
+      <div class="mood-result">
+        <div class="mood-arrow">Mood →</div>
+        <div class="mood-value">AAA</div>
+        <div class="mood-caption">Major · Minor · Conclusion<br>read in order, top to bottom</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Figure -->
+<div class="section s2">
+  <div class="section-title"><div class="section-num">2</div> Figure</div>
+  <div class="figure-grid">
+
+    <div class="figure-card">
+      <div class="figure-num">Figure 1</div>
+      <div class="figure-schema">
+        <div><span class="m-pos">M</span> – P</div>
+        <div>S – <span class="m-pos">M</span></div>
+        <div class="con">S – P</div>
+      </div>
+      <div class="figure-desc">M is <strong>subject</strong> of major, <strong>predicate</strong> of minor. The most "natural" figure.</div>
+    </div>
+
+    <div class="figure-card">
+      <div class="figure-num">Figure 2</div>
+      <div class="figure-schema">
+        <div>P – <span class="m-pos">M</span></div>
+        <div>S – <span class="m-pos">M</span></div>
+        <div class="con">S – P</div>
+      </div>
+      <div class="figure-desc">M is <strong>predicate</strong> of both premises. Good for exclusion arguments.</div>
+    </div>
+
+    <div class="figure-card">
+      <div class="figure-num">Figure 3</div>
+      <div class="figure-schema">
+        <div><span class="m-pos">M</span> – P</div>
+        <div><span class="m-pos">M</span> – S</div>
+        <div class="con">S – P</div>
+      </div>
+      <div class="figure-desc">M is <strong>subject</strong> of both premises. Always yields a particular conclusion.</div>
+    </div>
+
+    <div class="figure-card">
+      <div class="figure-num">Figure 4</div>
+      <div class="figure-schema">
+        <div>P – <span class="m-pos">M</span></div>
+        <div><span class="m-pos">M</span> – S</div>
+        <div class="con">S – P</div>
+      </div>
+      <div class="figure-desc">M is <strong>predicate</strong> of major, <strong>subject</strong> of minor. The most "indirect" figure.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Combined -->
+<div class="section s3">
+  <div class="section-title"><div class="section-num">3</div> Mood + Figure Together</div>
+  <div class="combined-card">
+    <div class="combined-explain">
+      A syllogism's <strong>full form</strong> is expressed as mood followed by figure. This gives a compact, precise way to name any standard form syllogism — and to look up whether it's valid.
+    </div>
+    <div class="combined-example">
+      <div class="combined-syl">
+        <div>All M are P. <span style="color:rgba(255,255,255,0.45);font-size:10px;">A · M is subject of major → Fig. 1</span></div>
+        <div>All S are M. <span style="color:rgba(255,255,255,0.45);font-size:10px;">A · M is predicate of minor → Fig. 1</span></div>
+        <div class="con">∴ All S are P. <span style="color:rgba(255,255,255,0.45);font-size:10px;">A</span></div>
+      </div>
+      <div class="combined-label">
+        <div class="combined-item">
+          <div class="combined-item-label">Mood</div>
+          <div class="combined-item-value">AAA</div>
+        </div>
+        <div class="combined-item">
+          <div class="combined-item-label">Figure</div>
+          <div class="combined-item-value">1</div>
+        </div>
+        <div class="combined-item">
+          <div class="combined-item-label">Full form</div>
+          <div class="combined-item-value" style="font-size:18px;">AAA-1</div>
+          <div class="combined-name">"Barbara" — valid ✓</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Valid moods -->
+<div class="section s4">
+  <div class="section-title"><div class="section-num">4</div> The 15 Valid Forms</div>
+  <div class="valid-wrap">
+    <div class="valid-intro">
+      There are 256 possible mood-figure combinations, but only <strong>15 are valid</strong> (24 if you count the weakened forms). Medieval logicians gave them names to aid memorization — the vowels encode the mood. Here they are by figure:
+    </div>
+    <div class="valid-grid">
+      <div class="valid-fig">
+        <div class="valid-fig-title">Figure 1</div>
+        <div class="valid-mood-list">
+          <span class="valid-mood">AAA <span style="font-size:10px;opacity:0.7;">Barbara</span></span>
+          <span class="valid-mood">EAE <span style="font-size:10px;opacity:0.7;">Celarent</span></span>
+          <span class="valid-mood">AII <span style="font-size:10px;opacity:0.7;">Darii</span></span>
+          <span class="valid-mood">EIO <span style="font-size:10px;opacity:0.7;">Ferio</span></span>
+        </div>
+      </div>
+      <div class="valid-fig">
+        <div class="valid-fig-title">Figure 2</div>
+        <div class="valid-mood-list">
+          <span class="valid-mood">AEE <span style="font-size:10px;opacity:0.7;">Camestres</span></span>
+          <span class="valid-mood">EAE <span style="font-size:10px;opacity:0.7;">Cesare</span></span>
+          <span class="valid-mood">EIO <span style="font-size:10px;opacity:0.7;">Festino</span></span>
+          <span class="valid-mood">AOO <span style="font-size:10px;opacity:0.7;">Baroco</span></span>
+        </div>
+      </div>
+      <div class="valid-fig">
+        <div class="valid-fig-title">Figure 3</div>
+        <div class="valid-mood-list">
+          <span class="valid-mood">AII <span style="font-size:10px;opacity:0.7;">Datisi</span></span>
+          <span class="valid-mood">IAI <span style="font-size:10px;opacity:0.7;">Disamis</span></span>
+          <span class="valid-mood">EIO <span style="font-size:10px;opacity:0.7;">Ferison</span></span>
+          <span class="valid-mood">OAO <span style="font-size:10px;opacity:0.7;">Bocardo</span></span>
+        </div>
+      </div>
+      <div class="valid-fig">
+        <div class="valid-fig-title">Figure 4</div>
+        <div class="valid-mood-list">
+          <span class="valid-mood">AEE <span style="font-size:10px;opacity:0.7;">Camenes</span></span>
+          <span class="valid-mood">IAI <span style="font-size:10px;opacity:0.7;">Dimaris</span></span>
+          <span class="valid-mood">EIO <span style="font-size:10px;opacity:0.7;">Fresison</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

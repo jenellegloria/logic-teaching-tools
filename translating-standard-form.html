@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Translating into Standard Form</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;0,900;1,300;1,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --delta-green:  #005749;
+    --delta-green2: #00957A;
+    --delta-black:  #193330;
+    --delta-white:  #F4F3EF;
+    --blue:         #9AD8CE;
+    --tan:          #C8C6B7;
+    --coral:        #F98F7C;
+    --pink:         #EACDCA;
+    --muted:        #5a6e6b;
+    --a-color: #005749;
+    --e-color: #193330;
+    --i-color: #00957A;
+    --o-color: #b5640a;
+  }
+
+  body {
+    background: var(--delta-white);
+    font-family: 'DM Mono', monospace;
+    color: var(--delta-black);
+    min-height: 100vh;
+    padding: 48px 24px 64px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── Header ── */
+  .header {
+    max-width: 940px;
+    width: 100%;
+    margin-bottom: 36px;
+    padding-bottom: 24px;
+    border-bottom: 3px solid var(--delta-green);
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .top-label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--delta-green2);
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(28px, 5vw, 46px);
+    font-weight: 900;
+    line-height: 1.05;
+    color: var(--delta-green);
+  }
+
+  h1 em { font-style: italic; color: var(--delta-green2); }
+
+  .subtitle {
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.75;
+    max-width: 680px;
+  }
+
+  .subtitle strong { color: var(--delta-black); }
+
+  /* ── Sections ── */
+  .section {
+    max-width: 940px;
+    width: 100%;
+    margin-bottom: 36px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .section-title {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--delta-green);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-num {
+    background: var(--delta-green);
+    color: white;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    flex-shrink: 0;
+  }
+
+  /* ── Requirements banner ── */
+  .req-banner {
+    background: var(--delta-green);
+    color: white;
+    border-radius: 8px;
+    padding: 26px 32px;
+    margin-bottom: 32px;
+    max-width: 940px;
+    width: 100%;
+    animation: fadeUp 0.5s ease 0.1s both;
+  }
+
+  .req-q {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 10px;
+  }
+
+  .req-text {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(14px, 2.4vw, 18px);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.6;
+    margin-bottom: 18px;
+  }
+
+  .req-text strong { font-weight: 700; font-style: normal; color: var(--blue); }
+
+  .req-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+
+  @media (max-width: 600px) { .req-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  .req-item {
+    background: rgba(255,255,255,0.1);
+    border-radius: 6px;
+    padding: 12px 14px;
+  }
+
+  .req-label {
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 5px;
+  }
+
+  .req-value {
+    font-family: 'Fraunces', serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: white;
+    line-height: 1.4;
+  }
+
+  /* ── AEIO quick ref ── */
+  .aeio-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  @media (max-width: 600px) { .aeio-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  .aeio-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,87,73,0.08);
+    padding: 16px 18px;
+    border-top: 5px solid;
+  }
+
+  .aeio-card.a { border-color: var(--a-color); }
+  .aeio-card.e { border-color: var(--e-color); }
+  .aeio-card.i { border-color: var(--i-color); }
+  .aeio-card.o { border-color: var(--o-color); }
+
+  .aeio-letter {
+    font-family: 'Fraunces', serif;
+    font-size: 26px;
+    font-weight: 900;
+    margin-bottom: 6px;
+  }
+
+  .aeio-card.a .aeio-letter { color: var(--a-color); }
+  .aeio-card.e .aeio-letter { color: var(--e-color); }
+  .aeio-card.i .aeio-letter { color: var(--i-color); }
+  .aeio-card.o .aeio-letter { color: var(--o-color); }
+
+  .aeio-form {
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--delta-black);
+  }
+
+  .aeio-keywords {
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.6;
+    font-style: italic;
+  }
+
+  /* ── Steps card ── */
+  .steps-card {
+    background: white;
+    border-radius: 8px;
+    padding: 24px 28px;
+    box-shadow: 0 2px 10px rgba(0,87,73,0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .step-row {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .step-num {
+    background: var(--delta-green);
+    color: white;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    font-size: 13px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .step-body {
+    font-size: 11.5px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  .step-body strong { color: var(--delta-black); font-weight: 500; }
+
+  /* ── Tricky types ── */
+  .tricky-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .tricky-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,87,73,0.08);
+    overflow: hidden;
+    border-left: 6px solid var(--coral);
+  }
+
+  .tricky-head {
+    background: var(--pink);
+    padding: 13px 20px;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .tricky-type {
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #a0402a;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .tricky-pattern {
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    font-weight: 900;
+    color: var(--delta-black);
+  }
+
+  .tricky-body {
+    padding: 16px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .tricky-rule {
+    font-size: 11.5px;
+    color: var(--muted);
+    line-height: 1.75;
+  }
+
+  .tricky-rule strong { color: var(--delta-black); font-weight: 500; }
+
+  .trans-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  @media (max-width: 520px) { .trans-pair { grid-template-columns: 1fr; } }
+
+  .trans-item {
+    border-radius: 6px;
+    padding: 12px 14px;
+  }
+
+  .trans-item.before { background: var(--delta-white); }
+  .trans-item.after  { background: rgba(0,87,73,0.07); }
+
+  .trans-item-label {
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+
+  .trans-item.after .trans-item-label { color: var(--delta-green); }
+
+  .trans-item-text {
+    font-size: 12px;
+    color: var(--delta-black);
+    line-height: 1.55;
+    font-style: italic;
+  }
+
+  .trans-item.after .trans-item-text {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-style: normal;
+    font-size: 13px;
+    color: var(--delta-green);
+  }
+
+  /* ── Worked examples ── */
+  .worked-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  @media (max-width: 620px) { .worked-grid { grid-template-columns: 1fr; } }
+
+  .worked-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,87,73,0.08);
+    overflow: hidden;
+  }
+
+  .worked-top {
+    background: var(--delta-white);
+    padding: 13px 18px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .worked-tag {
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .worked-original {
+    font-size: 13px;
+    color: var(--delta-black);
+    font-style: italic;
+    line-height: 1.4;
+  }
+
+  .worked-body {
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .worked-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .worked-step {
+    display: flex;
+    gap: 8px;
+    font-size: 10.5px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .worked-step-dot {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--delta-green2);
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 8px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .worked-step strong { color: var(--delta-black); font-weight: 500; }
+
+  .worked-result {
+    border-radius: 6px;
+    padding: 10px 14px;
+    background: rgba(0,87,73,0.07);
+  }
+
+  .worked-result-label {
+    font-size: 9px;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--delta-green2);
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+
+  .worked-result-text {
+    font-family: 'Fraunces', serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--delta-green);
+    line-height: 1.4;
+  }
+
+  /* prop type badge */
+  .prop-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  .badge-a { background: rgba(0,87,73,0.12);   color: var(--a-color); }
+  .badge-e { background: rgba(25,51,48,0.12);   color: var(--e-color); }
+  .badge-i { background: rgba(0,149,122,0.12);  color: var(--i-color); }
+  .badge-o { background: rgba(181,100,10,0.12); color: var(--o-color); }
+
+  /* ── Challenge problems ── */
+  .challenge-card {
+    background: white;
+    border-radius: 8px;
+    padding: 26px 30px;
+    box-shadow: 0 2px 10px rgba(0,87,73,0.08);
+  }
+
+  .challenge-intro {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.75;
+    margin-bottom: 20px;
+  }
+
+  .challenge-intro strong { color: var(--delta-black); }
+
+  .challenge-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .challenge-item {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 14px;
+    align-items: start;
+    padding: 14px 16px;
+    background: var(--delta-white);
+    border-radius: 6px;
+    border-left: 4px solid var(--tan);
+  }
+
+  .challenge-num {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--coral);
+    padding-top: 1px;
+  }
+
+  .challenge-sentence {
+    font-size: 13px;
+    color: var(--delta-black);
+    font-style: italic;
+    line-height: 1.55;
+  }
+
+  .challenge-hint {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 4px;
+    font-style: normal;
+  }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .s1 { animation-delay: 0.05s; }
+  .s2 { animation-delay: 0.12s; }
+  .s3 { animation-delay: 0.19s; }
+  .s4 { animation-delay: 0.26s; }
+  .s5 { animation-delay: 0.33s; }
+  .s6 { animation-delay: 0.40s; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="top-label">Categorical Logic · Translation</div>
+  <h1>Translating into<br><em>Standard Form</em></h1>
+  <p class="subtitle">Standard form categorical propositions have a precise structure: quantifier, subject term, copula, predicate term. Many ordinary English sentences express categorical claims without following this structure. Translation is the skill of finding the underlying logical form.</p>
+</div>
+
+<!-- Requirements banner -->
+<div class="req-banner">
+  <div class="req-q">What counts as standard form?</div>
+  <div class="req-text">Every standard form categorical proposition has <strong>four required elements</strong> in the right order.</div>
+  <div class="req-grid">
+    <div class="req-item">
+      <div class="req-label">1 — Quantifier</div>
+      <div class="req-value">All · No · Some</div>
+    </div>
+    <div class="req-item">
+      <div class="req-label">2 — Subject Term</div>
+      <div class="req-value">A noun phrase naming a class</div>
+    </div>
+    <div class="req-item">
+      <div class="req-label">3 — Copula</div>
+      <div class="req-value">are · are not</div>
+    </div>
+    <div class="req-item">
+      <div class="req-label">4 — Predicate Term</div>
+      <div class="req-value">A noun phrase naming a class</div>
+    </div>
+  </div>
+</div>
+
+<!-- AEIO quick ref -->
+<div class="section s1">
+  <div class="section-title"><div class="section-num">1</div> The Four Standard Forms</div>
+  <div class="aeio-grid">
+    <div class="aeio-card a">
+      <div class="aeio-letter">A</div>
+      <div class="aeio-form">All S are P</div>
+      <div class="aeio-keywords">universal affirmative</div>
+    </div>
+    <div class="aeio-card e">
+      <div class="aeio-letter">E</div>
+      <div class="aeio-form">No S are P</div>
+      <div class="aeio-keywords">universal negative</div>
+    </div>
+    <div class="aeio-card i">
+      <div class="aeio-letter">I</div>
+      <div class="aeio-form">Some S are P</div>
+      <div class="aeio-keywords">particular affirmative</div>
+    </div>
+    <div class="aeio-card o">
+      <div class="aeio-letter">O</div>
+      <div class="aeio-form">Some S are not P</div>
+      <div class="aeio-keywords">particular negative</div>
+    </div>
+  </div>
+</div>
+
+<!-- Translation steps -->
+<div class="section s2">
+  <div class="section-title"><div class="section-num">2</div> How to Translate</div>
+  <div class="steps-card">
+    <div class="step-row">
+      <div class="step-num">1</div>
+      <div class="step-body"><strong>Identify what claim is being made.</strong> Is it universal (about all members of a class) or particular (about some)? Is it affirmative or negative? This tells you which form — A, E, I, or O — you're aiming for.</div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">2</div>
+      <div class="step-body"><strong>Identify the subject and predicate classes.</strong> Both must be noun phrases that name groups of things — not adjectives, verbs, or proper names. You may need to rephrase (e.g. "mortal" → "mortal beings").</div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">3</div>
+      <div class="step-body"><strong>Choose the right quantifier and copula.</strong> The copula must be a form of "to be" — "are" or "are not." Other verbs must be absorbed into the predicate term (e.g. "Dogs bark" → "All dogs are barking animals").</div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">4</div>
+      <div class="step-body"><strong>Write it out and check.</strong> Does it follow the pattern exactly? Quantifier — subject term — copula — predicate term? Both terms name classes of things? If yes, you're done.</div>
+    </div>
+  </div>
+</div>
+
+<!-- Tricky types -->
+<div class="section s3">
+  <div class="section-title"><div class="section-num">3</div> Four Tricky Sentence Types</div>
+  <div class="tricky-stack">
+
+    <!-- Implicit quantifiers -->
+    <div class="tricky-card">
+      <div class="tricky-head">
+        <div class="tricky-type">Type 1</div>
+        <div class="tricky-pattern">Statements with implicit quantifiers &nbsp;·&nbsp; "Dogs bark"</div>
+      </div>
+      <div class="tricky-body">
+        <div class="tricky-rule">
+          Sentences like <em>"Dogs bark"</em> or <em>"Politicians are liars"</em> make a universal claim without stating a quantifier. The word "all" is implied. Additionally, the verb must be converted into a predicate noun phrase using "are" as the copula — absorb the verb into the predicate term.
+        </div>
+        <div class="trans-pair">
+          <div class="trans-item before">
+            <div class="trans-item-label">Original</div>
+            <div class="trans-item-text">"Dogs bark."</div>
+          </div>
+          <div class="trans-item after">
+            <div class="trans-item-label">Standard form <span class="prop-badge badge-a">A</span></div>
+            <div class="trans-item-text">All dogs are animals that bark.</div>
+          </div>
+        </div>
+        <div class="trans-pair">
+          <div class="trans-item before">
+            <div class="trans-item-label">Original</div>
+            <div class="trans-item-text">"Politicians lie."</div>
+          </div>
+          <div class="trans-item after">
+            <div class="trans-item-label">Standard form <span class="prop-badge badge-a">A</span></div>
+            <div class="trans-item-text">All politicians are people who lie.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- The statements -->
+    <div class="tricky-card">
+      <div class="tricky-head">
+        <div class="tricky-type">Type 2</div>
+        <div class="tricky-pattern">"The" statements &nbsp;·&nbsp; "The whale is a mammal"</div>
+      </div>
+      <div class="tricky-body">
+        <div class="tricky-rule">
+          Sentences beginning with "the" followed by a general kind — <em>"The whale is a mammal," "The raven is a black bird"</em> — make a universal claim about all members of that kind. Treat "the [kind]" as shorthand for "all [kinds]." Do not confuse with definite references to a specific individual.
+        </div>
+        <div class="trans-pair">
+          <div class="trans-item before">
+            <div class="trans-item-label">Original</div>
+            <div class="trans-item-text">"The whale is a mammal."</div>
+          </div>
+          <div class="trans-item after">
+            <div class="trans-item-label">Standard form <span class="prop-badge badge-a">A</span></div>
+            <div class="trans-item-text">All whales are mammals.</div>
+          </div>
+        </div>
+        <div class="trans-pair">
+          <div class="trans-item before">
+            <div class="trans-item-label">Original</div>
+            <div class="trans-item-text">"The raven is a black bird."</div>
+          </div>
+          <div class="trans-item after">
+            <div class="trans-item-label">Standard form <span class="prop-badge badge-a">A</span></div>
+            <div class="trans-item-text">All ravens are black birds.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Only statements -->
+    <div class="tricky-card">
+      <div class="tricky-head">
+        <div class="tricky-type">Type 3 · Tricky!</div>
+        <div class="tricky-pattern">"Only" statements &nbsp;·&nbsp; "Only A are B"</div>
+      </div>
+      <div class="tricky-body">
+        <div class="tricky-rule">
+          <strong>"Only A are B"</strong> does <em>not</em> mean "All A are B." It means <strong>"All B are A"</strong> — the subject and predicate switch. "Only" restricts what can be B: only things that are A qualify. So B-ness requires A-ness, which means B goes in the subject position of an A proposition.
+        </div>
+        <div class="tricky-rule">
+          Memory tip: <strong>"Only" introduces the predicate term</strong> of the A proposition. The class after "only" ends up as the predicate, not the subject.
+        </div>
+        <div class="trans-pair">
+          <div class="trans-item before">
+            <div class="trans-item-label">Original</div>
+            <div class="trans-item-text">"Only citizens can vote."</div>
+          </div>
+          <div class="trans-item after">
+            <div class="trans-item-label">Standard form <span class="prop-badge badge-a">A</span></div>
+            <div class="trans-item-text">All voters are citizens.</div>
+          </div>
+        </div>
+        <div class="trans-pair">
+          <div class="trans-item before">
+            <div class="trans-item-label">Original</div>
+            <div class="trans-item-text">"Only the brave deserve the fair."</div>
+          </div>
+          <div class="trans-item after">
+            <div class="trans-item-label">Standard form <span class="prop-badge badge-a">A</span></div>
+            <div class="trans-item-text">All those who deserve the fair are brave people.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- None but / Exclusive -->
+    <div class="tricky-card">
+      <div class="tricky-head">
+        <div class="tricky-type">Type 4 · Tricky!</div>
+        <div class="tricky-pattern">Exclusive statements &nbsp;·&nbsp; "None but A are B"</div>
+      </div>
+      <div class="tricky-body">
+        <div class="tricky-rule">
+          <strong>"None but A are B"</strong> works exactly like "Only A are B" — it means <strong>"All B are A."</strong> "None but citizens can vote" = "Only citizens can vote" = "All voters are citizens." The subject and predicate switch, just as with "only."
+        </div>
+        <div class="tricky-rule">
+          Other exclusive phrases that work the same way: <em>"No one except," "None except," "Only."</em> All of them introduce the predicate term of the resulting A proposition.
+        </div>
+        <div class="trans-pair">
+          <div class="trans-item before">
+            <div class="trans-item-label">Original</div>
+            <div class="trans-item-text">"None but the lonely know my sorrow."</div>
+          </div>
+          <div class="trans-item after">
+            <div class="trans-item-label">Standard form <span class="prop-badge badge-a">A</span></div>
+            <div class="trans-item-text">All those who know my sorrow are lonely people.</div>
+          </div>
+        </div>
+        <div class="trans-pair">
+          <div class="trans-item before">
+            <div class="trans-item-label">Original</div>
+            <div class="trans-item-text">"No one except members may enter."</div>
+          </div>
+          <div class="trans-item after">
+            <div class="trans-item-label">Standard form <span class="prop-badge badge-a">A</span></div>
+            <div class="trans-item-text">All those who may enter are members.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Worked examples -->
+<div class="section s4">
+  <div class="section-title"><div class="section-num">4</div> Worked Examples</div>
+  <div class="worked-grid">
+
+    <div class="worked-card">
+      <div class="worked-top">
+        <div class="worked-tag">Worked example 1</div>
+        <div class="worked-original">"Happy people rarely suffer."</div>
+      </div>
+      <div class="worked-body">
+        <div class="worked-steps">
+          <div class="worked-step"><div class="worked-step-dot">1</div><div>Claim: universal — about all happy people. Negative — they don't suffer. → <strong>E proposition</strong></div></div>
+          <div class="worked-step"><div class="worked-step-dot">2</div><div>Subject class: happy people. Predicate class: "suffer" is a verb → convert to "people who suffer."</div></div>
+          <div class="worked-step"><div class="worked-step-dot">3</div><div>"Rarely" implies "almost never" — treat as universal negative for logical purposes.</div></div>
+        </div>
+        <div class="worked-result">
+          <div class="worked-result-label">Standard form <span class="prop-badge badge-e">E</span></div>
+          <div class="worked-result-text">No happy people are people who suffer.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="worked-card">
+      <div class="worked-top">
+        <div class="worked-tag">Worked example 2</div>
+        <div class="worked-original">"Some of the students passed."</div>
+      </div>
+      <div class="worked-body">
+        <div class="worked-steps">
+          <div class="worked-step"><div class="worked-step-dot">1</div><div>Claim: particular ("some of"). Affirmative. → <strong>I proposition</strong></div></div>
+          <div class="worked-step"><div class="worked-step-dot">2</div><div>Subject class: students. Predicate class: "passed" is a verb → convert to "students who passed."</div></div>
+          <div class="worked-step"><div class="worked-step-dot">3</div><div>Assemble: Some + students + are + students who passed.</div></div>
+        </div>
+        <div class="worked-result">
+          <div class="worked-result-label">Standard form <span class="prop-badge badge-i">I</span></div>
+          <div class="worked-result-text">Some students are students who passed.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="worked-card">
+      <div class="worked-top">
+        <div class="worked-tag">Worked example 3</div>
+        <div class="worked-original">"Only licensed drivers may operate a vehicle."</div>
+      </div>
+      <div class="worked-body">
+        <div class="worked-steps">
+          <div class="worked-step"><div class="worked-step-dot">1</div><div>"Only" → the class after "only" becomes the <strong>predicate</strong>. Predicate: licensed drivers.</div></div>
+          <div class="worked-step"><div class="worked-step-dot">2</div><div>Subject: those who may operate a vehicle — the class being restricted.</div></div>
+          <div class="worked-step"><div class="worked-step-dot">3</div><div>Universal affirmative with subject and predicate in the right positions. → <strong>A proposition</strong></div></div>
+        </div>
+        <div class="worked-result">
+          <div class="worked-result-label">Standard form <span class="prop-badge badge-a">A</span></div>
+          <div class="worked-result-text">All those who may operate a vehicle are licensed drivers.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="worked-card">
+      <div class="worked-top">
+        <div class="worked-tag">Worked example 4</div>
+        <div class="worked-original">"There are dishonest politicians."</div>
+      </div>
+      <div class="worked-body">
+        <div class="worked-steps">
+          <div class="worked-step"><div class="worked-step-dot">1</div><div>"There are" signals existence — a particular affirmative claim. → <strong>I proposition</strong></div></div>
+          <div class="worked-step"><div class="worked-step-dot">2</div><div>Subject class: politicians. Predicate class: "dishonest" is an adjective → convert to "dishonest people."</div></div>
+          <div class="worked-step"><div class="worked-step-dot">3</div><div>Assemble: Some + politicians + are + dishonest people.</div></div>
+        </div>
+        <div class="worked-result">
+          <div class="worked-result-label">Standard form <span class="prop-badge badge-i">I</span></div>
+          <div class="worked-result-text">Some politicians are dishonest people.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Challenge problems -->
+<div class="section s5">
+  <div class="section-title"><div class="section-num" style="background:var(--coral);">?</div> Challenge Problems</div>
+  <div class="challenge-card">
+    <div class="challenge-intro">
+      Translate each sentence into a standard form categorical proposition. Identify which form (A, E, I, or O) your translation takes.
+    </div>
+    <div class="challenge-list">
+
+      <div class="challenge-item">
+        <div class="challenge-num">1</div>
+        <div>
+          <div class="challenge-sentence">"Mammals nurse their young."</div>
+        </div>
+      </div>
+
+      <div class="challenge-item">
+        <div class="challenge-num">2</div>
+        <div>
+          <div class="challenge-sentence">"The tiger is an endangered species."</div>
+        </div>
+      </div>
+
+      <div class="challenge-item">
+        <div class="challenge-num">3</div>
+        <div>
+          <div class="challenge-sentence">"Not all that glitters is gold."</div>
+          <div class="challenge-hint">Hint: "not all" translates to a particular negative.</div>
+        </div>
+      </div>
+
+      <div class="challenge-item">
+        <div class="challenge-num">4</div>
+        <div>
+          <div class="challenge-sentence">"Only native speakers are fluent."</div>
+        </div>
+      </div>
+
+      <div class="challenge-item">
+        <div class="challenge-num">5</div>
+        <div>
+          <div class="challenge-sentence">"None but the guilty need fear the law."</div>
+        </div>
+      </div>
+
+      <div class="challenge-item">
+        <div class="challenge-num">6</div>
+        <div>
+          <div class="challenge-sentence">"There are no honest used-car salespeople."</div>
+        </div>
+      </div>
+
+      <div class="challenge-item">
+        <div class="challenge-num">7</div>
+        <div>
+          <div class="challenge-sentence">"A few students failed the exam."</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

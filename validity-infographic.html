@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Testing for Validity</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;0,900;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #1a1a2e;
+    --paper: #f5f0e8;
+    --accent: #c84b31;
+    --valid: #2d6a4f;
+    --invalid: #c84b31;
+    --muted: #7a7068;
+    --card: #fffdf8;
+  }
+
+  body {
+    background: var(--paper);
+    font-family: 'DM Mono', monospace;
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .infographic {
+    max-width: 680px;
+    width: 100%;
+  }
+
+  /* Header */
+  .header {
+    margin-bottom: 48px;
+    border-bottom: 3px solid var(--ink);
+    padding-bottom: 24px;
+  }
+
+  .label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(36px, 6vw, 52px);
+    font-weight: 900;
+    line-height: 1.05;
+    color: var(--ink);
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .subtitle {
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+    max-width: 480px;
+  }
+
+  /* The big question */
+  .question-block {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 4px;
+    padding: 32px 36px;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .question-block::before {
+    content: '?';
+    font-family: 'Fraunces', serif;
+    font-size: 180px;
+    font-weight: 900;
+    color: rgba(255,255,255,0.05);
+    position: absolute;
+    right: -10px;
+    top: -30px;
+    line-height: 1;
+  }
+
+  .question-block .q-label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(245,240,232,0.5);
+    margin-bottom: 12px;
+  }
+
+  .question-block .q-text {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(18px, 3.5vw, 26px);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.4;
+    position: relative;
+    z-index: 1;
+  }
+
+  .question-block .q-text strong {
+    font-weight: 700;
+    font-style: normal;
+    color: #f4a261;
+  }
+
+  /* Branch container */
+  .branches {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  /* Arrow connector */
+  .connector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    gap: 16px;
+  }
+
+  .connector-line {
+    flex: 1;
+    height: 1px;
+    background: var(--muted);
+  }
+
+  .connector-label {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* Branch cards */
+  .branch {
+    border-radius: 4px;
+    padding: 28px;
+    position: relative;
+  }
+
+  .branch-yes {
+    background: var(--card);
+    border: 2px solid var(--invalid);
+  }
+
+  .branch-no {
+    background: var(--card);
+    border: 2px solid var(--valid);
+  }
+
+  .branch-tag {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+
+  .branch-yes .branch-tag { color: var(--invalid); }
+  .branch-no .branch-tag { color: var(--valid); }
+
+  .branch-answer {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+
+  .verdict {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 2px;
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .verdict-invalid {
+    background: var(--invalid);
+    color: white;
+  }
+
+  .verdict-valid {
+    background: var(--valid);
+    color: white;
+  }
+
+  /* Definition box */
+  .definition {
+    border-left: 4px solid var(--accent);
+    padding: 20px 24px;
+    background: var(--card);
+    margin-bottom: 32px;
+  }
+
+  .def-term {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 6px;
+    color: var(--accent);
+  }
+
+  .def-text {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  /* Note */
+  .note {
+    border: 1px dashed var(--muted);
+    padding: 20px 24px;
+    border-radius: 2px;
+  }
+
+  .note-label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .note-text {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .header { animation: fadeUp 0.5s ease both; }
+  .question-block { animation: fadeUp 0.5s ease 0.15s both; }
+  .connector { animation: fadeUp 0.4s ease 0.25s both; }
+  .branches { animation: fadeUp 0.5s ease 0.35s both; }
+  .definition { animation: fadeUp 0.5s ease 0.45s both; }
+  .note { animation: fadeUp 0.5s ease 0.55s both; }
+</style>
+</head>
+<body>
+<div class="infographic">
+
+  <div class="header">
+    <div class="label">Deductive Logic · Validity Test</div>
+    <h1>The Counter-<br><em>example</em> Method</h1>
+    <p class="subtitle">A tool for testing whether an argument's <em>structure</em> — not its content — is logically sound.</p>
+  </div>
+
+  <div class="question-block">
+    <div class="q-label">Ask yourself</div>
+    <div class="q-text">Can I imagine a situation where <strong>all the premises are true</strong> but <strong>the conclusion is false?</strong></div>
+  </div>
+
+  <div class="connector">
+    <div class="connector-line"></div>
+    <div class="connector-label">your answer leads to</div>
+    <div class="connector-line"></div>
+  </div>
+
+  <div class="branches">
+    <div class="branch branch-yes">
+      <div class="branch-tag">✓ &nbsp;Yes, I can</div>
+      <div class="branch-answer">You've found a counterexample — a scenario that breaks the argument. The structure doesn't guarantee the conclusion.</div>
+      <div class="verdict verdict-invalid">Invalid</div>
+    </div>
+    <div class="branch branch-no">
+      <div class="branch-tag">✗ &nbsp;No, I can't</div>
+      <div class="branch-answer">Every attempt collapses — making the conclusion false forces at least one premise to become false too.</div>
+      <div class="verdict verdict-valid">Valid</div>
+    </div>
+  </div>
+
+  <div class="definition">
+    <div class="def-term">Counterexample</div>
+    <div class="def-text">A logically coherent scenario in which all the premises are true and the conclusion is false. If one exists, the argument is invalid — no matter how convincing it sounds.</div>
+  </div>
+
+  <div class="note">
+    <div class="note-label">Keep in mind</div>
+    <div class="note-text">This is one of several validity tests we'll cover. If this method doesn't click, another will. The goal is to practice looking past an argument's content to evaluate its <em>form</em> — and to understand what deductive validity really means.</div>
+  </div>
+
+</div>
+</body>
+</html>

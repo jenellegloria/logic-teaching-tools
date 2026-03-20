@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Identifying the Main Connective</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;0,900;1,300;1,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --delta-green:  #005749;
+    --delta-green2: #00957A;
+    --delta-black:  #193330;
+    --delta-white:  #F4F3EF;
+    --blue:         #9AD8CE;
+    --tan:          #C8C6B7;
+    --coral:        #F98F7C;
+    --pink:         #EACDCA;
+    --muted:        #5a6e6b;
+  }
+
+  body {
+    background: var(--delta-white);
+    font-family: 'DM Mono', monospace;
+    color: var(--delta-black);
+    min-height: 100vh;
+    padding: 48px 24px 64px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── Header ── */
+  .header {
+    max-width: 880px;
+    width: 100%;
+    margin-bottom: 36px;
+    padding-bottom: 24px;
+    border-bottom: 3px solid var(--delta-green);
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .top-label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--delta-green2);
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(28px, 5vw, 46px);
+    font-weight: 900;
+    line-height: 1.05;
+    color: var(--delta-green);
+  }
+
+  h1 em { font-style: italic; color: var(--delta-green2); }
+
+  .subtitle {
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.75;
+    max-width: 660px;
+  }
+
+  .subtitle strong { color: var(--delta-black); }
+
+  /* ── Sections ── */
+  .section {
+    max-width: 880px;
+    width: 100%;
+    margin-bottom: 32px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .section-title {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--delta-green);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-num {
+    background: var(--delta-green);
+    color: white;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    flex-shrink: 0;
+  }
+
+  /* ── Definition banner ── */
+  .def-banner {
+    background: var(--delta-green);
+    color: white;
+    border-radius: 8px;
+    padding: 28px 32px;
+    margin-bottom: 32px;
+    max-width: 880px;
+    width: 100%;
+    animation: fadeUp 0.5s ease 0.1s both;
+  }
+
+  .def-q {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 10px;
+  }
+
+  .def-text {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(15px, 2.8vw, 20px);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.55;
+    color: white;
+    margin-bottom: 14px;
+  }
+
+  .def-text strong {
+    font-weight: 700;
+    font-style: normal;
+    color: var(--blue);
+  }
+
+  .def-sub {
+    font-size: 11.5px;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.7;
+  }
+
+  /* ── Rules card ── */
+  .rules-card {
+    background: white;
+    border-radius: 8px;
+    padding: 28px 32px;
+    box-shadow: 0 2px 10px rgba(0,87,73,0.08);
+  }
+
+  .rules-intro {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.75;
+    margin-bottom: 22px;
+  }
+
+  .rules-intro strong { color: var(--delta-black); }
+
+  .rules-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .rule-item {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 14px 16px;
+    border-radius: 6px;
+    border-left: 4px solid;
+  }
+
+  .rule-item.r1 { background: rgba(0,87,73,0.05);   border-color: var(--delta-green); }
+  .rule-item.r2 { background: rgba(0,149,122,0.05); border-color: var(--delta-green2); }
+  .rule-item.r3 { background: rgba(249,143,124,0.08); border-color: var(--coral); }
+
+  .rule-num {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 900;
+    line-height: 1;
+    flex-shrink: 0;
+    width: 28px;
+  }
+
+  .r1 .rule-num { color: var(--delta-green); }
+  .r2 .rule-num { color: var(--delta-green2); }
+  .r3 .rule-num { color: #a0402a; }
+
+  .rule-body {}
+
+  .rule-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+
+  .r1 .rule-title { color: var(--delta-green); }
+  .r2 .rule-title { color: var(--delta-green2); }
+  .r3 .rule-title { color: #a0402a; }
+
+  .rule-desc {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  .rule-desc strong { color: var(--delta-black); font-weight: 500; }
+
+  /* ── Worked examples ── */
+  .examples-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .ex-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,87,73,0.08);
+    overflow: hidden;
+  }
+
+  .ex-header {
+    background: var(--delta-white);
+    padding: 14px 22px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .ex-label {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .ex-formula {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--delta-black);
+    letter-spacing: 0.03em;
+  }
+
+  .ex-body {
+    padding: 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  /* Step-by-step annotation */
+  .ex-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .ex-step {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    font-size: 11px;
+    line-height: 1.65;
+  }
+
+  .step-num {
+    background: var(--delta-green);
+    color: white;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .step-text { color: var(--muted); }
+  .step-text strong { color: var(--delta-black); font-weight: 500; }
+
+  /* Annotated formula display */
+  .annotated {
+    background: var(--delta-white);
+    border-radius: 6px;
+    padding: 16px 20px;
+    font-size: 13px;
+    line-height: 2.2;
+    letter-spacing: 0.04em;
+  }
+
+  .scope-wrap {
+    display: inline;
+  }
+
+  /* Bracket depth coloring */
+  .b1 { color: #005749; }
+  .b2 { color: #00957A; }
+  .b3 { color: #b5640a; }
+
+  .main-conn {
+    background: var(--coral);
+    color: white;
+    border-radius: 3px;
+    padding: 1px 6px;
+    font-weight: 700;
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+  }
+
+  .sub-conn {
+    background: var(--blue);
+    color: var(--delta-black);
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-size: 13px;
+  }
+
+  /* Verdict */
+  .ex-verdict {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 6px;
+    background: rgba(0,87,73,0.07);
+    font-size: 12px;
+  }
+
+  .verdict-arrow {
+    font-size: 16px;
+    color: var(--delta-green);
+  }
+
+  .verdict-text {
+    color: var(--delta-black);
+    line-height: 1.5;
+  }
+
+  .verdict-text strong { color: var(--delta-green); }
+
+  /* ── Scope tip ── */
+  .scope-tip {
+    background: var(--pink);
+    border-left: 5px solid var(--coral);
+    border-radius: 6px;
+    padding: 20px 24px;
+    max-width: 880px;
+    width: 100%;
+    font-size: 11.5px;
+    color: var(--delta-black);
+    line-height: 1.75;
+    animation: fadeUp 0.5s ease 0.5s both;
+  }
+
+  .scope-tip strong { color: #a0402a; }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .s1 { animation-delay: 0.05s; }
+  .s2 { animation-delay: 0.15s; }
+  .s3 { animation-delay: 0.25s; }
+  .s4 { animation-delay: 0.35s; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="top-label">Propositional Logic · Formula Structure</div>
+  <h1>Finding the<br><em>Main Connective</em></h1>
+  <p class="subtitle">Every compound proposition has exactly one <strong>main connective</strong> — the connective that governs the formula as a whole. Identifying it tells you what kind of statement you're dealing with, and is the first step in building a truth table.</p>
+</div>
+
+<!-- Definition -->
+<div class="def-banner">
+  <div class="def-q">What is it?</div>
+  <div class="def-text">The main connective is the connective with the <strong>widest scope</strong> — the last one applied when the formula is built up, and the one that connects the largest parts of the formula.</div>
+  <div class="def-sub">A formula is named after its main connective: a formula whose main connective is → is called a <em>conditional</em>; one whose main connective is ∧ is a <em>conjunction</em>; and so on.</div>
+</div>
+
+<!-- Rules -->
+<div class="section s1">
+  <div class="section-title"><div class="section-num">1</div> Three Rules for Finding It</div>
+  <div class="rules-card">
+    <div class="rules-intro">
+      Work from the <strong>outside in</strong>. Parentheses narrow scope — connectives inside parentheses are subordinate to connectives outside them.
+    </div>
+    <div class="rules-list">
+
+      <div class="rule-item r1">
+        <div class="rule-num">1</div>
+        <div class="rule-body">
+          <div class="rule-title">If the formula has no parentheses, the main connective is the only connective — or the one with the widest reach.</div>
+          <div class="rule-desc">Example: <strong>P ∧ Q</strong> — the ∧ is the main connective. <strong>~P</strong> — the ~ is the main connective.</div>
+        </div>
+      </div>
+
+      <div class="rule-item r2">
+        <div class="rule-num">2</div>
+        <div class="rule-body">
+          <div class="rule-title">A connective outside all parentheses is always the main connective.</div>
+          <div class="rule-desc">Example: <strong>(P ∧ Q) → R</strong> — the → sits outside the parentheses, so it governs the whole formula. The ∧ is inside and subordinate.</div>
+        </div>
+      </div>
+
+      <div class="rule-item r3">
+        <div class="rule-num">3</div>
+        <div class="rule-body">
+          <div class="rule-title">If the entire formula is wrapped in one set of parentheses, remove them and apply rules 1 and 2 again.</div>
+          <div class="rule-desc">Example: <strong>((P ∨ Q) ∧ R)</strong> — strip the outer parens → <strong>(P ∨ Q) ∧ R</strong> → the ∧ is now outside all remaining parentheses. That's the main connective.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Worked examples -->
+<div class="section s2">
+  <div class="section-title"><div class="section-num">2</div> Worked Examples</div>
+  <div class="examples-stack">
+
+    <!-- Example 1: simple -->
+    <div class="ex-card">
+      <div class="ex-header">
+        <div class="ex-label">Example 1 · Simple</div>
+        <div class="ex-formula">P → (Q ∧ R)</div>
+      </div>
+      <div class="ex-body">
+        <div class="ex-steps">
+          <div class="ex-step">
+            <div class="step-num">1</div>
+            <div class="step-text">Look for any connective sitting <strong>outside all parentheses</strong>.</div>
+          </div>
+          <div class="ex-step">
+            <div class="step-num">2</div>
+            <div class="step-text">The <strong>∧</strong> is inside parentheses. The <strong>→</strong> is outside. Done.</div>
+          </div>
+        </div>
+        <div class="annotated">
+          P &nbsp;<span class="main-conn">→</span>&nbsp; <span class="b1">(</span>Q &nbsp;<span class="sub-conn">∧</span>&nbsp; R<span class="b1">)</span>
+        </div>
+        <div class="ex-verdict">
+          <div class="verdict-arrow">→</div>
+          <div class="verdict-text">Main connective: <strong>→</strong> &nbsp;·&nbsp; This formula is a <strong>conditional</strong>.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Example 2: tilde on a group -->
+    <div class="ex-card">
+      <div class="ex-header">
+        <div class="ex-label">Example 2 · Negation of a group</div>
+        <div class="ex-formula">~(P ∨ Q)</div>
+      </div>
+      <div class="ex-body">
+        <div class="ex-steps">
+          <div class="ex-step">
+            <div class="step-num">1</div>
+            <div class="step-text">The <strong>∨</strong> is inside parentheses.</div>
+          </div>
+          <div class="ex-step">
+            <div class="step-num">2</div>
+            <div class="step-text">The <strong>~</strong> sits outside all parentheses — it negates the <em>entire</em> group (P ∨ Q), not just P.</div>
+          </div>
+        </div>
+        <div class="annotated">
+          <span class="main-conn">~</span><span class="b1">(</span>P &nbsp;<span class="sub-conn">∨</span>&nbsp; Q<span class="b1">)</span>
+        </div>
+        <div class="ex-verdict">
+          <div class="verdict-arrow">→</div>
+          <div class="verdict-text">Main connective: <strong>~</strong> &nbsp;·&nbsp; This formula is a <strong>negation</strong>.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Example 3: nested -->
+    <div class="ex-card">
+      <div class="ex-header">
+        <div class="ex-label">Example 3 · Nested parentheses</div>
+        <div class="ex-formula">(P ∧ Q) ↔ (~P ∨ R)</div>
+      </div>
+      <div class="ex-body">
+        <div class="ex-steps">
+          <div class="ex-step">
+            <div class="step-num">1</div>
+            <div class="step-text">Identify what's inside each set of parentheses: <strong>(P ∧ Q)</strong> and <strong>(~P ∨ R)</strong>.</div>
+          </div>
+          <div class="ex-step">
+            <div class="step-num">2</div>
+            <div class="step-text">The <strong>↔</strong> connects those two groups from outside both sets of parentheses.</div>
+          </div>
+          <div class="ex-step">
+            <div class="step-num">3</div>
+            <div class="step-text">The <strong>∧</strong>, <strong>~</strong>, and <strong>∨</strong> are all inside parentheses — subordinate.</div>
+          </div>
+        </div>
+        <div class="annotated">
+          <span class="b1">(</span>P &nbsp;<span class="sub-conn">∧</span>&nbsp; Q<span class="b1">)</span> &nbsp;<span class="main-conn">↔</span>&nbsp; <span class="b1">(</span><span class="sub-conn">~</span>P &nbsp;<span class="sub-conn">∨</span>&nbsp; R<span class="b1">)</span>
+        </div>
+        <div class="ex-verdict">
+          <div class="verdict-arrow">→</div>
+          <div class="verdict-text">Main connective: <strong>↔</strong> &nbsp;·&nbsp; This formula is a <strong>biconditional</strong>.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Example 4: tricky — tilde on single letter vs group -->
+    <div class="ex-card">
+      <div class="ex-header">
+        <div class="ex-label">Example 4 · Easy to mix up</div>
+        <div class="ex-formula">~P ∧ Q &nbsp;&nbsp;vs&nbsp;&nbsp; ~(P ∧ Q)</div>
+      </div>
+      <div class="ex-body">
+        <div class="ex-steps">
+          <div class="ex-step">
+            <div class="step-num">!</div>
+            <div class="step-text">These two look similar but are <strong>completely different formulas</strong> with different main connectives.</div>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; flex-wrap:wrap;">
+          <div>
+            <div style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">~P ∧ Q</div>
+            <div class="annotated"><span class="sub-conn">~</span>P &nbsp;<span class="main-conn">∧</span>&nbsp; Q</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:8px;line-height:1.6;">~ only negates P.<br>Main connective: <strong style="color:var(--delta-green);">∧</strong> (conjunction)</div>
+          </div>
+          <div>
+            <div style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">~(P ∧ Q)</div>
+            <div class="annotated"><span class="main-conn">~</span><span class="b1">(</span>P &nbsp;<span class="sub-conn">∧</span>&nbsp; Q<span class="b1">)</span></div>
+            <div style="font-size:10px;color:var(--muted);margin-top:8px;line-height:1.6;">~ negates the whole group.<br>Main connective: <strong style="color:var(--delta-green);">~</strong> (negation)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Scope tip -->
+<div class="scope-tip">
+  <strong>The key insight:</strong> Parentheses create scope. A connective can only be the main connective if it isn't trapped inside someone else's parentheses. When in doubt, ask: <em>what is this connective connecting?</em> The one connecting the biggest pieces is the main connective.
+</div>
+
+<!-- Challenge problems -->
+<div class="section s4" style="margin-top:32px;">
+  <div class="section-title"><div class="section-num" style="background:var(--coral);">?</div> Challenge Problems</div>
+  <div style="background:white;border-radius:8px;padding:28px 32px;box-shadow:0 2px 10px rgba(0,87,73,0.08);">
+    <div style="font-size:12px;color:var(--muted);line-height:1.75;margin-bottom:22px;">
+      For each formula below, identify the <strong style="color:var(--delta-black);">main connective</strong> and name the type of statement it is.
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+
+      <div style="display:grid;grid-template-columns:28px 1fr;gap:14px;align-items:start;padding:16px 18px;background:var(--delta-white);border-radius:6px;border-left:4px solid var(--tan);">
+        <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:900;color:var(--coral);">1</div>
+        <div>
+          <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--delta-black);">(P → Q) ∧ (Q → P)</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:28px 1fr;gap:14px;align-items:start;padding:16px 18px;background:var(--delta-white);border-radius:6px;border-left:4px solid var(--tan);">
+        <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:900;color:var(--coral);">2</div>
+        <div>
+          <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--delta-black);">~(P ∧ Q) → (R ∨ ~S)</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:28px 1fr;gap:14px;align-items:start;padding:16px 18px;background:var(--delta-white);border-radius:6px;border-left:4px solid var(--tan);">
+        <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:900;color:var(--coral);">3</div>
+        <div>
+          <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--delta-black);">((P ∨ Q) ∧ ~R) ↔ ~(S → P)</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:28px 1fr;gap:14px;align-items:start;padding:16px 18px;background:var(--delta-white);border-radius:6px;border-left:4px solid var(--tan);">
+        <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:900;color:var(--coral);">4</div>
+        <div>
+          <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--delta-black);">~((P → Q) ∨ (R ∧ S))</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

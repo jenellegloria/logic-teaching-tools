@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Truth Tables as a Validity Test</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;0,900;1,300;1,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --delta-green:  #005749;
+    --delta-green2: #00957A;
+    --delta-black:  #193330;
+    --delta-white:  #F4F3EF;
+    --blue:         #9AD8CE;
+    --tan:          #C8C6B7;
+    --coral:        #F98F7C;
+    --pink:         #EACDCA;
+    --muted:        #5a6e6b;
+    --T: #005749;
+    --F: #c84b31;
+    --valid: #005749;
+    --invalid: #c84b31;
+  }
+
+  body {
+    background: var(--delta-white);
+    font-family: 'DM Mono', monospace;
+    color: var(--delta-black);
+    min-height: 100vh;
+    padding: 48px 24px 64px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── Header ── */
+  .header {
+    max-width: 920px;
+    width: 100%;
+    margin-bottom: 36px;
+    padding-bottom: 24px;
+    border-bottom: 3px solid var(--delta-green);
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .top-label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--delta-green2);
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(28px, 5vw, 46px);
+    font-weight: 900;
+    line-height: 1.05;
+    color: var(--delta-green);
+  }
+
+  h1 em { font-style: italic; color: var(--delta-green2); }
+
+  .subtitle {
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.75;
+    max-width: 680px;
+  }
+
+  .subtitle strong { color: var(--delta-black); }
+
+  /* ── Sections ── */
+  .section {
+    max-width: 920px;
+    width: 100%;
+    margin-bottom: 36px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .section-title {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--delta-green);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-num {
+    background: var(--delta-green);
+    color: white;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    flex-shrink: 0;
+  }
+
+  /* ── Core idea banner ── */
+  .core-banner {
+    background: var(--delta-green);
+    color: white;
+    border-radius: 8px;
+    padding: 28px 32px;
+    margin-bottom: 32px;
+    max-width: 920px;
+    width: 100%;
+    animation: fadeUp 0.5s ease 0.1s both;
+  }
+
+  .core-q {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 10px;
+  }
+
+  .core-text {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(14px, 2.5vw, 19px);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.6;
+    color: white;
+    margin-bottom: 16px;
+  }
+
+  .core-text strong {
+    font-weight: 700;
+    font-style: normal;
+    color: var(--blue);
+  }
+
+  .core-rule {
+    font-size: 11.5px;
+    color: rgba(255,255,255,0.82);
+    line-height: 1.75;
+  }
+
+  .core-rule strong { color: white; }
+
+  /* ── How-to steps ── */
+  .steps-card {
+    background: white;
+    border-radius: 8px;
+    padding: 26px 30px;
+    box-shadow: 0 2px 10px rgba(0,87,73,0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .step-row {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .step-num {
+    background: var(--delta-green);
+    color: white;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    font-size: 13px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .step-body {
+    font-size: 11.5px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  .step-body strong { color: var(--delta-black); font-weight: 500; }
+
+  /* ── Worked examples ── */
+  .examples-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  @media (max-width: 680px) {
+    .examples-grid { grid-template-columns: 1fr; }
+  }
+
+  .ex-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,87,73,0.08);
+    overflow: hidden;
+    border-top: 6px solid;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ex-card.valid   { border-color: var(--valid); }
+  .ex-card.invalid { border-color: var(--invalid); }
+
+  .ex-top {
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .ex-verdict {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 10px;
+  }
+
+  .ex-card.valid   .ex-verdict { background: var(--valid);   color: white; }
+  .ex-card.invalid .ex-verdict { background: var(--invalid); color: white; }
+
+  .ex-argument {
+    background: var(--delta-white);
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-size: 12px;
+    line-height: 2;
+  }
+
+  .ex-line { color: var(--delta-black); }
+  .ex-line.conclusion {
+    border-top: 1px solid var(--tan);
+    margin-top: 4px;
+    padding-top: 4px;
+  }
+
+  .ex-body { padding: 16px 20px; flex: 1; display: flex; flex-direction: column; gap: 14px; }
+
+  .ex-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .ex-step {
+    display: flex;
+    gap: 10px;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.6;
+    align-items: flex-start;
+  }
+
+  .ex-step-num {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .ex-card.valid   .ex-step-num { background: var(--valid);   color: white; }
+  .ex-card.invalid .ex-step-num { background: var(--invalid); color: white; }
+
+  .ex-step strong { color: var(--delta-black); font-weight: 500; }
+
+  /* Tables */
+  .table-scroll { overflow-x: auto; }
+
+  table.tt {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11.5px;
+    min-width: 320px;
+  }
+
+  table.tt thead tr { background: var(--delta-white); }
+
+  table.tt th {
+    padding: 8px 10px;
+    text-align: center;
+    font-size: 10px;
+    color: var(--muted);
+    font-weight: 500;
+    border-bottom: 2px solid #ddd;
+    white-space: nowrap;
+  }
+
+  table.tt th.prem { color: var(--delta-green2); font-weight: 600; }
+  table.tt th.conc { background: var(--delta-green); color: white; font-weight: 700; }
+  table.tt th.sub  { color: var(--muted); font-style: italic; }
+
+  table.tt td {
+    padding: 7px 10px;
+    text-align: center;
+    border-bottom: 1px solid #f0f0f0;
+    font-weight: 500;
+  }
+
+  table.tt tr:last-child td { border-bottom: none; }
+
+  table.tt td.tv-T { color: var(--T); }
+  table.tt td.tv-F { color: var(--F); }
+
+  table.tt td.conc-col { font-weight: 700; font-size: 13px; background: rgba(0,87,73,0.04); }
+  table.tt td.conc-col.tv-T { color: var(--T); }
+  table.tt td.conc-col.tv-F { color: var(--F); }
+
+  /* Highlight the critical row */
+  table.tt tr.critical { background: rgba(200,75,49,0.07); }
+  table.tt tr.critical td { font-weight: 600; }
+
+  .ex-reading {
+    border-radius: 6px;
+    padding: 12px 14px;
+    font-size: 11px;
+    line-height: 1.7;
+    font-weight: 500;
+  }
+
+  .ex-card.valid   .ex-reading { background: rgba(0,87,73,0.07);  color: var(--valid); }
+  .ex-card.invalid .ex-reading { background: rgba(200,75,49,0.08); color: var(--invalid); }
+
+  /* ── Tautology / contradiction / contingent ── */
+  .tcc-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  @media (max-width: 600px) {
+    .tcc-grid { grid-template-columns: 1fr; }
+  }
+
+  .tcc-card {
+    background: white;
+    border-radius: 8px;
+    padding: 22px;
+    box-shadow: 0 2px 10px rgba(0,87,73,0.08);
+    border-top: 5px solid;
+  }
+
+  .tcc-card.taut { border-color: var(--delta-green); }
+  .tcc-card.cont { border-color: #b5640a; }
+  .tcc-card.ctrn { border-color: var(--invalid); }
+
+  .tcc-name {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 17px;
+    margin-bottom: 8px;
+  }
+
+  .tcc-card.taut .tcc-name { color: var(--delta-green); }
+  .tcc-card.cont .tcc-name { color: #b5640a; }
+  .tcc-card.ctrn .tcc-name { color: var(--invalid); }
+
+  .tcc-def {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 12px;
+  }
+
+  .tcc-def strong { color: var(--delta-black); font-weight: 500; }
+
+  .tcc-pattern {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 6px 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+  }
+
+  .tcc-card.taut .tcc-pattern { background: rgba(0,87,73,0.08);  color: var(--delta-green); }
+  .tcc-card.cont .tcc-pattern { background: rgba(181,100,10,0.08); color: #b5640a; }
+  .tcc-card.ctrn .tcc-pattern { background: rgba(200,75,49,0.08); color: var(--invalid); }
+
+  .tcc-ex {
+    font-size: 10.5px;
+    color: var(--muted);
+    font-style: italic;
+    line-height: 1.6;
+  }
+
+  /* Connection to validity note */
+  .validity-note {
+    background: var(--delta-black);
+    color: white;
+    border-radius: 8px;
+    padding: 22px 26px;
+    margin-top: 16px;
+    font-size: 12px;
+    line-height: 1.75;
+    max-width: 920px;
+    width: 100%;
+    animation: fadeUp 0.5s ease 0.5s both;
+  }
+
+  .validity-note strong { color: var(--blue); }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .s1 { animation-delay: 0.05s; }
+  .s2 { animation-delay: 0.15s; }
+  .s3 { animation-delay: 0.25s; }
+  .s4 { animation-delay: 0.35s; }
+  .s5 { animation-delay: 0.45s; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="top-label">Propositional Logic · Validity</div>
+  <h1>Truth Tables as<br>a <em>Validity Test</em></h1>
+  <p class="subtitle">A truth table can test whether a propositional argument is valid by checking every possible scenario at once. If there is even <strong>one row</strong> where all the premises are true and the conclusion is false, the argument is invalid.</p>
+</div>
+
+<!-- Core idea -->
+<div class="core-banner">
+  <div class="core-q">The central question</div>
+  <div class="core-text">Is there any possible scenario — any row — where <strong>all the premises are true</strong> and the <strong>conclusion is false</strong>?</div>
+  <div class="core-rule">
+    <strong>If no such row exists →</strong> the argument is valid. The truth of the premises guarantees the truth of the conclusion in every possible scenario.<br><br>
+    <strong>If even one such row exists →</strong> the argument is invalid. That row is a counterexample — a possible situation where the premises hold but the conclusion fails.
+  </div>
+</div>
+
+<!-- How to -->
+<div class="section s1">
+  <div class="section-title"><div class="section-num">1</div> How to Test Validity</div>
+  <div class="steps-card">
+    <div class="step-row">
+      <div class="step-num">1</div>
+      <div class="step-body"><strong>Set up the table.</strong> List all variables, determine the number of rows (2ⁿ), and fill in all combinations of T and F systematically.</div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">2</div>
+      <div class="step-body"><strong>Add a column for each premise and the conclusion.</strong> Work column by column, building sub-formulas up to the main connective of each.</div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">3</div>
+      <div class="step-body"><strong>Scan for a critical row</strong> — any row where every premise column is <span style="color:var(--T);font-weight:600;">T</span> and the conclusion column is <span style="color:var(--F);font-weight:600;">F</span>.</div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">4</div>
+      <div class="step-body"><strong>If no such row exists:</strong> valid. <strong>If one exists:</strong> invalid — and that row tells you exactly what a counterexample looks like.</div>
+    </div>
+  </div>
+</div>
+
+<!-- Worked examples -->
+<div class="section s2">
+  <div class="section-title"><div class="section-num">2</div> Worked Examples</div>
+  <div class="examples-grid">
+
+    <!-- VALID: Modus Ponens -->
+    <div class="ex-card valid">
+      <div class="ex-top">
+        <div class="ex-verdict">✓ Valid</div>
+        <div class="ex-argument">
+          <div class="ex-line">P → Q</div>
+          <div class="ex-line">P</div>
+          <div class="ex-line conclusion">∴ Q</div>
+        </div>
+      </div>
+      <div class="ex-body">
+        <div class="ex-steps">
+          <div class="ex-step">
+            <div class="ex-step-num">1</div>
+            <div>Two variables (P, Q) → <strong>4 rows</strong>. Columns: P, Q, P→Q (premise 1), P (premise 2), Q (conclusion).</div>
+          </div>
+          <div class="ex-step">
+            <div class="ex-step-num">2</div>
+            <div>Scan for any row where <strong>P→Q is T and P is T</strong> but <strong>Q is F</strong>.</div>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="tt">
+            <thead>
+              <tr>
+                <th>P</th>
+                <th>Q</th>
+                <th class="prem">P → Q</th>
+                <th class="prem">P</th>
+                <th class="conc">Q</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="tv-T">T</td><td class="tv-T">T</td><td class="tv-T">T</td><td class="tv-T">T</td><td class="conc-col tv-T">T</td></tr>
+              <tr><td class="tv-T">T</td><td class="tv-F">F</td><td class="tv-F">F</td><td class="tv-T">T</td><td class="conc-col tv-F">F</td></tr>
+              <tr><td class="tv-F">F</td><td class="tv-T">T</td><td class="tv-T">T</td><td class="tv-F">F</td><td class="conc-col tv-T">T</td></tr>
+              <tr><td class="tv-F">F</td><td class="tv-F">F</td><td class="tv-T">T</td><td class="tv-F">F</td><td class="conc-col tv-F">F</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="ex-reading">
+          No row has both premises true and conclusion false. Row 1 is the only row where both premises are T — and conclusion is T there too. The argument is <strong>valid</strong>.
+        </div>
+      </div>
+    </div>
+
+    <!-- INVALID: Affirming the Consequent -->
+    <div class="ex-card invalid">
+      <div class="ex-top">
+        <div class="ex-verdict">✗ Invalid</div>
+        <div class="ex-argument">
+          <div class="ex-line">P → Q</div>
+          <div class="ex-line">Q</div>
+          <div class="ex-line conclusion">∴ P</div>
+        </div>
+      </div>
+      <div class="ex-body">
+        <div class="ex-steps">
+          <div class="ex-step">
+            <div class="ex-step-num">1</div>
+            <div>Two variables → <strong>4 rows</strong>. Same setup, but the second premise is Q and conclusion is P.</div>
+          </div>
+          <div class="ex-step">
+            <div class="ex-step-num">2</div>
+            <div>Scan for a row where <strong>P→Q is T and Q is T</strong> but <strong>P is F</strong>.</div>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="tt">
+            <thead>
+              <tr>
+                <th>P</th>
+                <th>Q</th>
+                <th class="prem">P → Q</th>
+                <th class="prem">Q</th>
+                <th class="conc">P</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="tv-T">T</td><td class="tv-T">T</td><td class="tv-T">T</td><td class="tv-T">T</td><td class="conc-col tv-T">T</td></tr>
+              <tr><td class="tv-T">T</td><td class="tv-F">F</td><td class="tv-F">F</td><td class="tv-F">F</td><td class="conc-col tv-T">T</td></tr>
+              <tr class="critical"><td class="tv-F">F</td><td class="tv-T">T</td><td class="tv-T">T</td><td class="tv-T">T</td><td class="conc-col tv-F">F</td></tr>
+              <tr><td class="tv-F">F</td><td class="tv-F">F</td><td class="tv-T">T</td><td class="tv-F">F</td><td class="conc-col tv-F">F</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="ex-reading">
+          Row 3 is a critical row — both premises are T but the conclusion is F. This is a counterexample: P is false, Q is true, and the argument breaks down. The argument is <strong>invalid</strong>.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Tautology / Contradiction / Contingent -->
+<div class="section s3">
+  <div class="section-title"><div class="section-num">3</div> What the Final Column Can Tell You</div>
+  <div class="tcc-grid">
+
+    <div class="tcc-card taut">
+      <div class="tcc-name">Tautology</div>
+      <div class="tcc-def">A formula that is <strong>true in every possible row</strong> — no matter what truth values the variables take. Also called a <em>logical truth</em>.</div>
+      <div class="tcc-pattern">Final column: all T</div>
+      <div class="tcc-ex">Example: P ∨ ~P<br>"It is raining or it is not raining" — always true.</div>
+    </div>
+
+    <div class="tcc-card cont">
+      <div class="tcc-name">Contingent</div>
+      <div class="tcc-def">A formula that is <strong>true in some rows and false in others</strong>. Its truth value depends on the actual truth values of the variables.</div>
+      <div class="tcc-pattern">Final column: mix of T and F</div>
+      <div class="tcc-ex">Example: P → Q<br>True sometimes, false sometimes, depending on P and Q.</div>
+    </div>
+
+    <div class="tcc-card ctrn">
+      <div class="tcc-name">Contradiction</div>
+      <div class="tcc-def">A formula that is <strong>false in every possible row</strong> — no assignment of truth values can make it true. Also called a <em>logical falsehood</em>.</div>
+      <div class="tcc-pattern">Final column: all F</div>
+      <div class="tcc-ex">Example: P ∧ ~P<br>"It is raining and it is not raining" — never true.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Connection note -->
+<div class="validity-note">
+  <strong>The connection to validity:</strong> A valid argument is one whose corresponding conditional — all premises conjoined as the antecedent, conclusion as the consequent — is a <strong>tautology</strong>. If (P₁ ∧ P₂ ∧ … ∧ Pₙ) → C is true in every row, the argument is valid. This is why validity testing and tautology testing are two sides of the same coin.
+</div>
+
+</body>
+</html>
