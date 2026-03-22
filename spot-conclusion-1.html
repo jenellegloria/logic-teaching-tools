@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Identify the Conclusion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Exo+2:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:          #04040f;
+  --surface:     #0a0a1a;
+  --surface2:    #0f0f22;
+  --border:      rgba(0,255,255,0.15);
+  --cyan:        #00ffff;
+  --pink:        #ff2d78;
+  --yellow:      #ffe600;
+  --green:       #39ff14;
+  --red:         #ff3b3b;
+  --purple:      #bf5fff;
+  --orange:      #ff9000;
+  --text:        #d0f0ff;
+  --muted:       #4a6880;
+  --radius:      4px;
+  --glow-cyan:   0 0 8px #00ffff, 0 0 20px rgba(0,255,255,0.35);
+  --glow-pink:   0 0 8px #ff2d78, 0 0 20px rgba(255,45,120,0.35);
+  --glow-yellow: 0 0 8px #ffe600, 0 0 20px rgba(255,230,0,0.35);
+  --glow-green:  0 0 8px #39ff14, 0 0 20px rgba(57,255,20,0.35);
+  --glow-red:    0 0 8px #ff3b3b, 0 0 20px rgba(255,59,59,0.35);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Exo 2', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* CRT scanlines */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 2px,
+    rgba(0,0,0,0.12) 2px, rgba(0,0,0,0.12) 4px
+  );
+  pointer-events: none; z-index: 100;
+}
+/* grid bg */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,255,255,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,255,255,0.035) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none; z-index: 0;
+}
+
+.wrap {
+  position: relative; z-index: 1;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+}
+
+/* ── PHASES ── */
+.phase { display: none; }
+.phase.active { display: block; animation: fadein 0.3s ease both; }
+@keyframes fadein { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+
+/* ── TYPE ── */
+h1 {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(0.9rem, 3vw, 1.6rem);
+  line-height: 1.6;
+  color: var(--cyan);
+  text-shadow: var(--glow-cyan);
+}
+h2 {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(0.65rem, 2vw, 0.95rem);
+  line-height: 1.8;
+  color: var(--pink);
+  text-shadow: var(--glow-pink);
+  margin-bottom: 18px;
+}
+h3 {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
+  color: var(--yellow);
+  text-shadow: var(--glow-yellow);
+  margin-bottom: 10px;
+}
+p { font-size: 0.9rem; line-height: 1.85; color: var(--text); }
+p + p { margin-top: 12px; }
+
+/* ── CARD ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px 28px;
+  margin: 20px 0;
+  box-shadow: inset 0 0 30px rgba(0,255,255,0.02);
+}
+.card.accent {
+  border-color: rgba(255,230,0,0.35);
+  box-shadow: inset 0 0 30px rgba(255,230,0,0.03), 0 0 0 1px rgba(255,230,0,0.07);
+}
+
+/* ── HERO ── */
+.hero { text-align: center; padding: 36px 0 24px; }
+.hero-badge {
+  display: inline-block;
+  border: 1px solid var(--pink);
+  color: var(--pink);
+  text-shadow: var(--glow-pink);
+  box-shadow: var(--glow-pink);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.46rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 7px 14px;
+  border-radius: 2px;
+  margin-bottom: 20px;
+}
+.hero p { font-size: 0.82rem; color: var(--muted); margin-top: 16px; line-height: 2.1; }
+
+/* ── HUD (hearts + combo + score) ── */
+#hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 14px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+/* hearts */
+#hearts-display {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.heart {
+  display: inline-block;
+  width: 20px; height: 20px;
+  position: relative;
+  transition: transform 0.15s, filter 0.15s;
+}
+.heart svg { display: block; width: 100%; height: 100%; }
+.heart.lost { filter: grayscale(1) brightness(0.3); transform: scale(0.85); }
+.heart.gained { animation: heartpop 0.4s ease; }
+@keyframes heartpop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.5); }
+  100% { transform: scale(1); }
+}
+.heart.lost-anim { animation: heartlost 0.35s ease; }
+@keyframes heartlost {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.2) rotate(-15deg); }
+  100% { transform: scale(0.85); }
+}
+
+/* combo */
+#combo-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+#combo-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.42rem;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+}
+#combo-value {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1rem;
+  color: var(--yellow);
+  text-shadow: var(--glow-yellow);
+  transition: transform 0.15s, color 0.15s;
+}
+#combo-value.bump { animation: combobump 0.25s ease; }
+@keyframes combobump {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+
+/* score */
+#score-display {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+#score-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.42rem;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+}
+#score-value {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1rem;
+  color: var(--cyan);
+  text-shadow: var(--glow-cyan);
+  transition: color 0.2s;
+}
+#score-value.bump { animation: scorebump 0.3s ease; }
+@keyframes scorebump {
+  0%   { transform: scale(1) translateY(0); color: var(--green); text-shadow: var(--glow-green); }
+  40%  { transform: scale(1.25) translateY(-3px); }
+  100% { transform: scale(1) translateY(0); color: var(--cyan); text-shadow: var(--glow-cyan); }
+}
+
+/* ── PROGRESS ── */
+.progress-wrap {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+}
+.progress-track {
+  flex: 1; height: 5px;
+  background: var(--surface2);
+  border: 1px solid rgba(0,255,255,0.1);
+  border-radius: 2px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--cyan);
+  box-shadow: var(--glow-cyan);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+.progress-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.48rem; color: var(--cyan); white-space: nowrap;
+}
+
+/* ── ARGUMENT DISPLAY ── */
+#argument-card {
+  background: var(--surface2);
+  border: 1px solid rgba(0,255,255,0.12);
+  border-radius: var(--radius);
+  padding: 24px 26px;
+  margin-bottom: 8px;
+  font-size: clamp(0.85rem, 2vw, 1rem);
+  line-height: 2;
+  min-height: 90px;
+}
+.has-indicator-label {
+  display: inline-block;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.38rem;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.ind-word {
+  color: var(--yellow);
+  text-shadow: var(--glow-yellow);
+  font-weight: 600;
+}
+
+/* ── QUESTION PROMPT ── */
+#question-prompt {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.52rem;
+  color: var(--pink);
+  text-shadow: var(--glow-pink);
+  letter-spacing: 0.06em;
+  margin: 18px 0 14px;
+  text-align: center;
+}
+
+/* ── CHOICES ── */
+#choices {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.choice-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 16px 20px;
+  background: var(--surface);
+  border: 1px solid rgba(0,255,255,0.18);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: 'Exo 2', sans-serif;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s, box-shadow 0.12s;
+  position: relative;
+}
+.choice-btn::before {
+  content: attr(data-letter);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.5rem;
+  color: var(--muted);
+  margin-right: 14px;
+  display: inline-block;
+  min-width: 16px;
+}
+.choice-btn:hover:not(:disabled) {
+  border-color: var(--cyan);
+  background: rgba(0,255,255,0.05);
+  box-shadow: 0 0 10px rgba(0,255,255,0.12);
+}
+.choice-btn:disabled { cursor: default; }
+.choice-btn.correct {
+  border-color: var(--green);
+  background: rgba(57,255,20,0.07);
+  box-shadow: 0 0 14px rgba(57,255,20,0.2);
+  color: var(--green);
+  text-shadow: 0 0 6px rgba(57,255,20,0.4);
+}
+.choice-btn.correct::before { color: var(--green); }
+.choice-btn.wrong {
+  border-color: var(--red);
+  background: rgba(255,59,59,0.07);
+  box-shadow: 0 0 14px rgba(255,59,59,0.15);
+  color: var(--red);
+}
+.choice-btn.wrong::before { color: var(--red); }
+.choice-btn.reveal {
+  border-color: rgba(57,255,20,0.4);
+  color: rgba(57,255,20,0.6);
+}
+
+/* ── FEEDBACK ── */
+#feedback-area {
+  min-height: 44px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+.fb-correct { color: var(--green); text-shadow: var(--glow-green); }
+.fb-wrong   { color: var(--red);   text-shadow: var(--glow-red); }
+.fb-explain {
+  color: var(--text);
+  font-weight: 400;
+  font-size: 0.82rem;
+  line-height: 1.75;
+  opacity: 0.9;
+}
+
+/* ── NEXT BUTTON ── */
+#next-wrap { display: none; margin-top: 4px; }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 13px 26px; border-radius: 2px; border: none;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.55rem; letter-spacing: 0.06em;
+  cursor: pointer; transition: transform 0.1s, box-shadow 0.1s;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn:active { transform: translateY(1px); }
+.btn-primary { background: var(--cyan); color: #000; box-shadow: var(--glow-cyan); }
+.btn-primary:hover { box-shadow: 0 0 16px #00ffff, 0 0 40px rgba(0,255,255,0.4); }
+.btn-ghost {
+  background: transparent; color: var(--cyan);
+  border: 1px solid var(--cyan);
+  box-shadow: 0 0 6px rgba(0,255,255,0.25);
+}
+.btn-center { display: flex; justify-content: center; margin-top: 28px; gap: 12px; flex-wrap: wrap; }
+
+/* ── GAME OVER ── */
+.gameover-big {
+  text-align: center; padding: 40px 0 20px;
+}
+.gameover-big .go-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(1.4rem, 6vw, 2.8rem);
+  color: var(--red);
+  text-shadow: var(--glow-red);
+  display: block; line-height: 1.4;
+}
+.gameover-big p { color: var(--muted); margin-top: 14px; font-size: 0.82rem; line-height: 2; }
+
+/* ── RESULTS / SCORE ENTRY ── */
+.results-big {
+  text-align: center; padding: 40px 0 20px;
+}
+.results-big .score-giant {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(2.4rem, 9vw, 4.5rem);
+  color: var(--cyan);
+  text-shadow: var(--glow-cyan);
+  display: block; line-height: 1;
+}
+.results-big .score-sub {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.55rem;
+  color: var(--muted);
+  margin-top: 10px;
+  display: block;
+}
+
+/* initials entry */
+#initials-wrap {
+  margin: 28px auto 0;
+  max-width: 320px;
+  text-align: center;
+}
+#initials-wrap h3 { margin-bottom: 16px; }
+#initials-row {
+  display: flex; gap: 10px; justify-content: center; margin-bottom: 20px;
+}
+.initial-box {
+  width: 54px; height: 64px;
+  background: var(--surface2);
+  border: 2px solid var(--cyan);
+  box-shadow: var(--glow-cyan);
+  border-radius: var(--radius);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1.6rem;
+  color: var(--cyan);
+  text-shadow: var(--glow-cyan);
+  text-align: center;
+  text-transform: uppercase;
+  caret-color: var(--cyan);
+  outline: none;
+}
+.initial-box::selection { background: var(--cyan); color: #000; }
+
+/* stat boxes */
+.stat-row {
+  display: flex; gap: 12px; margin: 20px 0; flex-wrap: wrap;
+}
+.stat-box {
+  background: var(--surface2);
+  border: 1px solid rgba(0,255,255,0.12);
+  border-radius: var(--radius);
+  padding: 12px 16px; text-align: center; flex: 1; min-width: 80px;
+}
+.stat-box .num {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1.3rem;
+  color: var(--cyan);
+  text-shadow: var(--glow-cyan);
+  display: block; margin-bottom: 6px;
+}
+.stat-box .lbl {
+  font-size: 0.5rem; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted);
+  font-family: 'Press Start 2P', monospace;
+}
+.stat-box.good .num { color: var(--green); text-shadow: var(--glow-green); }
+.stat-box.bad  .num { color: var(--red);   text-shadow: var(--glow-red); }
+
+/* ── LEADERBOARD ── */
+#leaderboard-section { margin-top: 8px; }
+.lb-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(0,255,255,0.07);
+  font-size: 0.82rem;
+}
+.lb-row:first-child { border-top: 1px solid rgba(0,255,255,0.07); }
+.lb-rank {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.5rem;
+  color: var(--muted);
+  width: 28px; flex-shrink: 0;
+}
+.lb-rank.top { color: var(--yellow); text-shadow: var(--glow-yellow); }
+.lb-initials {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.7rem;
+  color: var(--cyan);
+  text-shadow: var(--glow-cyan);
+  width: 52px; flex-shrink: 0;
+}
+.lb-score {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.65rem;
+  color: var(--text);
+  margin-left: auto;
+}
+.lb-you { background: rgba(0,255,255,0.05); border-color: rgba(0,255,255,0.2) !important; }
+.lb-placeholder { color: var(--muted); font-size: 0.78rem; padding: 16px; text-align: center; }
+
+.divider { border: none; border-top: 1px solid rgba(0,255,255,0.08); margin: 22px 0; }
+
+/* ── POINT POPUP ── */
+.point-popup {
+  position: fixed;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.75rem;
+  pointer-events: none;
+  z-index: 200;
+  animation: popfloat 0.9s ease forwards;
+}
+@keyframes popfloat {
+  0%   { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-60px) scale(0.7); }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ══════════════════════ PHASE 0: INTRO ══════════════════════ -->
+  <div class="phase active" id="phase-0">
+    <div class="hero">
+      <div class="hero-badge">Fundamentals · Level 2</div>
+      <h1>Identify the<br>Conclusion</h1>
+      <p>Every argument has one. Your job is to find it — with or without a signal word to guide you.</p>
+    </div>
+
+    <div class="card accent">
+      <h3>How to play</h3>
+      <p>You'll see an argument. Read it carefully, then pick which option is the <strong style="color:var(--cyan)">conclusion</strong> — the claim being defended.</p>
+      <p style="margin-top:14px;">Some arguments will have indicator words to help you. Others won't. Either way, ask yourself: <em style="color:var(--yellow)">what is this argument trying to convince me of?</em></p>
+    </div>
+
+    <div class="card">
+      <h3>Scoring</h3>
+      <div class="stat-row">
+        <div class="stat-box">
+          <span class="num" style="font-size:0.9rem;">
+            <svg width="18" height="18" viewBox="0 0 20 18" style="display:inline-block;vertical-align:middle;margin-right:4px"><path d="M10 17L3 9.5C1.5 8 1.5 5.5 3 4s3.5-1.5 5 0L10 6l2-2c1.5-1.5 3.5-1.5 5 0s1.5 3.5 0 5L10 17z" fill="#ff2d78" stroke="#ff2d78" stroke-width="1"/></svg>
+            × 3
+          </span>
+          <span class="lbl">Start</span>
+        </div>
+        <div class="stat-box good">
+          <span class="num">+♥</span>
+          <span class="lbl">Correct</span>
+        </div>
+        <div class="stat-box bad">
+          <span class="num">−♥</span>
+          <span class="lbl">Wrong</span>
+        </div>
+        <div class="stat-box" style="border-color:rgba(255,230,0,0.2);">
+          <span class="num" style="color:var(--yellow);text-shadow:var(--glow-yellow);">×</span>
+          <span class="lbl">Combo</span>
+        </div>
+      </div>
+      <p style="font-size:0.8rem;color:var(--muted);">Chain correct answers to build your combo multiplier. Wrong answers reset it. Run out of hearts and it's game over.</p>
+    </div>
+
+    <div class="btn-center">
+      <button class="btn btn-primary" onclick="startGame()">Insert Coin →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ PHASE 1: GAME ═══════════════════════ -->
+  <div class="phase" id="phase-1">
+
+    <div id="hud">
+      <div id="hearts-display"><!-- hearts injected --></div>
+      <div id="combo-display">
+        <div id="combo-label">COMBO</div>
+        <div id="combo-value">×1</div>
+      </div>
+      <div id="score-display">
+        <div id="score-label">SCORE</div>
+        <div id="score-value">0</div>
+      </div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+      <div class="progress-label" id="prog-label">1 / 10</div>
+    </div>
+
+    <div id="argument-card"><!-- argument text injected --></div>
+
+    <div id="question-prompt">Which is the conclusion?</div>
+
+    <div id="choices"><!-- choice buttons injected --></div>
+
+    <div id="feedback-area"></div>
+
+    <div id="next-wrap">
+      <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()">Next →</button>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════ PHASE 2: GAME OVER ══════════════════ -->
+  <div class="phase" id="phase-2">
+    <div class="gameover-big">
+      <span class="go-title">GAME<br>OVER</span>
+      <p>You ran out of hearts.</p>
+    </div>
+    <div class="stat-row">
+      <div class="stat-box"><span class="num" id="go-score">0</span><span class="lbl">Score</span></div>
+      <div class="stat-box good"><span class="num" id="go-correct">0</span><span class="lbl">Correct</span></div>
+      <div class="stat-box bad"><span class="num" id="go-wrong">0</span><span class="lbl">Wrong</span></div>
+    </div>
+    <div class="btn-center">
+      <button class="btn btn-ghost" onclick="startGame()">Try Again</button>
+      <button class="btn btn-primary" onclick="showPhase(0)">Title Screen</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ PHASE 3: RESULTS ════════════════════ -->
+  <div class="phase" id="phase-3">
+    <div class="results-big">
+      <span class="score-giant" id="res-score">0</span>
+      <span class="score-sub">FINAL SCORE</span>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-box good"><span class="num" id="res-correct">0</span><span class="lbl">Correct</span></div>
+      <div class="stat-box bad"><span class="num" id="res-wrong">0</span><span class="lbl">Wrong</span></div>
+      <div class="stat-box"><span class="num" id="res-combo">×1</span><span class="lbl">Best Combo</span></div>
+    </div>
+
+    <div id="initials-wrap">
+      <h3>Enter Your Initials</h3>
+      <div id="initials-row">
+        <input class="initial-box" id="ini-0" maxlength="1" type="text" autocomplete="off" spellcheck="false"/>
+        <input class="initial-box" id="ini-1" maxlength="1" type="text" autocomplete="off" spellcheck="false"/>
+        <input class="initial-box" id="ini-2" maxlength="1" type="text" autocomplete="off" spellcheck="false"/>
+      </div>
+      <button class="btn btn-primary" onclick="submitScore()">Submit Score</button>
+    </div>
+
+    <div class="divider"></div>
+
+    <div id="leaderboard-section">
+      <h3>Leaderboard</h3>
+      <div id="leaderboard-rows">
+        <div class="lb-placeholder">Submit your score to see the leaderboard.</div>
+      </div>
+    </div>
+
+    <div class="btn-center" style="margin-top:28px;">
+      <button class="btn btn-ghost" onclick="startGame()">Play Again</button>
+      <button class="btn btn-primary" onclick="showPhase(0)">Title Screen</button>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+// ══════════════════════════════════════════════════════
+// QUESTION DATA
+// Each question: { argument, choices: [{text, correct}], hasIndicator: bool, indicatorWord: str|null }
+// ══════════════════════════════════════════════════════
+const QUESTIONS = [
+
+  // CONCLUSION FIRST
+  {
+    argumentPlain:    "Lying to manipulate someone is wrong. All actions that violate a person's autonomy are wrong. Lying to someone in order to manipulate their decisions violates their autonomy.",
+    argumentRevealed: "Lying to manipulate someone is wrong. All actions that violate a person's autonomy are wrong. Lying to someone in order to manipulate their decisions violates their autonomy.",
+    hasIndicator: false,
+    explanation: "The first sentence is the claim being defended. The next two sentences work together as the reason for it: one gives a general principle, the other applies it to lying. The conclusion doesn't have to come last.",
+    choices: [
+      { text: "Lying to manipulate someone is wrong.", correct: true },
+      { text: "All actions that violate a person's autonomy are wrong.", correct: false },
+      { text: "Lying to manipulate someone's decisions violates their autonomy.", correct: false },
+    ]
+  },
+
+  // CONCLUSION FIRST with indicator
+  {
+    argumentPlain:    "A purely consequentialist theory of punishment is flawed. After all, punishing someone for a crime they did not commit is unjust, even if it produces good outcomes for others.",
+    argumentRevealed: "A purely consequentialist theory of punishment is flawed. <span class='ind-word'>After all,</span> punishing someone for a crime they did not commit is unjust, even if it produces good outcomes for others.",
+    hasIndicator: true,
+    explanation: "\"After all\" is a premise indicator — it introduces the reason being given. The claim before it is what that reason is meant to support. Ask: which sentence is doing the defending, and which is being defended?",
+    choices: [
+      { text: "A purely consequentialist theory of punishment is flawed.", correct: true },
+      { text: "Punishing someone for a crime they did not commit is unjust.", correct: false },
+      { text: "Good outcomes for others can sometimes justify punishment.", correct: false },
+    ]
+  },
+
+  // CONCLUSION MIDDLE, no indicator
+  {
+    argumentPlain:    "Moral responsibility requires that a person could have acted otherwise. Determinism, if true, would eliminate moral responsibility. And determinism could very well be true, for all we know.",
+    argumentRevealed: "Moral responsibility requires that a person could have acted otherwise. Determinism, if true, would eliminate moral responsibility. And determinism could very well be true, for all we know.",
+    hasIndicator: false,
+    explanation: "The middle sentence is the main claim. The first sentence gives the principle that leads to it. The last sentence is a rhetorical acknowledgment — not a formal premise, but a nudge toward taking the conclusion seriously.",
+    choices: [
+      { text: "Moral responsibility requires that a person could have acted otherwise.", correct: false },
+      { text: "Determinism, if true, would eliminate moral responsibility.", correct: true },
+      { text: "Determinism could very well be true, for all we know.", correct: false },
+    ]
+  },
+
+  // CONCLUSION MIDDLE with indicator
+  {
+    argumentPlain:    "Animals are capable of suffering. It follows that animals deserve moral consideration. The capacity to suffer — not the capacity to reason — is the relevant criterion.",
+    argumentRevealed: "Animals are capable of suffering. <span class='ind-word'>It follows that</span> animals deserve moral consideration. The capacity to suffer — not the capacity to reason — is the relevant criterion.",
+    hasIndicator: true,
+    explanation: "\"It follows that\" is a conclusion indicator pointing directly at the middle sentence. The first sentence is the key premise, and the third explains the principle behind the inference.",
+    choices: [
+      { text: "Animals are capable of suffering.", correct: false },
+      { text: "Animals deserve moral consideration.", correct: true },
+      { text: "The capacity to suffer is the relevant criterion for moral consideration.", correct: false },
+    ]
+  },
+
+  // CONCLUSION LAST, no indicator
+  {
+    argumentPlain:    "If a law cannot be enforced, it loses its authority. Drug prohibition has proven nearly impossible to enforce consistently. We should reconsider whether prohibition is a viable legal strategy.",
+    argumentRevealed: "If a law cannot be enforced, it loses its authority. Drug prohibition has proven nearly impossible to enforce consistently. We should reconsider whether prohibition is a viable legal strategy.",
+    hasIndicator: false,
+    explanation: "The first two sentences build the case: a general principle, then a specific fact. The final sentence is what they're building toward — the claim the argument is trying to establish.",
+    choices: [
+      { text: "If a law cannot be enforced, it loses its authority.", correct: false },
+      { text: "Drug prohibition has proven nearly impossible to enforce consistently.", correct: false },
+      { text: "We should reconsider whether prohibition is a viable legal strategy.", correct: true },
+    ]
+  },
+
+  // CONCLUSION LAST with indicator
+  {
+    argumentPlain:    "Wealthy individuals have far greater influence over political outcomes than ordinary citizens. A democracy is supposed to give each citizen equal political weight. Thus, extreme wealth inequality is a threat to genuine democracy.",
+    argumentRevealed: "Wealthy individuals have far greater influence over political outcomes than ordinary citizens. A democracy is supposed to give each citizen equal political weight. <span class='ind-word'>Thus,</span> extreme wealth inequality is a threat to genuine democracy.",
+    hasIndicator: true,
+    explanation: "\"Thus\" signals that the final sentence is the conclusion. The first two sentences are the premises — a factual claim and a principle — that together support it.",
+    choices: [
+      { text: "Wealthy individuals have far greater influence over political outcomes.", correct: false },
+      { text: "A democracy gives each citizen equal political weight.", correct: false },
+      { text: "Extreme wealth inequality is a threat to genuine democracy.", correct: true },
+    ]
+  },
+
+  // CONCLUSION FIRST, no indicator
+  {
+    argumentPlain:    "Mass surveillance is a threat to human autonomy itself. Privacy is not merely a preference — it is a precondition for autonomy and identity. Any system of mass surveillance erodes privacy at a fundamental level.",
+    argumentRevealed: "Mass surveillance is a threat to human autonomy itself. Privacy is not merely a preference — it is a precondition for autonomy and identity. Any system of mass surveillance erodes privacy at a fundamental level.",
+    hasIndicator: false,
+    explanation: "The opening sentence stakes the main claim. The next two sentences explain why — one establishes how important privacy is, the other connects surveillance to its erosion. Together they support the conclusion at the top.",
+    choices: [
+      { text: "Mass surveillance is a threat to human autonomy itself.", correct: true },
+      { text: "Privacy is a precondition for autonomy and identity.", correct: false },
+      { text: "Mass surveillance erodes privacy at a fundamental level.", correct: false },
+    ]
+  },
+
+  // CONCLUSION MIDDLE, no indicator
+  {
+    argumentPlain:    "A witness who has lied under oath before cannot be fully trusted. So, his testimony alone is not sufficient grounds for a conviction. And the prosecution's entire case rests almost entirely on that testimony.",
+    argumentRevealed: "A witness who has lied under oath before cannot be fully trusted. <span class='ind-word'>So,</span> his testimony alone is not sufficient grounds for a conviction. And the prosecution's entire case rests almost entirely on that testimony.",
+    hasIndicator: true,
+    explanation: "\"So\" is a conclusion indicator pointing directly at the middle sentence. The first sentence is the premise supporting it, and the last sentence is a further consequence — it shows why the conclusion matters, but is not itself being argued for.",
+    choices: [
+      { text: "A witness who has lied under oath before cannot be fully trusted.", correct: false },
+      { text: "His testimony alone is not sufficient grounds for a conviction.", correct: true },
+      { text: "The prosecution's entire case rests on that testimony.", correct: false },
+    ]
+  },
+
+  // CONCLUSION LAST with indicator
+  {
+    argumentPlain:    "Freedom of speech is only meaningful if it protects speech we disagree with. Protecting only popular speech costs us nothing. Hence, a commitment to free speech must include protecting speech we find offensive.",
+    argumentRevealed: "Freedom of speech is only meaningful if it protects speech we disagree with. Protecting only popular speech costs us nothing. <span class='ind-word'>Hence,</span> a commitment to free speech must include protecting speech we find offensive.",
+    hasIndicator: true,
+    explanation: "\"Hence\" signals that what follows is the conclusion. The two sentences before it are the premises — one gives the condition for meaningful free speech, the other points out what protecting only popular speech fails to do.",
+    choices: [
+      { text: "Freedom of speech is only meaningful if it protects speech we disagree with.", correct: false },
+      { text: "Protecting only popular speech costs us nothing.", correct: false },
+      { text: "A commitment to free speech must include protecting speech we find offensive.", correct: true },
+    ]
+  },
+
+  // CONCLUSION FIRST with indicator
+  {
+    argumentPlain:    "Validity alone is not enough — a good argument must also have true premises. After all, an argument's conclusion can be false even if the argument is valid.",
+    argumentRevealed: "Validity alone is not enough — a good argument must also have true premises. <span class='ind-word'>After all,</span> an argument's conclusion can be false even if the argument is valid.",
+    hasIndicator: true,
+    explanation: "\"After all\" introduces the reason — it's a premise indicator pointing backward. The sentence before it is the claim being supported. When you see \"after all,\" look at what comes before it for the conclusion.",
+    choices: [
+      { text: "Validity alone is not enough — a good argument must also have true premises.", correct: true },
+      { text: "An argument's conclusion can be false even if the argument is valid.", correct: false },
+      { text: "A valid argument always has a true conclusion.", correct: false },
+    ]
+  },
+
+  // CONCLUSION MIDDLE, no indicator
+  {
+    argumentPlain:    "People cannot meaningfully consent to a social contract they were born into. Political authority resting on implied consent is therefore on shaky ground. This is why many political philosophers have moved away from social contract theory entirely.",
+    argumentRevealed: "People cannot meaningfully consent to a social contract they were born into. Political authority resting on implied consent is therefore on shaky ground. This is why many political philosophers have moved away from social contract theory entirely.",
+    hasIndicator: false,
+    explanation: "The middle sentence is what the argument is trying to establish. The first sentence gives the reason for it. The last sentence describes a broader reaction to it — it's a consequence of the conclusion, not the conclusion itself.",
+    choices: [
+      { text: "People cannot meaningfully consent to a social contract they were born into.", correct: false },
+      { text: "Political authority resting on implied consent is on shaky ground.", correct: true },
+      { text: "Many political philosophers have moved away from social contract theory.", correct: false },
+    ]
+  },
+
+  // CONCLUSION LAST, no indicator
+  {
+    argumentPlain:    "We do not hold people responsible for actions performed while sleepwalking, under hypnosis, or during a seizure. In each of these cases, the person could not consciously control what they did. This shows that actions must be under the agent's conscious control to be morally attributable to them.",
+    argumentRevealed: "We do not hold people responsible for actions performed while sleepwalking, under hypnosis, or during a seizure. In each of these cases, the person could not consciously control what they did. <span class='ind-word'>This shows that</span> actions must be under the agent's conscious control to be morally attributable to them.",
+    hasIndicator: true,
+    explanation: "\"This shows that\" is a conclusion indicator — it signals that what follows is being established by the examples above. The first two sentences describe the evidence; the final sentence is the general principle those cases are being used to prove.",
+    choices: [
+      { text: "We do not hold people responsible for sleepwalking or seizure-related actions.", correct: false },
+      { text: "In those cases, the person could not consciously control what they did.", correct: false },
+      { text: "Actions must be under the agent's conscious control to be morally attributable to them.", correct: true },
+    ]
+  },
+
+];
+
+// ══════════════════════════════════════════════════════
+// GAME STATE
+// ══════════════════════════════════════════════════════
+const MAX_HEARTS  = 5;
+const BASE_POINTS = 100;
+const TOTAL_QS    = 10;
+
+let hearts, combo, score, bestCombo;
+let correct, wrong;
+let qIndex, questions;
+let answered;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function startGame() {
+  hearts    = 3;
+  combo     = 1;
+  score     = 0;
+  bestCombo = 1;
+  correct   = 0;
+  wrong     = 0;
+  qIndex    = 0;
+  questions = shuffle(QUESTIONS).slice(0, TOTAL_QS);
+  answered  = false;
+
+  showPhase(1);
+  renderHUD();
+  renderQuestion();
+}
+
+// ══════════════════════════════════════════════════════
+// HUD
+// ══════════════════════════════════════════════════════
+function renderHUD() {
+  const hd = document.getElementById('hearts-display');
+  hd.innerHTML = '';
+  for (let i = 0; i < MAX_HEARTS; i++) {
+    const h = document.createElement('div');
+    h.className = 'heart' + (i >= hearts ? ' lost' : '');
+    h.id = 'heart-' + i;
+    h.innerHTML = `<svg viewBox="0 0 20 18" xmlns="http://www.w3.org/2000/svg">
+      <path d="M10 17L3 9.5C1.5 8 1.5 5.5 3 4s3.5-1.5 5 0L10 6l2-2c1.5-1.5 3.5-1.5 5 0s1.5 3.5 0 5L10 17z"
+            fill="${i < hearts ? '#ff2d78' : '#1a1a2e'}"
+            stroke="${i < hearts ? '#ff2d78' : '#2a2a3e'}"
+            stroke-width="1.2"/>
+    </svg>`;
+    hd.appendChild(h);
+  }
+  document.getElementById('combo-value').textContent = '×' + combo;
+  document.getElementById('score-value').textContent = score;
+}
+
+function animateHeart(idx, type) {
+  const h = document.getElementById('heart-' + idx);
+  if (!h) return;
+  h.classList.remove('gained', 'lost-anim');
+  void h.offsetWidth;
+  h.classList.add(type === 'gain' ? 'gained' : 'lost-anim');
+}
+
+function updateCombo(bump) {
+  const el = document.getElementById('combo-value');
+  el.textContent = '×' + combo;
+  if (bump) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+}
+
+function updateScore(bump) {
+  const el = document.getElementById('score-value');
+  el.textContent = score;
+  if (bump) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+}
+
+function spawnPointPopup(pts, el) {
+  const rect = el.getBoundingClientRect();
+  const popup = document.createElement('div');
+  popup.className = 'point-popup';
+  popup.textContent = '+' + pts;
+  popup.style.left = (rect.left + rect.width/2 - 24) + 'px';
+  popup.style.top  = (rect.top + window.scrollY - 10) + 'px';
+  popup.style.color = combo >= 3 ? '#ffe600' : '#39ff14';
+  popup.style.textShadow = combo >= 3 ? '0 0 10px #ffe600' : '0 0 10px #39ff14';
+  document.body.appendChild(popup);
+  setTimeout(() => popup.remove(), 950);
+}
+
+// ══════════════════════════════════════════════════════
+// QUESTION RENDERING
+// ══════════════════════════════════════════════════════
+function renderQuestion() {
+  answered = false;
+  const q = questions[qIndex];
+
+  // Progress
+  const pct = (qIndex / TOTAL_QS) * 100;
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-label').textContent = (qIndex+1) + ' / ' + TOTAL_QS;
+
+  // Argument — show PLAIN version before answer
+  const argCard = document.getElementById('argument-card');
+  argCard.innerHTML = '';
+  if (q.hasIndicator) {
+    const lbl = document.createElement('div');
+    lbl.className = 'has-indicator-label';
+    lbl.textContent = '▸ Indicator word present';
+    argCard.appendChild(lbl);
+  }
+  const argText = document.createElement('div');
+  argText.id = 'arg-text';
+  argText.innerHTML = q.argumentPlain;
+  argCard.appendChild(argText);
+
+  // Clear feedback
+  document.getElementById('feedback-area').innerHTML = '';
+  document.getElementById('next-wrap').style.display = 'none';
+
+  // Choices (shuffled)
+  const choicesEl = document.getElementById('choices');
+  choicesEl.innerHTML = '';
+  const letters = ['A', 'B', 'C', 'D'];
+  const shuffled = shuffle(q.choices.map((c,i) => ({...c, origIdx: i})));
+  shuffled.forEach((choice, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.dataset.letter = letters[i];
+    btn.dataset.correct = choice.correct;
+    btn.textContent = choice.text;
+    btn.addEventListener('click', () => handleAnswer(btn, choice.correct));
+    choicesEl.appendChild(btn);
+  });
+}
+
+// ══════════════════════════════════════════════════════
+// ANSWER HANDLING
+// ══════════════════════════════════════════════════════
+function handleAnswer(btn, isCorrect) {
+  if (answered) return;
+  answered = true;
+
+  // Disable all
+  document.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
+
+  // Reveal indicator word now that answer is locked in
+  const argTextEl = document.getElementById('arg-text');
+  if (argTextEl) argTextEl.innerHTML = questions[qIndex].argumentRevealed;
+
+  if (isCorrect) {
+    btn.classList.add('correct');
+    const pts = BASE_POINTS * combo;
+    score += pts;
+    correct++;
+    if (combo < 8) combo++;
+    if (combo > bestCombo) bestCombo = combo;
+
+    spawnPointPopup(pts, btn);
+    updateCombo(true);
+    updateScore(true);
+
+    // gain heart if below max
+    if (hearts < MAX_HEARTS) {
+      const oldHearts = hearts;
+      hearts++;
+      renderHUD();
+      animateHeart(oldHearts, 'gain');
+    } else {
+      renderHUD();
+    }
+
+    feedback(`<span class="fb-correct">✓ Correct! +${pts} pts${combo > 2 ? ' (×' + (combo-1) + ' combo!)' : ''}</span><span class="fb-explain">${questions[qIndex].explanation}</span>`);
+  } else {
+    btn.classList.add('wrong');
+    // reveal correct
+    document.querySelectorAll('.choice-btn').forEach(b => {
+      if (b.dataset.correct === 'true') b.classList.add('reveal');
+    });
+
+    wrong++;
+    combo = 1;
+    const oldHearts = hearts - 1;
+    hearts--;
+    updateCombo(false);
+
+    if (hearts <= 0) {
+      feedback(`<span class="fb-wrong">✗ Wrong.</span><span class="fb-explain">${questions[qIndex].explanation}</span>`);
+      renderHUD();
+      animateHeart(0, 'lost');
+      setTimeout(() => gameOver(), 1600);
+      return;
+    }
+
+    renderHUD();
+    animateHeart(oldHearts, 'lost');
+    feedback(`<span class="fb-wrong">✗ Not quite.</span><span class="fb-explain">${questions[qIndex].explanation}</span>`);
+  }
+
+  document.getElementById('next-wrap').style.display = 'block';
+}
+
+function feedback(html) {
+  document.getElementById('feedback-area').innerHTML = html;
+}
+
+function nextQuestion() {
+  qIndex++;
+  if (qIndex >= TOTAL_QS) {
+    showResults();
+  } else {
+    renderQuestion();
+  }
+}
+
+function gameOver() {
+  document.getElementById('go-score').textContent   = score;
+  document.getElementById('go-correct').textContent = correct;
+  document.getElementById('go-wrong').textContent   = wrong;
+  showPhase(2);
+}
+
+function showResults() {
+  document.getElementById('res-score').textContent   = score;
+  document.getElementById('res-correct').textContent = correct;
+  document.getElementById('res-wrong').textContent   = wrong;
+  document.getElementById('res-combo').textContent   = '×' + bestCombo;
+  showPhase(3);
+  // clear initials
+  [0,1,2].forEach(i => document.getElementById('ini-'+i).value = '');
+}
+
+// ══════════════════════════════════════════════════════
+// INITIALS INPUT
+// ══════════════════════════════════════════════════════
+[0,1,2].forEach(i => {
+  const box = document.getElementById('ini-' + i);
+  box.addEventListener('input', () => {
+    box.value = box.value.toUpperCase().replace(/[^A-Z]/g,'');
+    if (box.value.length === 1 && i < 2) {
+      document.getElementById('ini-' + (i+1)).focus();
+    }
+  });
+  box.addEventListener('keydown', e => {
+    if (e.key === 'Backspace' && box.value === '' && i > 0) {
+      document.getElementById('ini-' + (i-1)).focus();
+    }
+  });
+});
+
+// ══════════════════════════════════════════════════════
+// SCORE SUBMISSION + LEADERBOARD
+// ══════════════════════════════════════════════════════
+// Replace APPS_SCRIPT_URL with your deployed Google Apps Script URL when ready.
+const APPS_SCRIPT_URL = '';
+
+async function submitScore() {
+  const initials = [0,1,2].map(i => document.getElementById('ini-'+i).value.trim()).join('');
+  if (initials.length < 1) { alert('Enter at least one initial!'); return; }
+
+  const submitBtn = document.querySelector('#initials-wrap .btn');
+  submitBtn.textContent = 'Saving...';
+  submitBtn.disabled = true;
+
+  if (!APPS_SCRIPT_URL) {
+    // No backend yet — just render mock leaderboard locally
+    renderLeaderboard([
+      { initials: initials || 'YOU', score, you: true },
+    ]);
+    document.getElementById('initials-wrap').style.display = 'none';
+    return;
+  }
+
+  try {
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ initials, score }),
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const data = await res.json();
+    renderLeaderboard(data.leaderboard || [], initials);
+    document.getElementById('initials-wrap').style.display = 'none';
+  } catch(e) {
+    submitBtn.textContent = 'Error — try again';
+    submitBtn.disabled = false;
+  }
+}
+
+function renderLeaderboard(entries, myInitials) {
+  const el = document.getElementById('leaderboard-rows');
+  if (!entries.length) {
+    el.innerHTML = '<div class="lb-placeholder">No scores yet. Be the first!</div>';
+    return;
+  }
+  const sorted = [...entries].sort((a,b) => b.score - a.score).slice(0,10);
+  el.innerHTML = sorted.map((e, i) => `
+    <div class="lb-row${e.you ? ' lb-you' : ''}">
+      <span class="lb-rank${i < 3 ? ' top' : ''}">${i===0?'1ST':i===1?'2ND':i===2?'3RD':(i+1)+'TH'}</span>
+      <span class="lb-initials">${e.initials}</span>
+      <span class="lb-score">${e.score.toLocaleString()}</span>
+    </div>
+  `).join('');
+}
+
+// ══════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════
+function showPhase(n) {
+  document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+  document.getElementById('phase-' + n).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>

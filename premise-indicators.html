@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spot the Premise</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Exo+2:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg:          #04040f;
+  --surface:     #0a0a1a;
+  --surface2:    #0f0f22;
+  --border:      rgba(0,255,255,0.15);
+  --cyan:        #00ffff;
+  --pink:        #ff2d78;
+  --yellow:      #ffe600;
+  --green:       #39ff14;
+  --red:         #ff3b3b;
+  --purple:      #bf5fff;
+  --text:        #d0f0ff;
+  --muted:       #4a6880;
+  --radius:      4px;
+  --glow-cyan:   0 0 8px #00ffff, 0 0 20px rgba(0,255,255,0.35);
+  --glow-pink:   0 0 8px #ff2d78, 0 0 20px rgba(255,45,120,0.35);
+  --glow-yellow: 0 0 8px #ffe600, 0 0 20px rgba(255,230,0,0.35);
+  --glow-green:  0 0 8px #39ff14, 0 0 20px rgba(57,255,20,0.35);
+  --glow-purple: 0 0 8px #bf5fff, 0 0 20px rgba(191,95,255,0.35);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Exo 2', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 2px,
+    rgba(0,0,0,0.12) 2px, rgba(0,0,0,0.12) 4px
+  );
+  pointer-events: none; z-index: 100;
+}
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,255,255,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,255,255,0.035) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none; z-index: 0;
+}
+
+.wrap {
+  position: relative; z-index: 1;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+}
+
+/* ── PHASES ── */
+.phase { display: none; }
+.phase.active { display: block; animation: fadein 0.3s ease both; }
+@keyframes fadein { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+
+/* ── TYPOGRAPHY ── */
+h1 {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(1.1rem, 3.5vw, 2rem);
+  line-height: 1.6;
+  color: var(--purple);
+  text-shadow: var(--glow-purple);
+}
+h2 {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(0.7rem, 2vw, 1rem);
+  line-height: 1.8;
+  color: var(--pink);
+  text-shadow: var(--glow-pink);
+  margin-bottom: 20px;
+}
+h3 {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--purple);
+  text-shadow: var(--glow-purple);
+  font-family: 'Press Start 2P', monospace;
+  margin-bottom: 12px;
+}
+p { font-size: 0.85rem; line-height: 2; color: var(--text); }
+p + p { margin-top: 14px; }
+
+/* ── CARDS ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  margin: 24px 0;
+  box-shadow: inset 0 0 30px rgba(0,255,255,0.02);
+}
+.card.accent {
+  border-color: rgba(191,95,255,0.4);
+  box-shadow: inset 0 0 40px rgba(191,95,255,0.04), 0 0 0 1px rgba(191,95,255,0.08);
+}
+
+/* ── HERO ── */
+.hero { text-align: center; padding: 48px 0 32px; }
+.hero-badge {
+  display: inline-block;
+  border: 1px solid var(--purple);
+  color: var(--purple);
+  text-shadow: var(--glow-purple);
+  box-shadow: var(--glow-purple);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.46rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  border-radius: 2px;
+  margin-bottom: 24px;
+}
+.hero h1 span { color: var(--yellow); text-shadow: var(--glow-yellow); }
+.hero p {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: 18px;
+  max-width: 520px;
+  margin-left: auto; margin-right: auto;
+  line-height: 2.2;
+}
+
+/* ── EXAMPLE SENTENCE ── */
+.example-sentence {
+  font-size: 0.85rem;
+  line-height: 2.3;
+  padding: 20px 24px;
+  background: var(--surface2);
+  border-radius: var(--radius);
+  border-left: 3px solid var(--purple);
+  box-shadow: inset 0 0 20px rgba(191,95,255,0.03);
+  margin: 20px 0;
+}
+.premise-highlight {
+  background: var(--purple);
+  color: #fff;
+  font-weight: 700;
+  border-radius: 2px;
+  padding: 2px 6px;
+  text-shadow: none;
+}
+.conclusion-highlight {
+  background: var(--yellow);
+  color: #000;
+  font-weight: 700;
+  border-radius: 2px;
+  padding: 2px 6px;
+  text-shadow: none;
+}
+
+/* ── INDICATOR CHIPS ── */
+.chip-grid { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0; }
+.chip {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 2px;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  border: 1px solid;
+}
+.chip.premise {
+  border-color: var(--purple);
+  background: rgba(191,95,255,0.08);
+  color: var(--purple);
+  text-shadow: var(--glow-purple);
+  box-shadow: 0 0 6px rgba(191,95,255,0.15);
+}
+.chip.conclusion {
+  border-color: var(--yellow);
+  background: rgba(255,230,0,0.08);
+  color: var(--yellow);
+  text-shadow: var(--glow-yellow);
+  box-shadow: 0 0 6px rgba(255,230,0,0.15);
+}
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 28px; border-radius: 2px; border: none;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.58rem; letter-spacing: 0.06em;
+  cursor: pointer; transition: transform 0.1s, box-shadow 0.1s;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn:active { transform: translateY(1px); }
+.btn-primary { background: var(--purple); color: #fff; box-shadow: var(--glow-purple); }
+.btn-primary:hover { box-shadow: 0 0 16px #bf5fff, 0 0 40px rgba(191,95,255,0.5); }
+.btn-ghost {
+  background: transparent; color: var(--purple);
+  border: 1px solid var(--purple);
+  box-shadow: 0 0 6px rgba(191,95,255,0.25);
+}
+.btn-center { display: flex; justify-content: center; margin-top: 32px; gap: 14px; flex-wrap: wrap; }
+
+/* ── PROGRESS ── */
+.progress-wrap { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
+.progress-track {
+  flex: 1; height: 6px;
+  background: var(--surface2);
+  border: 1px solid rgba(191,95,255,0.12);
+  border-radius: 2px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--purple);
+  box-shadow: var(--glow-purple);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+.progress-label { font-family: 'Press Start 2P', monospace; font-size: 0.52rem; color: var(--purple); white-space: nowrap; }
+
+/* ── SCORE ROW ── */
+.score-row { display: flex; gap: 14px; margin-bottom: 24px; flex-wrap: wrap; }
+.score-box {
+  background: var(--surface2);
+  border: 1px solid rgba(191,95,255,0.12);
+  border-radius: var(--radius);
+  padding: 12px 18px; text-align: center; flex: 1; min-width: 90px;
+}
+.score-box .num {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1.4rem;
+  color: var(--purple);
+  text-shadow: var(--glow-purple);
+  display: block; margin-bottom: 6px;
+}
+.score-box .lbl { font-family: 'Press Start 2P', monospace; font-size: 0.48rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.score-box.good .num { color: var(--green); text-shadow: var(--glow-green); }
+.score-box.bad  .num { color: var(--red);   text-shadow: 0 0 8px var(--red); }
+
+/* ── GAME SENTENCE ── */
+#game-sentence {
+  font-size: clamp(0.78rem, 2vw, 0.92rem);
+  line-height: 2.6;
+  padding: 24px;
+  background: var(--surface2);
+  border-radius: var(--radius);
+  border: 1px solid rgba(191,95,255,0.12);
+  min-height: 110px;
+  margin-bottom: 20px;
+  user-select: none;
+  box-shadow: inset 0 0 30px rgba(0,0,0,0.5);
+}
+
+/* tokens */
+.token { display: inline; border-radius: 2px; padding: 1px 0; transition: background 0.12s, color 0.12s; }
+.token.clickable { cursor: pointer; }
+.token.clickable:hover { background: rgba(191,95,255,0.15); color: var(--purple); }
+.token.found {
+  background: var(--purple);
+  color: #fff !important;
+  font-weight: 700;
+  border-bottom: none;
+  cursor: default;
+  padding: 2px 5px;
+  text-shadow: none;
+  box-shadow: var(--glow-purple);
+}
+.token.wrong-flash {
+  background: rgba(255,59,59,0.25) !important;
+  color: var(--red) !important;
+}
+
+/* feedback */
+#feedback-row {
+  min-height: 36px;
+  display: flex; align-items: center; gap: 12px;
+  font-size: 0.72rem; font-weight: 600;
+  margin-bottom: 16px; line-height: 1.9;
+}
+.fb-correct { color: var(--green); text-shadow: var(--glow-green); }
+.fb-wrong   { color: var(--red);   text-shadow: 0 0 8px var(--red); }
+.fb-info    { color: var(--muted); }
+
+#next-btn-wrap { display: none; }
+
+#reveal-btn {
+  font-family: 'Exo 2', sans-serif;
+  font-size: 0.72rem;
+  padding: 8px 18px;
+  border-radius: 2px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+#reveal-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.3); }
+
+/* ── RESULTS ── */
+.results-big { text-align: center; padding: 48px 0 24px; }
+.results-big .score-giant {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(2.8rem, 10vw, 5rem);
+  color: var(--purple);
+  text-shadow: var(--glow-purple);
+  line-height: 1; display: block;
+}
+.results-big p { color: var(--muted); margin-top: 16px; font-size: 0.72rem; line-height: 2.2; }
+
+.divider { border: none; border-top: 1px solid rgba(191,95,255,0.1); margin: 24px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ══════════════════ PHASE 0: INTRO ══════════════════ -->
+  <div class="phase active" id="phase-0">
+    <div class="hero">
+      <div class="hero-badge">Fundamentals</div>
+      <h1>Spot the <span>Premise</span></h1>
+      <p>Certain words signal that a reason is being given. Learn to recognize them.</p>
+    </div>
+
+    <div class="card">
+      <h3>Quick recap</h3>
+      <h2>Arguments have two parts</h2>
+      <p>Every argument has a <strong style="color:var(--yellow)">conclusion</strong> — the claim being defended — and at least one <strong style="color:var(--purple)">premise</strong> — the reason offered in its support.</p>
+      <p>Certain words signal that a <strong style="color:var(--purple)">premise</strong> is coming. Learning to recognize them will help you see how arguments are put together.</p>
+    </div>
+
+    <div class="card accent">
+      <h3>Example</h3>
+      <div class="example-sentence">
+        You should carry an umbrella today <span class="premise-highlight">because</span> the forecast calls for rain.
+      </div>
+      <p>The word <strong style="color:var(--purple)">because</strong> signals that what follows — <em>the forecast calls for rain</em> — is the reason being given. The claim before it — <em>you should carry an umbrella</em> — is the conclusion being supported.</p>
+      <p style="margin-top:14px;">Premise indicators point toward reasons. They tell you: <em style="color:var(--purple)">"here is why I believe this."</em></p>
+    </div>
+
+    <div class="card">
+      <p>There are many premise indicator words and phrases. In the game, your job is to find them. <strong>Click any word or phrase you think is signaling a premise.</strong></p>
+      <p style="margin-top:14px; color:var(--muted);">Watch out — some words signal conclusions instead. The feedback will help you tell them apart.</p>
+    </div>
+
+    <div class="btn-center">
+      <button class="btn btn-primary" onclick="showPhase(1)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════ PHASE 1: INDICATOR INTRO ══════════════════ -->
+  <div class="phase" id="phase-1">
+    <h2>Words that signal a premise</h2>
+    <p><strong style="color:var(--purple)">Because</strong> is the most common premise indicator — but it has many companions. All of these words do the same job: they introduce a reason.</p>
+
+    <div class="card accent">
+      <h3>Example</h3>
+      <div class="example-sentence">
+        We cannot trust this study <span class="premise-highlight">given that</span> it was funded by the industry it evaluated.
+      </div>
+      <p>The phrase <strong style="color:var(--purple)">given that</strong> signals that what follows is the reason — the premise. The claim before it is the conclusion being supported.</p>
+    </div>
+
+    <div class="card">
+      <p>There are many others like it. You'll encounter them in the game. Each time you find one, you'll get feedback explaining what it's doing. At the end, you'll see the full list of everything you discovered.</p>
+      <p style="margin-top:14px;color:var(--muted);">Conclusion indicator words will appear as distractors. If you click one by mistake, the feedback will explain the difference.</p>
+    </div>
+
+    <div class="btn-center">
+      <button class="btn btn-primary" onclick="startGame()">Start the Game →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════ PHASE 2: GAME ══════════════════ -->
+  <div class="phase" id="phase-2">
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <div class="progress-label" id="progress-label">0 / 10</div>
+    </div>
+
+    <div class="score-row">
+      <div class="score-box good"><span class="num" id="score-found">0</span><span class="lbl">Found</span></div>
+      <div class="score-box bad"><span class="num" id="score-missed">0</span><span class="lbl">Missed</span></div>
+      <div class="score-box"><span class="num" id="score-q">1</span><span class="lbl">Sentence</span></div>
+    </div>
+
+    <div id="game-sentence"></div>
+    <div id="feedback-row"></div>
+
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+      <div id="next-btn-wrap">
+        <button class="btn btn-primary" onclick="nextQuestion()">Next sentence →</button>
+      </div>
+      <button id="reveal-btn" onclick="revealCurrent()">Show me the indicators</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════ PHASE 3: RESULTS ══════════════════ -->
+  <div class="phase" id="phase-3">
+    <div class="results-big">
+      <span class="score-giant" id="final-score">—</span>
+      <p id="final-msg"></p>
+    </div>
+
+    <div class="score-row">
+      <div class="score-box good"><span class="num" id="res-found">—</span><span class="lbl">Found</span></div>
+      <div class="score-box bad"><span class="num" id="res-missed">—</span><span class="lbl">Missed</span></div>
+    </div>
+
+    <div class="card">
+      <h3>What you discovered</h3>
+      <h2>Premise indicator words</h2>
+      <p style="margin-bottom:16px;">These words and phrases signal that a reason is being given — that a premise is coming. You encountered all of them in the game.</p>
+      <div class="chip-grid">
+        <span class="chip premise">because</span>
+        <span class="chip premise">since</span>
+        <span class="chip premise">given that</span>
+        <span class="chip premise">for</span>
+        <span class="chip premise">as</span>
+        <span class="chip premise">seeing that</span>
+        <span class="chip premise">inasmuch as</span>
+        <span class="chip premise">in light of</span>
+        <span class="chip premise">on the grounds that</span>
+        <span class="chip premise">after all</span>
+        <span class="chip premise">this is supported by</span>
+      </div>
+
+      <div class="divider"></div>
+
+      <h3>Conclusion indicators you also saw</h3>
+      <p style="margin-bottom:16px;">These signal a <em>conclusion</em> is coming — they point the other way.</p>
+      <div class="chip-grid">
+        <span class="chip conclusion">therefore</span>
+        <span class="chip conclusion">thus</span>
+        <span class="chip conclusion">hence</span>
+        <span class="chip conclusion">so</span>
+        <span class="chip conclusion">consequently</span>
+      </div>
+
+
+    </div>
+
+    <div class="btn-center">
+      <button class="btn btn-ghost" onclick="restartGame()">Play again</button>
+      <button class="btn btn-primary" onclick="showPhase(0)">Back to start</button>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+// ── NAVIGATION ──────────────────────────────────────────────────────────────
+function showPhase(n) {
+  document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+  document.getElementById('phase-' + n).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── TOKEN BUILDERS ───────────────────────────────────────────────────────────
+function t(text)          { return { text, type: 'plain' }; }
+function ind(text, group) { return { text, type: 'indicator', group }; }
+function dist(text)       { return { text, type: 'distractor' }; }
+
+// ── SENTENCES ────────────────────────────────────────────────────────────────
+// Targets: premise indicators (purple on click)
+// Distractors: conclusion indicators (red flash + feedback)
+
+const SENTENCES = [
+  { // because
+    tokens: [
+      t("We should take climate change seriously "),
+      ind("because", "g1"),
+      t(" the scientific consensus on its causes is overwhelming."),
+    ]
+  },
+  { // since + therefore distractor
+    tokens: [
+      dist("Therefore"), t(", the defendant cannot be guilty. "),
+      ind("Since", "g1"),
+      t(" she was out of the country at the time of the crime, she had no opportunity to commit it."),
+    ]
+  },
+  { // given that
+    tokens: [
+      t("We cannot trust this study "),
+      ind("given that", "g1"),
+      t(" it was funded by the industry it was evaluating."),
+    ]
+  },
+  { // for + thus distractor
+    tokens: [
+      t("Capital punishment should be abolished, "),
+      ind("for", "g1"),
+      t(" it has never been shown to deter crime more effectively than imprisonment. "),
+      dist("Thus"), t(", the case for it rests on shaky ground."),
+    ]
+  },
+  { // seeing that
+    tokens: [
+      t("This policy deserves our support "),
+      ind("seeing that", "g1"),
+      t(" it has reduced poverty rates in every region where it has been tried."),
+    ]
+  },
+  { // inasmuch as + hence distractor
+    tokens: [
+      t("Her argument should be taken seriously "),
+      ind("inasmuch as", "g1"),
+      t(" she has studied the question for decades. "),
+      dist("Hence"), t(", we owe it a careful hearing."),
+    ]
+  },
+  { // in light of
+    tokens: [
+      t("We should revise our assessment of the evidence "),
+      ind("in light of", "g1"),
+      t(" the new testimony that has come to light."),
+    ]
+  },
+  { // on the grounds that + consequently distractor
+    tokens: [
+      t("The law was struck down "),
+      ind("on the grounds that", "g1"),
+      t(" it violated the constitutional right to equal protection. "),
+      dist("Consequently"), t(", it cannot be enforced."),
+    ]
+  },
+  { // after all
+    tokens: [
+      t("You should keep your promise — "),
+      ind("after all", "g1"),
+      t(", you gave your word, and that creates a genuine obligation."),
+    ]
+  },
+  { // as + so distractor
+    tokens: [
+      t("The bridge is not safe to cross "),
+      ind("as", "g1"),
+      t(" the last inspection revealed serious structural damage. "),
+      dist("So"), t(", we must find another route."),
+    ]
+  },
+  { // this is supported by
+    tokens: [
+      t("Regular exercise improves mental health. "),
+      ind("This is supported by", "g1"),
+      t(" decades of research consistently linking physical activity to reduced rates of anxiety and depression."),
+    ]
+  },
+  { // since (causal vs. temporal trap)
+    tokens: [
+      t("Eyewitness testimony should be treated with caution "),
+      ind("since", "g1"),
+      t(" memory is highly susceptible to distortion, suggestion, and the passage of time."),
+    ]
+  },
+];
+
+// ── GAME STATE ───────────────────────────────────────────────────────────────
+let questions   = [];
+let qIndex      = 0;
+let totalFound  = 0;
+let totalMissed = 0;
+let foundGroups = new Set();
+let revealed    = false;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startGame() {
+  questions   = shuffle(SENTENCES).slice(0, 10);
+  qIndex      = 0;
+  totalFound  = 0;
+  totalMissed = 0;
+  showPhase(2);
+  renderQuestion();
+}
+
+function restartGame() { startGame(); }
+
+// ── RENDER QUESTION ──────────────────────────────────────────────────────────
+function renderQuestion() {
+  foundGroups = new Set();
+  revealed    = false;
+
+  const pct = (qIndex / questions.length) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = qIndex + ' / ' + questions.length;
+  document.getElementById('score-q').textContent        = qIndex + 1;
+  document.getElementById('score-found').textContent    = totalFound;
+  document.getElementById('score-missed').textContent   = totalMissed;
+
+  document.getElementById('feedback-row').innerHTML = '';
+  document.getElementById('next-btn-wrap').style.display = 'none';
+  document.getElementById('reveal-btn').style.display    = 'inline-block';
+
+  const sentence = questions[qIndex];
+  const container = document.getElementById('game-sentence');
+  container.innerHTML = '';
+
+  const groups = new Set(
+    sentence.tokens.filter(tok => tok.type === 'indicator').map(tok => tok.group)
+  );
+  container.dataset.totalGroups = groups.size;
+
+  sentence.tokens.forEach(tok => {
+    const span = document.createElement('span');
+    span.className = 'token';
+    span.textContent = tok.text;
+
+    if (tok.type === 'indicator') {
+      span.classList.add('clickable');
+      span.dataset.group = tok.group;
+      span.dataset.type  = 'indicator';
+      span.addEventListener('click', handleTokenClick);
+    } else if (tok.type === 'distractor') {
+      span.classList.add('clickable');
+      span.dataset.type = 'distractor';
+      span.addEventListener('click', handleTokenClick);
+    }
+
+    container.appendChild(span);
+  });
+}
+
+// ── CLICK HANDLER ────────────────────────────────────────────────────────────
+function handleTokenClick(e) {
+  if (revealed) return;
+  const span = e.currentTarget;
+  const type = span.dataset.type;
+
+  if (type === 'distractor') {
+    flashWrong(span);
+    feedback('That\'s a <strong>conclusion</strong> indicator — it signals what the argument is trying to establish, not the reason behind it. Keep looking for the premise!', 'fb-wrong');
+    return;
+  }
+
+  if (type === 'indicator') {
+    const group = span.dataset.group;
+    if (foundGroups.has(group)) return;
+
+    foundGroups.add(group);
+    totalFound++;
+
+    document.querySelectorAll(`[data-group="${group}"]`).forEach(el => {
+      el.classList.add('found');
+      el.classList.remove('clickable');
+      el.removeEventListener('click', handleTokenClick);
+    });
+
+    document.getElementById('score-found').textContent = totalFound;
+
+    const totalGroups = parseInt(document.getElementById('game-sentence').dataset.totalGroups);
+
+    if (foundGroups.size === totalGroups) {
+      feedback('Premise indicator found!', 'fb-correct');
+      showNext();
+    } else {
+      feedback('Found one! There may be more — keep looking.', 'fb-correct');
+    }
+  }
+}
+
+function flashWrong(span) {
+  span.classList.add('wrong-flash');
+  setTimeout(() => span.classList.remove('wrong-flash'), 500);
+}
+
+function feedback(html, cls) {
+  document.getElementById('feedback-row').innerHTML = `<span class="${cls}">${html}</span>`;
+}
+
+function showNext() {
+  document.getElementById('next-btn-wrap').style.display = 'block';
+  document.getElementById('reveal-btn').style.display    = 'none';
+}
+
+function revealCurrent() {
+  if (revealed) return;
+  revealed = true;
+
+  const container   = document.getElementById('game-sentence');
+  const totalGroups = parseInt(container.dataset.totalGroups);
+  const missed      = totalGroups - foundGroups.size;
+
+  document.querySelectorAll('.token.clickable[data-type="indicator"]').forEach(el => {
+    el.classList.add('found');
+    el.classList.remove('clickable');
+  });
+
+  totalMissed += missed;
+  document.getElementById('score-missed').textContent = totalMissed;
+
+  if (missed > 0) {
+    feedback(`Revealed ${missed} indicator${missed > 1 ? 's' : ''}. Try to catch them yourself next time!`, 'fb-info');
+  }
+
+  document.getElementById('reveal-btn').style.display = 'none';
+  showNext();
+}
+
+function nextQuestion() {
+  const container   = document.getElementById('game-sentence');
+  const totalGroups = parseInt(container.dataset.totalGroups);
+  const missed      = totalGroups - foundGroups.size;
+  if (!revealed && missed > 0) totalMissed += missed;
+
+  qIndex++;
+  if (qIndex >= questions.length) {
+    showResults();
+  } else {
+    renderQuestion();
+  }
+}
+
+// ── RESULTS ──────────────────────────────────────────────────────────────────
+function showResults() {
+  const total = totalFound + totalMissed;
+  const pct   = total > 0 ? Math.round((totalFound / total) * 100) : 0;
+
+  document.getElementById('final-score').textContent = pct + '%';
+  document.getElementById('res-found').textContent   = totalFound;
+  document.getElementById('res-missed').textContent  = totalMissed;
+
+  let msg = '';
+  if (pct === 100)    msg = 'Perfect — every premise indicator spotted.';
+  else if (pct >= 80) msg = 'Strong work. A few slipped by, but you have the idea.';
+  else if (pct >= 60) msg = 'Good start. Play again and they will start to jump out at you.';
+  else                msg = 'Tricky! The more you see them, the faster you will recognize them.';
+
+  document.getElementById('final-msg').textContent = msg;
+
+  document.getElementById('progress-fill').style.width   = '100%';
+  document.getElementById('progress-label').textContent  = questions.length + ' / ' + questions.length;
+
+  showPhase(3);
+}
+</script>
+</body>
+</html>
